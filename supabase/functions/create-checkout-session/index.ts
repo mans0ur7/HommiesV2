@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     const origin = req.headers.get("origin") ?? "https://localhost:5173";
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card", "mobilepay"],
+      automatic_payment_methods: { enabled: true },
       line_items: [{
         price_data: {
           currency: "dkk",
