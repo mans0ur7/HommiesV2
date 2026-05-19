@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Mail, Lock, Phone, AlertTriangle, CreditCard, ChevronRight, Ban, User, EyeOff, Eye } from "lucide-react";
+import { ArrowLeft, Mail, Lock, Phone, AlertTriangle, CreditCard, ChevronRight, Ban, User, EyeOff, Eye, ExternalLink, Loader2, ShieldCheck, Receipt } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/landing/Navbar";
 import AppLayout from "@/components/navigation/AppLayout";
@@ -25,6 +25,117 @@ interface BlockedUser {
 }
 
 type SettingsSection = 'payment' | 'visibility' | 'email' | 'password' | 'phone' | 'blocked' | 'report';
+
+const PaymentSection = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [loadingPortal, setLoadingPortal] = useState(false);
+
+  const openPortal = async () => {
+    setLoadingPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session");
+      if (error || !data?.url) throw new Error(error?.message ?? "Ukendt fejl");
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fejl", description: err.message, variant: "destructive" });
+      setLoadingPortal(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-xl font-semibold text-foreground mb-1">Betaling og priser</h2>
+        <p className="text-muted-foreground text-sm">Administrer dine betalingsoplysninger og se kvitteringer</p>
+      </div>
+
+      {/* Card management */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="p-4 border-b border-border bg-muted/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-secondary" />
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Betalingskort</p>
+              <p className="text-sm text-muted-foreground">Tilføj eller fjern kort til fremtidige køb</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          <Button
+            onClick={openPortal}
+            disabled={loadingPortal}
+            className="w-full"
+            variant="outline"
+          >
+            {loadingPortal
+              ? <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              : <ExternalLink className="w-4 h-4 mr-2" />}
+            Administrer betalingskort
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Åbner Stripes sikre kortportal i et nyt vindue
+          </p>
+        </div>
+      </div>
+
+      {/* Receipts */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="p-4 border-b border-border bg-muted/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
+              <Receipt className="w-5 h-5 text-secondary" />
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Kvitteringer og fakturaer</p>
+              <p className="text-sm text-muted-foreground">Se og download dine tidligere betalinger</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          <Button
+            onClick={openPortal}
+            disabled={loadingPortal}
+            className="w-full"
+            variant="outline"
+          >
+            {loadingPortal
+              ? <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              : <ExternalLink className="w-4 h-4 mr-2" />}
+            Se kvitteringer
+          </Button>
+        </div>
+      </div>
+
+      {/* Køb */}
+      <div className="rounded-xl border border-border overflow-hidden">
+        <div className="p-4 border-b border-border bg-muted/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-secondary" />
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Køb og opgraderinger</p>
+              <p className="text-sm text-muted-foreground">Boost, annonceperioder og søgeagenter</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          <Button
+            onClick={() => navigate("/payment")}
+            className="w-full"
+            variant="outline"
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            Gå til betalingssiden
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Settings = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -299,7 +410,7 @@ const Settings = () => {
   }
 
   const menuItems = [
-    { id: 'payment' as const, label: 'Betaling og priser', icon: CreditCard, color: 'text-secondary', isLink: true },
+    { id: 'payment' as const, label: 'Betaling og priser', icon: CreditCard, color: 'text-secondary' },
     ...(isRoomie ? [{ id: 'visibility' as const, label: 'Profilsynlighed', icon: hiddenFromExplore ? EyeOff : Eye, color: hiddenFromExplore ? 'text-orange-500' : 'text-green-500' }] : []),
     { id: 'email' as const, label: 'E-mailadresse', icon: Mail, color: 'text-secondary' },
     { id: 'password' as const, label: 'Adgangskode', icon: Lock, color: 'text-secondary' },
@@ -311,7 +422,7 @@ const Settings = () => {
   const renderContent = () => {
     switch (activeSection) {
       case 'payment':
-        return null; // Handled by navigation
+        return <PaymentSection />;
       
       case 'visibility':
         return (
@@ -610,20 +721,6 @@ const Settings = () => {
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeSection === item.id;
-
-                if (item.isLink) {
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => navigate("/payment")}
-                      className="flex items-center gap-3 px-3 lg:px-4 py-3 rounded-xl text-left transition-all border border-transparent hover:border-border/60 hover:bg-muted/40 group"
-                    >
-                      <Icon className="w-4 h-4 flex-shrink-0 text-foreground/60" />
-                      <span className="font-medium text-foreground text-xs lg:text-sm leading-tight flex-1 truncate">{item.label}</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-foreground/40 hidden lg:block group-hover:translate-x-0.5 transition-transform" />
-                    </button>
-                  );
-                }
 
                 return (
                   <button

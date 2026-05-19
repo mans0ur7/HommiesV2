@@ -6,16 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PRICES: Record<string, { amount: number; name: string }> = {
-  boost_1day:    { amount: 4900,  name: "Boost — 24 timer" },
-  boost_3day:    { amount: 9900,  name: "Boost — 3 dage" },
-  boost_7day:    { amount: 19900, name: "Boost — 7 dage" },
-  listing_7day:  { amount: 9900,  name: "Annonce — 7 dage" },
-  listing_14day: { amount: 17900, name: "Annonce — 14 dage" },
-  listing_30day: { amount: 29900, name: "Annonce — 30 dage" },
-  search_agent:  { amount: 2900,  name: "Ekstra søgeagent-plads" },
-};
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -23,10 +13,6 @@ Deno.serve(async (req) => {
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
       apiVersion: "2024-06-20",
     });
-
-    const { product_type, product_id } = await req.json();
-    const price = PRICES[product_type];
-    if (!price) throw new Error("Ugyldigt produkt");
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -42,7 +28,7 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Ikke autoriseret");
 
-    // Get or create Stripe customer so saved cards persist across purchases
+    // Get or create Stripe customer
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("stripe_customer_id, name")
@@ -66,21 +52,9 @@ Deno.serve(async (req) => {
 
     const origin = req.headers.get("origin") ?? "https://hommies.dk";
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      automatic_payment_methods: { enabled: true },
-      line_items: [{
-        price_data: {
-          currency: "dkk",
-          product_data: { name: price.name },
-          unit_amount: price.amount,
-        },
-        quantity: 1,
-      }],
-      mode: "payment",
-      success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&type=${product_type}&ref=${product_id ?? ""}`,
-      cancel_url: `${origin}/payment`,
-      metadata: { user_id: user.id, product_type, product_id: product_id ?? "" },
+      return_url: `${origin}/settings`,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
