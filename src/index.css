@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hommies Design System
+   Colors: Dark Blue (#032A3B) and Rose (#FFC2BB)
+   Font: DM Sans (closest to Neue Haas Grotesk Display Pro)
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 195 92% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 195 92% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 195 92% 12%;
+
+    /* Primary: Dark Blue #032A3B */
+    --primary: 195 92% 12%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Rose #FFC2BB */
+    --secondary: 6 100% 87%;
+    --secondary-foreground: 195 92% 12%;
+
+    /* Accent: Rose */
+    --accent: 6 100% 87%;
+    --accent-foreground: 195 92% 12%;
+
+    /* Warm beige/skin tone for section backgrounds */
+    --warm: 30 50% 95%;
+    --warm-foreground: 195 92% 12%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 0 0% 47%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 195 92% 12%;
+
+    --radius: 0.5rem;
+
+    /* Footer: Dark teal/blue */
+    --footer: 195 92% 12%;
+    --footer-foreground: 0 0% 100%;
+
+    /* Glass effect */
+    --glass: 0 0% 99%;
+    --glass-border: 220 13% 91%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 195 92% 12%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 6 100% 87%;
+    --sidebar-accent-foreground: 195 92% 12%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 195 92% 12%;
+  }
+
+  .dark {
+    --background: 195 92% 12%;
+    --foreground: 0 0% 100%;
+
+    --card: 195 80% 15%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 195 80% 15%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 6 100% 87%;
+    --primary-foreground: 195 92% 12%;
+
+    --secondary: 195 60% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 195 60% 20%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 6 100% 87%;
+    --accent-foreground: 195 92% 12%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 195 60% 20%;
+    --input: 195 60% 20%;
+    --ring: 6 100% 87%;
+
+    --sidebar-background: 195 80% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 6 100% 87%;
+    --sidebar-primary-foreground: 195 92% 12%;
+    --sidebar-accent: 195 60% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 195 60% 20%;
+    --sidebar-ring: 6 100% 87%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-gradient-to-r from-white/95 to-white/85 backdrop-blur-lg shadow-lg;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Hide scrollbar for horizontal scroll sections */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Smooth micro-interactions */
+@layer base {
+  /* Improved focus states for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* Smooth transitions for interactive elements */
+  a, button, [role="button"] {
+    @apply transition-all duration-200;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Loading spinner utility */
+@keyframes spin-smooth {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-smooth {
+  animation: spin-smooth 1s linear infinite;
+}
+
+/* Safe area for iPhone home indicator / bottom nav */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,574 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Home, Users, User, MessageCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import Navbar from "@/components/landing/Navbar";
+import AppLayout from "@/components/navigation/AppLayout";
+import PendingRequests from "@/components/inbox/PendingRequests";
+import ChatArea from "@/components/inbox/ChatArea";
+import MatchModal from "@/components/inbox/MatchModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useGroupRequests } from "@/hooks/useGroupRequests";
+import { useIsMobile } from "@/hooks/use-mobile";
+import InboxConversationList from "@/components/inbox/InboxConversationList";
+import type { Conversation, MatchRequest } from "@/types/inbox";
+
+type TabType = "landlord" | "roomie";
+
+const Inbox = () => {
+  const { user, profile, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const isLandlord = profile?.user_type === "landlord";
+  
+  // Tabs are now "landlord" or "roomie" - default based on user type
+  const [activeTab, setActiveTab] = useState<TabType>(isLandlord ? "roomie" : "landlord");
+
+  // Group requests hook
+  const { receivedRequests: groupRequests, respondToRequest: handleGroupResponse, refetch: refetchGroupRequests } = useGroupRequests();
+
+  // All conversations (we'll filter them based on type)
+  const [allConversations, setAllConversations] = useState<Conversation[]>([]);
+  const [groupConversations, setGroupConversations] = useState<Conversation[]>([]);
+
+  // Keep pending requests per tab so accepted/rejected ones stay hidden
+  const [pendingRequestsByTab, setPendingRequestsByTab] = useState<
+    Record<"landlord" | "roomie", MatchRequest[]>
+  >({ landlord: [], roomie: [] });
+
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [showMatchModal, setShowMatchModal] = useState(false);
+  const [matchedUser, setMatchedUser] = useState<{ name: string; avatar_url: string | null } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showMobileChat, setShowMobileChat] = useState(false);
+
+  // Update default tab when profile loads
+  useEffect(() => {
+    if (profile?.user_type) {
+      setActiveTab(isLandlord ? "roomie" : "landlord");
+    }
+  }, [profile?.user_type, isLandlord]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    
+    if (!user) {
+      navigate("/auth", { replace: true });
+      return;
+    }
+    fetchData();
+  }, [user, authLoading]);
+
+  const fetchData = async () => {
+    if (!user) return;
+    setLoading(true);
+    await Promise.all([fetchAllConversations(), fetchAllPendingRequests()]);
+    setLoading(false);
+  };
+
+  const fetchAllPendingRequests = async () => {
+    await Promise.all([
+      fetchPendingRequestsForTab("roomie"),
+      fetchPendingRequestsForTab("landlord"),
+    ]);
+  };
+
+  const fetchAllConversations = async () => {
+    if (!user) return;
+
+    const [{ data: participations }, { data: blockedUsers }] = await Promise.all([
+      supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", user.id),
+      supabase
+        .from("blocked_users")
+        .select("blocked_user_id")
+        .eq("user_id", user.id),
+    ]);
+
+    if (!participations?.length) {
+      setAllConversations([]);
+      setGroupConversations([]);
+      return;
+    }
+
+    const conversationIds = participations.map((p) => p.conversation_id);
+    const blockedUserIds = new Set((blockedUsers || []).map((entry) => entry.blocked_user_id));
+
+    // Fetch all conversations (both with and without group_id, but exclude internal group chats)
+    const { data: regularConvos } = await supabase
+      .from("conversations")
+      .select("*")
+      .in("id", conversationIds)
+      .is("group_id", null)
+      .order("updated_at", { ascending: false });
+
+    // Only show landlord-group chats for groups the user is still part of (creator or accepted member)
+    const [{ data: memberGroups }, { data: createdGroups }] = await Promise.all([
+      supabase
+        .from("housing_group_members")
+        .select("group_id")
+        .eq("user_id", user.id)
+        .eq("status", "accepted"),
+      supabase
+        .from("housing_groups")
+        .select("id")
+        .eq("created_by", user.id),
+    ]);
+
+    const allowedGroupIds = Array.from(
+      new Set([
+        ...(memberGroups?.map((g) => g.group_id) || []),
+        ...(createdGroups?.map((g) => g.id) || []),
+      ])
+    );
+
+    // Fetch group conversations (with group_id AND property_id - landlord-group chats only)
+    const { data: groupConvos } = allowedGroupIds.length
+      ? await supabase
+          .from("conversations")
+          .select("*")
+          .in("id", conversationIds)
+          .in("group_id", allowedGroupIds)
+          .not("property_id", "is", null)
+          .order("updated_at", { ascending: false })
+      : { data: [] as any[] };
+
+    const processConversations = async (convos: any[]) => {
+      if (!convos?.length) return [];
+
+      const processedConversations = await Promise.all(
+        convos.map(async (conv) => {
+          const { data: participants } = await supabase
+            .from("conversation_participants")
+            .select("user_id")
+            .eq("conversation_id", conv.id)
+            .neq("user_id", user.id);
+
+          let groupInfo = null;
+          if (conv.group_id) {
+            const { data: groupData } = await supabase
+              .from("housing_groups")
+              .select("id, name")
+              .eq("id", conv.group_id)
+              .maybeSingle();
+
+            const memberAvatars: (string | null)[] = [];
+            for (const p of participants || []) {
+              const { data: memberProfile } = await supabase
+                .from("profiles")
+                .select("avatar_url")
+                .eq("user_id", p.user_id)
+                .maybeSingle();
+              memberAvatars.push(memberProfile?.avatar_url || null);
+            }
+
+            groupInfo = {
+              id: groupData?.id || conv.group_id,
+              name: groupData?.name || "Gruppechat",
+              memberCount: (participants?.length || 0) + 1,
+              memberAvatars: memberAvatars.slice(0, 3),
+            };
+          }
+
+          const otherUserId = conv.group_id ? undefined : participants?.[0]?.user_id;
+
+          let otherProfile = null;
+          if (otherUserId) {
+            const { data: profileData } = await supabase
+              .from("profiles")
+              .select("id, name, avatar_url, age, study, user_id, user_type")
+              .eq("user_id", otherUserId)
+              .maybeSingle();
+            otherProfile = profileData;
+          }
+
+          const { data: messages } = await supabase
+            .from("messages")
+            .select("content, created_at, sender_id")
+            .eq("conversation_id", conv.id)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          const { count } = await supabase
+            .from("messages")
+            .select("*", { count: "exact", head: true })
+            .eq("conversation_id", conv.id)
+            .neq("sender_id", user.id)
+            .is("read_at", null);
+
+          let propertyInfo = null;
+          if (conv.property_id) {
+            const { data: propertyData } = await supabase
+              .from("properties")
+              .select("id, title, images")
+              .eq("id", conv.property_id)
+              .maybeSingle();
+            
+            if (propertyData) {
+              propertyInfo = {
+                id: propertyData.id,
+                title: propertyData.title,
+                image: propertyData.images?.[0],
+              };
+            }
+          }
+
+          const displayType = otherProfile?.user_type === "landlord" ? "landlord" : "roomie";
+
+          return {
+            id: conv.id,
+            type: displayType as "landlord" | "roomie",
+            updated_at: conv.updated_at,
+            property_id: conv.property_id,
+            group_id: conv.group_id,
+            property: propertyInfo,
+            groupInfo,
+            otherUser: {
+              id: otherProfile?.user_id || otherUserId || "",
+              name: groupInfo?.name || otherProfile?.name || "Ukendt",
+              avatar_url: otherProfile?.avatar_url,
+              age: otherProfile?.age,
+              study: otherProfile?.study,
+            },
+            lastMessage: messages?.[0],
+            unreadCount: count || 0,
+          };
+        })
+      );
+
+      return processedConversations.filter((conversation) => {
+        if (conversation.group_id) {
+          return true;
+        }
+
+        if (!conversation.otherUser.id || conversation.otherUser.id === user.id) {
+          return false;
+        }
+
+        if (blockedUserIds.has(conversation.otherUser.id)) {
+          return false;
+        }
+
+        return true;
+      });
+    };
+
+    const [processedRegular, processedGroup] = await Promise.all([
+      processConversations(regularConvos || []),
+      processConversations(groupConvos || []),
+    ]);
+
+    setAllConversations(processedRegular);
+    setGroupConversations(processedGroup);
+  };
+
+  const fetchPendingRequestsForTab = async (tab: "roomie" | "landlord") => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("match_requests")
+      .select("*")
+      .eq("receiver_id", user.id)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (!data?.length) {
+      setPendingRequestsByTab((prev) => ({ ...prev, [tab]: [] }));
+      return;
+    }
+
+    const requestsWithProfiles = await Promise.all(
+      data.map(async (req) => {
+        const { data: senderProfile } = await supabase
+          .from("profiles")
+          .select("id, name, avatar_url, age, study, user_id, user_type")
+          .eq("user_id", req.sender_id)
+          .maybeSingle();
+
+        const senderType = senderProfile?.user_type === "landlord" ? "landlord" : "roomie";
+
+        return {
+          ...req,
+          type: senderType as "landlord" | "roomie",
+          sender: {
+            id: senderProfile?.user_id || req.sender_id,
+            name: senderProfile?.name || "Ukendt",
+            avatar_url: senderProfile?.avatar_url,
+            age: senderProfile?.age,
+            study: senderProfile?.study,
+          },
+        };
+      })
+    );
+
+    const filteredRequests = requestsWithProfiles.filter((req) => req.type === tab);
+    setPendingRequestsByTab((prev) => ({ ...prev, [tab]: filteredRequests }));
+  };
+
+  const handleAcceptRequest = async (requestId: string) => {
+    if (!user) return;
+    
+    const request = 
+      pendingRequestsByTab.landlord.find((r) => r.id === requestId) ||
+      pendingRequestsByTab.roomie.find((r) => r.id === requestId);
+    
+    if (!request) return;
+
+    const { error: updateError } = await supabase
+      .from("match_requests")
+      .update({ status: "accepted" })
+      .eq("id", requestId);
+
+    if (updateError) {
+      console.error("Error updating match request:", updateError);
+      toast.error("Kunne ikke acceptere anmodning");
+      return;
+    }
+
+    const { data, error } = await supabase.functions.invoke("create-conversation", {
+      body: {
+        type: request.type,
+        participant_ids: [user.id, request.sender_id],
+        property_id: request.property_id ?? null,
+      },
+    });
+
+    if (error) {
+      console.error("Error creating conversation:", error);
+      toast.error("Kunne ikke oprette chat");
+      return;
+    }
+
+    const conversation = (data as any)?.conversation as { id: string; type: "landlord" | "roomie"; updated_at: string; property_id?: string } | undefined;
+
+    setPendingRequestsByTab((prev) => ({
+      landlord: prev.landlord.filter((r) => r.id !== requestId),
+      roomie: prev.roomie.filter((r) => r.id !== requestId),
+    }));
+
+    if (conversation) {
+      const newConversation: Conversation = {
+        id: conversation.id,
+        type: conversation.type,
+        updated_at: conversation.updated_at,
+        property_id: request.property_id ?? undefined,
+        otherUser: {
+          id: request.sender.id,
+          name: request.sender.name,
+          avatar_url: request.sender.avatar_url,
+          age: request.sender.age,
+          study: request.sender.study,
+        },
+        lastMessage: undefined,
+        unreadCount: 0,
+      };
+
+      setAllConversations((prev) => [newConversation, ...prev]);
+
+      setMatchedUser({
+        name: request.sender.name,
+        avatar_url: request.sender.avatar_url,
+      });
+      setShowMatchModal(true);
+      
+      setSelectedConversation(newConversation);
+      
+      // Switch to the appropriate tab
+      setActiveTab(request.type);
+    }
+
+    fetchData();
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    await supabase
+      .from("match_requests")
+      .update({ status: "rejected" })
+      .eq("id", requestId);
+
+    setPendingRequestsByTab((prev) => ({
+      landlord: prev.landlord.filter((r) => r.id !== requestId),
+      roomie: prev.roomie.filter((r) => r.id !== requestId),
+    }));
+  };
+
+  // Filter conversations based on activeTab (landlord or roomie)
+  const filteredConversations = allConversations
+    .filter((conv) => conv.type === activeTab)
+    .filter((conv) => conv.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // Filter group conversations based on search
+  const filteredGroupConversations = groupConversations
+    .filter((conv) => conv.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const handleSelectConversation = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+
+    if (conversation.unreadCount > 0) {
+      // Update in the appropriate list
+      if (conversation.group_id) {
+        setGroupConversations((prev) =>
+          prev.map((c) => c.id === conversation.id ? { ...c, unreadCount: 0 } : c)
+        );
+      } else {
+        setAllConversations((prev) =>
+          prev.map((c) => c.id === conversation.id ? { ...c, unreadCount: 0 } : c)
+        );
+      }
+    }
+  };
+
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Indlæser...</div>
+      </div>
+    );
+  }
+
+  const roomieRequests = [...pendingRequestsByTab.roomie];
+  const landlordRequests = [...pendingRequestsByTab.landlord];
+
+  const handleSelectConversationMobile = (conversation: Conversation) => {
+    handleSelectConversation(conversation);
+    const isMobileView = window.matchMedia("(max-width: 767px)").matches;
+    setShowMobileChat(isMobileView);
+  };
+
+  return (
+    <AppLayout hideBottomNav={showMobileChat} hideHeader={showMobileChat}>
+      <div className="min-h-screen bg-background flex flex-col">
+        {!isMobile && <Navbar />}
+
+        <main className="flex-1 flex flex-col" style={{ height: 'calc(100vh - 48px)', minHeight: 0 }}>
+          <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-12 py-4 sm:py-8 flex flex-col flex-1 min-h-0">
+
+            {/* Editorial Header */}
+            <div className={`mb-5 md:mb-8 ${showMobileChat ? "hidden md:block" : "block"}`}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Beskeder</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-medium tracking-tight text-foreground leading-[1.05]">
+                Indbakke.
+              </h1>
+              <p className="mt-2 text-sm text-foreground/60 hidden sm:block">
+                Dine samtaler og anmodninger samlet ét sted.
+              </p>
+            </div>
+
+            {/* Pending Requests */}
+            <div className={`flex-shrink-0 ${showMobileChat ? "hidden md:block" : "block"}`}>
+              <PendingRequests
+                roomieRequests={roomieRequests}
+                landlordRequests={landlordRequests}
+                groupRequests={isLandlord ? groupRequests : []}
+                onAccept={handleAcceptRequest}
+                onReject={handleRejectRequest}
+                onAcceptGroup={async (requestId) => {
+                  const result = await handleGroupResponse(requestId, true);
+                  if (result.success) {
+                    toast.success("Gruppe-anmodning accepteret!");
+                    await fetchData();
+
+                    if (result.conversationId) {
+                      const conv = groupConversations.find(c => c.id === result.conversationId);
+                      if (conv) {
+                        handleSelectConversation(conv);
+                      }
+                    }
+                  }
+                }}
+                onRejectGroup={async (requestId) => {
+                  const result = await handleGroupResponse(requestId, false);
+                  if (result.success) {
+                    toast.success("Gruppe-anmodning afvist");
+                  }
+                }}
+                isLandlord={isLandlord}
+              />
+            </div>
+
+            {/* Main Chat Layout */}
+            <div className="flex bg-background rounded-2xl border border-border/60 overflow-hidden flex-1 min-h-0">
+              {/* Left side: Toggle + Conversation Lists */}
+              <div className={`${showMobileChat ? 'hidden' : 'flex'} md:flex w-full md:w-[340px] lg:w-[380px] flex-col border-r border-border/60`}>
+                {/* Toggle: Udlejer / Roomies */}
+                <div className="px-3 md:px-4 py-3 md:py-4 border-b border-border/60 flex-shrink-0">
+                  <div className="inline-flex items-center bg-muted/50 rounded-full p-1 border border-border/60 w-full">
+                    <button
+                      onClick={() => setActiveTab("landlord")}
+                      className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all flex-1 ${
+                        activeTab === "landlord"
+                          ? "bg-foreground text-background shadow-sm"
+                          : "text-foreground/60 hover:text-foreground"
+                      }`}
+                    >
+                      <Home className="w-3.5 h-3.5" />
+                      <span>Udlejer</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("roomie")}
+                      className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all flex-1 ${
+                        activeTab === "roomie"
+                          ? "bg-foreground text-background shadow-sm"
+                          : "text-foreground/60 hover:text-foreground"
+                      }`}
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      <span>Roomies</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Conversation Lists with Sections */}
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  <InboxConversationList
+                    regularConversations={filteredConversations}
+                    groupConversations={filteredGroupConversations}
+                    selectedId={selectedConversation?.id}
+                    onSelect={handleSelectConversationMobile}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    loading={loading}
+                    activeTab={activeTab}
+                  />
+                </div>
+              </div>
+
+              {/* Right side: Chat Area */}
+              <div className={`${showMobileChat ? 'flex' : 'hidden'} md:flex flex-1 flex-col min-w-0 min-h-0 bg-background`}>
+                <ChatArea
+                  conversation={selectedConversation}
+                  currentUserId={user.id}
+                  currentUserAvatar={profile?.avatar_url}
+                  onMessageSent={fetchAllConversations}
+                  onConversationDeleted={() => {
+                    setSelectedConversation(null);
+                    setShowMobileChat(false);
+                    fetchAllConversations();
+                  }}
+                  onBack={() => setShowMobileChat(false)}
+                  showBackButton={showMobileChat}
+                />
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <MatchModal
+          open={showMatchModal}
+          onClose={() => setShowMatchModal(false)}
+          matchedUser={matchedUser}
+          currentUserAvatar={profile?.avatar_url}
+        />
+      </div>
+    </AppLayout>
+  );
+};
+
+export default Inbox;
