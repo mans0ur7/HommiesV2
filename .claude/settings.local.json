@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Add free 60-day trial: auto 30-day listing for new landlords\"; git push)"
+    ]
+  }
+}

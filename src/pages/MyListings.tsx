@@ -7,7 +7,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Eye, EyeOff, MapPin, Home, Check, ChevronLeft, ChevronRight, X, CreditCard, RefreshCw, Sparkles, Clock, Upload, Image as ImageIcon, AlertCircle } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, MapPin, Home, Check, ChevronLeft, ChevronRight, X, CreditCard, RefreshCw, Sparkles, Clock, Upload, Image as ImageIcon, AlertCircle, Gift } from "lucide-react";
 import { danishCities, getMatchingCities, isValidCity, getProperCityName } from "@/data/danishCities";
 import { useDawaAutocomplete } from "@/hooks/useDawaAutocomplete";
 import { format, differenceInDays } from "date-fns";
@@ -187,6 +187,8 @@ const LAUNCH_OFFER_DISCOUNT = 0.5; // 50% discount
 const LAUNCH_OFFER_END_DATE = new Date("2026-02-24"); // 30 days after launch
 const isLaunchPeriodActive = () => new Date() < LAUNCH_OFFER_END_DATE;
 
+const FREE_TRIAL_DAYS = 60;
+
 const MyListings = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
@@ -225,6 +227,14 @@ const MyListings = () => {
     if (hasExistingListings === null) return false; // Still loading
     return !hasExistingListings; // Only eligible if no existing listings
   }, [editingProperty, hasExistingListings]);
+
+  const freeTrialInfo = useMemo(() => {
+    if (!profile?.created_at) return { active: false, daysLeft: 0, daysUsed: 0 };
+    const created = new Date(profile.created_at);
+    const daysUsed = differenceInDays(new Date(), created);
+    const daysLeft = Math.max(0, FREE_TRIAL_DAYS - daysUsed);
+    return { active: daysLeft > 0, daysLeft, daysUsed };
+  }, [profile?.created_at]);
 
   // Calculate discounted price for listing (always round down to be fair to customers)
   const getListingPrice = (originalPrice: number, applyDiscount: boolean) => {
@@ -423,18 +433,26 @@ const MyListings = () => {
 
   const togglePublish = async (propertyId: string, currentStatus: boolean) => {
     try {
+      const updateData: Record<string, any> = { is_published: !currentStatus };
+      if (!currentStatus && freeTrialInfo.active) {
+        updateData.expires_at = addDays(new Date(), 30).toISOString();
+        updateData.listing_period = 30;
+      }
+
       const { error } = await supabase
         .from("properties")
-        .update({ is_published: !currentStatus })
+        .update(updateData)
         .eq("id", propertyId);
 
       if (error) throw error;
 
       toast({
         title: currentStatus ? "Annonce skjult" : "Annonce publiceret",
-        description: currentStatus 
-          ? "Din annonce er nu skjult for andre" 
-          : "Din annonce er nu synlig for alle",
+        description: currentStatus
+          ? "Din annonce er nu skjult for andre"
+          : freeTrialInfo.active
+            ? "Din annonce er nu synlig i 30 dage (gratis periode)"
+            : "Din annonce er nu synlig for alle",
       });
 
       fetchProperties();
@@ -921,16 +939,20 @@ const nextStep = () => {
 
   const handlePaymentAndSubmit = async () => {
     try {
-      const period = listingPeriods.find(p => p.days === selectedListingPeriod);
+      const isFreeTrialListing = freeTrialInfo.active && !editingProperty;
+
+      const period = isFreeTrialListing
+        ? { days: 30, price: 0, label: "30 dage" }
+        : listingPeriods.find(p => p.days === selectedListingPeriod);
       if (!period) return;
 
-      // Calculate price with launch offer if applicable (only for new listings)
-      const finalPrice = editingProperty 
-        ? period.price 
-        : getListingPrice(period.price, true);
-      const usedLaunchOffer = !editingProperty && isLaunchOfferEligible;
+      // Calculate price with launch offer if applicable (only for non-free-trial new listings)
+      const finalPrice = editingProperty
+        ? period.price
+        : isFreeTrialListing ? 0 : getListingPrice(period.price, true);
+      const usedLaunchOffer = !editingProperty && isLaunchOfferEligible && !isFreeTrialListing;
 
-      const expiresAt = addDays(new Date(), selectedListingPeriod);
+      const expiresAt = addDays(new Date(), period.days);
 
       const propertyData = {
         user_id: user?.id,
@@ -991,7 +1013,9 @@ const nextStep = () => {
         const discountText = usedLaunchOffer ? " (inkl. 50% launch-rabat)" : "";
         toast({
           title: "Annonce oprettet!",
-          description: `Din annonce er nu aktiv i ${selectedListingPeriod} dage. Betaling: ${finalPrice} kr${discountText}`,
+          description: isFreeTrialListing
+            ? `Din annonce er gratis aktiv i 30 dage (gratis periode)`
+            : `Din annonce er nu aktiv i ${period.days} dage. Betaling: ${finalPrice} kr${discountText}`,
         });
         
         // Update hasExistingListings immediately so launch offer is no longer shown
@@ -1873,69 +1897,102 @@ const nextStep = () => {
                     <CreditCard className="w-12 h-12 mx-auto text-secondary mb-4" />
                     <h3 className="text-xl font-semibold text-primary mb-2">Vælg annonceperiode</h3>
                     <p className="text-muted-foreground">
-                      For at offentliggøre din annonce skal du vælge en periode. Du betaler kun for den tid, annoncen er aktiv.
+                      {freeTrialInfo.active && !editingProperty
+                        ? "Du er i din gratis periode — offentliggør din annonce uden betaling."
+                        : "For at offentliggøre din annonce skal du vælge en periode. Du betaler kun for den tid, annoncen er aktiv."}
                     </p>
                   </div>
 
-                  {/* Launch offer banner */}
-                  {isLaunchOfferEligible && (
-                    <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-                        <Sparkles className="w-5 h-5 text-white" />
+                  {/* Free trial banner */}
+                  {freeTrialInfo.active && !editingProperty ? (
+                    <>
+                      <div className="bg-green-500/10 border-2 border-green-500/40 rounded-xl p-5 flex items-start gap-4">
+                        <div className="w-11 h-11 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                          <Gift className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground">Gratis periode — {freeTrialInfo.daysLeft} dage tilbage</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Din annonce offentliggøres gratis i 30 dage. Du har brugt {freeTrialInfo.daysUsed} af {FREE_TRIAL_DAYS} gratis dage.
+                          </p>
+                          <div className="mt-3 w-full bg-muted rounded-full h-1.5">
+                            <div
+                              className="bg-green-500 h-1.5 rounded-full"
+                              style={{ width: `${Math.min(100, (freeTrialInfo.daysUsed / FREE_TRIAL_DAYS) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-foreground">🎉 Launch-tilbud: 50% på din første annonce!</p>
-                        <p className="text-sm text-muted-foreground">Kun tilgængeligt for din allerførste annonce. Gælder kun annonceprisen.</p>
-                      </div>
-                    </div>
-                  )}
 
-                  <div className="grid gap-4">
-                    {listingPeriods.map((period) => {
-                      const discountedPrice = getListingPrice(period.price, true);
-                      const showDiscount = isLaunchOfferEligible && discountedPrice < period.price;
-                      
-                      return (
-                        <button
-                          key={period.days}
-                          type="button"
-                          onClick={() => setSelectedListingPeriod(period.days)}
-                          className={`relative flex items-center justify-between p-6 rounded-xl border-2 transition-all ${
-                            selectedListingPeriod === period.days
-                              ? 'border-secondary bg-secondary/10 shadow-md'
-                              : 'border-border hover:border-secondary/50 hover:bg-muted/50'
-                          }`}
-                        >
-                          {/* Popular / Best value badges */}
-                          {period.popular && (
-                            <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-secondary text-secondary-foreground rounded-full">
-                              Mest populær
-                            </span>
-                          )}
-                          {period.bestValue && (
-                            <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-green-500 text-white rounded-full">
-                              Bedste værdi
-                            </span>
-                          )}
-                          
-                          <div className="text-left">
-                            <p className="font-semibold text-lg text-foreground">{period.label}</p>
-                            <p className="text-sm text-muted-foreground">Din annonce er synlig for alle roomies</p>
+                      <div className="flex items-center justify-between p-6 rounded-xl border-2 border-green-500 bg-green-500/5">
+                        <div>
+                          <p className="font-semibold text-lg text-foreground">30 dage</p>
+                          <p className="text-sm text-muted-foreground">Din annonce er synlig for alle roomies</p>
+                        </div>
+                        <p className="text-2xl font-bold text-green-600">Gratis</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Launch offer banner */}
+                      {isLaunchOfferEligible && (
+                        <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4 flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                            <Sparkles className="w-5 h-5 text-white" />
                           </div>
-                          <div className="text-right">
-                            {showDiscount ? (
-                              <div className="flex flex-col items-end">
-                                <p className="text-sm text-muted-foreground line-through">{period.price} kr</p>
-                                <p className="text-2xl font-bold text-green-600">{discountedPrice} kr</p>
+                          <div>
+                            <p className="font-semibold text-foreground">Launch-tilbud: 50% på din første annonce!</p>
+                            <p className="text-sm text-muted-foreground">Kun tilgængeligt for din allerførste annonce. Gælder kun annonceprisen.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid gap-4">
+                        {listingPeriods.map((period) => {
+                          const discountedPrice = getListingPrice(period.price, true);
+                          const showDiscount = isLaunchOfferEligible && discountedPrice < period.price;
+
+                          return (
+                            <button
+                              key={period.days}
+                              type="button"
+                              onClick={() => setSelectedListingPeriod(period.days)}
+                              className={`relative flex items-center justify-between p-6 rounded-xl border-2 transition-all ${
+                                selectedListingPeriod === period.days
+                                  ? 'border-secondary bg-secondary/10 shadow-md'
+                                  : 'border-border hover:border-secondary/50 hover:bg-muted/50'
+                              }`}
+                            >
+                              {period.popular && (
+                                <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-secondary text-secondary-foreground rounded-full">
+                                  Mest populær
+                                </span>
+                              )}
+                              {period.bestValue && (
+                                <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-green-500 text-white rounded-full">
+                                  Bedste værdi
+                                </span>
+                              )}
+                              <div className="text-left">
+                                <p className="font-semibold text-lg text-foreground">{period.label}</p>
+                                <p className="text-sm text-muted-foreground">Din annonce er synlig for alle roomies</p>
                               </div>
-                            ) : (
-                              <p className="text-2xl font-bold text-secondary">{period.price} kr</p>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                              <div className="text-right">
+                                {showDiscount ? (
+                                  <div className="flex flex-col items-end">
+                                    <p className="text-sm text-muted-foreground line-through">{period.price} kr</p>
+                                    <p className="text-2xl font-bold text-green-600">{discountedPrice} kr</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-2xl font-bold text-secondary">{period.price} kr</p>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
 
                   {/* Summary */}
                   <div className="bg-muted/50 rounded-xl p-6 mt-6">
@@ -1959,11 +2016,13 @@ const nextStep = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Annonceperiode:</span>
-                        <span className="font-medium text-foreground">{listingPeriods.find(p => p.days === selectedListingPeriod)?.label}</span>
+                        <span className="font-medium text-foreground">
+                          {freeTrialInfo.active && !editingProperty ? "30 dage" : listingPeriods.find(p => p.days === selectedListingPeriod)?.label}
+                        </span>
                       </div>
-                      
-                      {/* Show discount line if eligible */}
-                      {isLaunchOfferEligible && (
+
+                      {/* Show discount line if eligible (only when not free trial) */}
+                      {isLaunchOfferEligible && !freeTrialInfo.active && (
                         <>
                           <div className="flex justify-between text-muted-foreground">
                             <span>Normalpris:</span>
@@ -1978,12 +2037,14 @@ const nextStep = () => {
                           </div>
                         </>
                       )}
-                      
+
                       <div className="border-t border-border pt-2 mt-2">
                         <div className="flex justify-between text-base">
                           <span className="font-medium text-primary">Total at betale:</span>
-                          <span className={`font-bold ${isLaunchOfferEligible ? 'text-green-600' : 'text-secondary'}`}>
-                            {getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr
+                          <span className={`font-bold ${freeTrialInfo.active && !editingProperty ? 'text-green-600' : isLaunchOfferEligible ? 'text-green-600' : 'text-secondary'}`}>
+                            {freeTrialInfo.active && !editingProperty
+                              ? "0 kr (gratis)"
+                              : `${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr`}
                           </span>
                         </div>
                       </div>
@@ -2020,13 +2081,17 @@ const nextStep = () => {
                     type="button"
                     onClick={handlePaymentAndSubmit}
                     disabled={!canProceed()}
-                    className={`${isLaunchOfferEligible && !editingProperty ? 'bg-green-600 hover:bg-green-700' : 'bg-secondary hover:bg-secondary/90'} text-secondary-foreground w-full sm:w-auto order-1 sm:order-2`}
+                    className={`${freeTrialInfo.active && !editingProperty ? 'bg-green-600 hover:bg-green-700' : isLaunchOfferEligible && !editingProperty ? 'bg-green-600 hover:bg-green-700' : 'bg-secondary hover:bg-secondary/90'} text-secondary-foreground w-full sm:w-auto order-1 sm:order-2`}
                   >
-                    <CreditCard className="w-4 h-4 mr-2 flex-shrink-0" />
+                    {freeTrialInfo.active && !editingProperty
+                      ? <Gift className="w-4 h-4 mr-2 flex-shrink-0" />
+                      : <CreditCard className="w-4 h-4 mr-2 flex-shrink-0" />}
                     <span className="whitespace-nowrap">
-                      {editingProperty 
-                        ? `Betal ${listingPeriods.find(p => p.days === selectedListingPeriod)?.price} kr og publicer`
-                        : `Betal ${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr og publicer`
+                      {freeTrialInfo.active && !editingProperty
+                        ? "Offentliggør gratis"
+                        : editingProperty
+                          ? `Betal ${listingPeriods.find(p => p.days === selectedListingPeriod)?.price} kr og publicer`
+                          : `Betal ${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr og publicer`
                       }
                     </span>
                   </Button>
