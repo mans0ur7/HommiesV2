@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, type ChangeEvent } from "react";
+import { useEffect, useState, useMemo, lazy, Suspense, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/landing/Navbar";
@@ -33,6 +33,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import GenderCompositionSelector from "@/components/listings/GenderCompositionSelector";
+
+const AddressMap = lazy(() => import("@/components/listings/AddressMap"));
 
 interface Property {
   id: string;
@@ -218,6 +220,8 @@ const MyListings = () => {
   const [hasExistingListings, setHasExistingListings] = useState<boolean | null>(null);
   const [addressQuery, setAddressQuery] = useState("");
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [addressConfirmed, setAddressConfirmed] = useState(false);
   const { results: dawaResults, loading: dawaLoading } = useDawaAutocomplete(addressQuery, showAddressSuggestions);
 
   // Check if launch offer is available for this landlord
@@ -296,6 +300,9 @@ const MyListings = () => {
     setFloorPlanUrl(null);
     setFormData(initialFormData);
     setCurrentStep(1);
+    setAddressQuery("");
+    setSelectedCoords(null);
+    setAddressConfirmed(false);
     setShowForm(true);
   };
 
@@ -342,6 +349,9 @@ const MyListings = () => {
     setUploadedImages(property.images || []);
     setFloorPlanUrl((property as any).floor_plan_url || null);
     setCurrentStep(1);
+    setAddressQuery(property.address ? `${property.address}, ${property.city}` : "");
+    setSelectedCoords(null);
+    setAddressConfirmed(true); // existing address counts as confirmed
     setShowForm(true);
     fetchProperties();
 
@@ -359,6 +369,9 @@ const MyListings = () => {
     setUploadedImages([]);
     setFloorPlanUrl(null);
     setDraftListingId(null);
+    setAddressQuery("");
+    setSelectedCoords(null);
+    setAddressConfirmed(false);
   };
 
   const handleSubmit = async () => {
@@ -761,7 +774,7 @@ const nextStep = () => {
       case 1:
         return formData.title.trim() !== "";
       case 2:
-        return addressValid && cityValid && isValidPostalCode;
+        return addressConfirmed && addressValid && cityValid && isValidPostalCode;
       case 3:
         return formData.size_sqm.trim() !== "";
       case 4:
@@ -1122,142 +1135,116 @@ const nextStep = () => {
               {/* Step 2: Location */}
               {currentStep === 2 && (
                 <div className="space-y-6 animate-fade-in">
-                  <div className="relative">
-                    <label className="block text-sm font-medium text-primary mb-2">Søg adresse, by eller postnummer</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                      <input
-                        type="text"
-                        value={addressQuery}
-                        onChange={(e) => { setAddressQuery(e.target.value); setShowAddressSuggestions(true); }}
-                        onFocus={() => setShowAddressSuggestions(true)}
-                        onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 150)}
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
-                        placeholder="F.eks. Vestergade 12, Nørrebro eller 2100"
-                      />
-                    </div>
-                    {showAddressSuggestions && addressQuery.trim().length >= 2 && (
-                      <div className="absolute z-20 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-72 overflow-y-auto">
-                        {dawaLoading && (
-                          <div className="px-4 py-3 text-sm text-muted-foreground">Søger…</div>
-                        )}
-                        {!dawaLoading && dawaResults.length === 0 && (
-                          <div className="px-4 py-3 text-sm text-muted-foreground">Ingen resultater</div>
-                        )}
-                        {!dawaLoading && dawaResults.map((r, idx) => (
-                          <button
-                            key={`${r.label}-${idx}`}
-                            type="button"
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => {
-                              const d = r.raw.data || {};
-                              const street = [d.vejnavn, d.husnr].filter(Boolean).join(" ");
-                              const postnr = d.postnr || d.postnummer?.nr || "";
-                              const city = r.city || d.postnrnavn || d.postnummer?.navn || "";
-                              setFormData({
-                                ...formData,
-                                address: street || (r.type === "vejnavn" ? (d.vejnavn || "") : formData.address),
-                                city: city || formData.city,
-                                postal_code: postnr || formData.postal_code,
-                              });
-                              setAddressQuery(r.label);
-                              setShowAddressSuggestions(false);
-                            }}
-                            className="w-full text-left px-4 py-2.5 hover:bg-muted flex items-start gap-2 border-b border-border last:border-b-0"
-                          >
-                            <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <div className="text-sm text-foreground truncate">{r.label}</div>
-                              {r.sublabel && <div className="text-xs text-muted-foreground truncate">{r.sublabel}</div>}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1.5">Vælg fra listen for at udfylde adresse, by og postnummer automatisk.</p>
-                  </div>
 
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-primary mb-2">Adresse *</label>
-                      <input
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) => setFormData({...formData, address: e.target.value})}
-                        className={`w-full px-4 py-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary ${
-                          formData.address.trim() && !addressValid ? 'border-destructive' : 'border-border'
-                        }`}
-                        placeholder="Gadenavn 123"
-                      />
-                      {formData.address.trim() && !addressValid && (
-                        <p className="text-xs text-destructive mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" />
-                          Angiv venligst en gyldig adresse (min. 3 tegn)
-                        </p>
-                      )}
-                    </div>
+                  {/* Address search — always shown; confirmed address shows below */}
+                  {!addressConfirmed ? (
                     <div className="relative">
-                      <label className="block text-sm font-medium text-primary mb-2">By *</label>
-                      <input
-                        type="text"
-                        value={formData.city}
-                        onChange={(e) => setFormData({...formData, city: e.target.value})}
-                        className={`w-full px-4 py-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary ${
-                          formData.city.trim() && !cityValid ? 'border-destructive' : 'border-border'
-                        }`}
-                        placeholder="København"
-                      />
-                      {formData.city.trim() && !cityValid && citySuggestions.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                          {citySuggestions.slice(0, 5).map((city) => (
+                      <label className="block text-sm font-medium text-primary mb-2">
+                        Søg og vælg adresse <span className="text-destructive">*</span>
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        <input
+                          type="text"
+                          value={addressQuery}
+                          onChange={(e) => {
+                            setAddressQuery(e.target.value);
+                            setShowAddressSuggestions(true);
+                            setAddressConfirmed(false);
+                            setSelectedCoords(null);
+                          }}
+                          onFocus={() => setShowAddressSuggestions(true)}
+                          onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 150)}
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
+                          placeholder="F.eks. Vestergade 12, 2. tv, København"
+                          autoComplete="off"
+                        />
+                      </div>
+
+                      {showAddressSuggestions && addressQuery.trim().length >= 2 && (
+                        <div className="absolute z-20 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-72 overflow-y-auto">
+                          {dawaLoading && (
+                            <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
+                              <Loader2 className="w-3 h-3 animate-spin" /> Søger…
+                            </div>
+                          )}
+                          {!dawaLoading && dawaResults.length === 0 && (
+                            <div className="px-4 py-3 text-sm text-muted-foreground">Ingen resultater — prøv en anden søgning</div>
+                          )}
+                          {!dawaLoading && dawaResults.map((r, idx) => (
                             <button
-                              key={city}
+                              key={`${r.label}-${idx}`}
                               type="button"
-                              onClick={() => setFormData({...formData, city: city})}
-                              className="w-full text-left px-4 py-2 hover:bg-muted text-sm"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                const d = r.raw.data || {};
+                                const street = [d.vejnavn, d.husnr, d.etage ? `${d.etage}.` : null, d.dør].filter(Boolean).join(" ");
+                                const postnr = d.postnr || d.postnummer?.nr || "";
+                                const city = r.city || d.postnrnavn || d.postnummer?.navn || "";
+                                setFormData({
+                                  ...formData,
+                                  address: street || r.label,
+                                  city: city || formData.city,
+                                  postal_code: postnr || formData.postal_code,
+                                });
+                                setAddressQuery(r.label);
+                                setShowAddressSuggestions(false);
+                                setAddressConfirmed(true);
+                                if (r.lat && r.lon) setSelectedCoords({ lat: r.lat, lon: r.lon });
+                              }}
+                              className="w-full text-left px-4 py-2.5 hover:bg-muted flex items-start gap-2 border-b border-border last:border-b-0"
                             >
-                              {city}
+                              <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <div className="text-sm text-foreground truncate">{r.label}</div>
+                                {r.sublabel && <div className="text-xs text-muted-foreground truncate">{r.sublabel}</div>}
+                              </div>
                             </button>
                           ))}
                         </div>
                       )}
-                      {formData.city.trim() && !cityValid && citySuggestions.length === 0 && (
-                        <p className="text-xs text-destructive mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" />
-                          Ugyldig by. Vælg en dansk by.
-                        </p>
-                      )}
-                      {cityValid && formData.city.trim() && (
-                        <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                          <Check className="w-3 h-3" />
-                          {getProperCityName(formData.city)}
-                        </p>
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        Du skal vælge en adresse fra listen — dette sikrer at adressen er korrekt.
+                      </p>
+                    </div>
+                  ) : (
+                    /* Confirmed address display */
+                    <div className="rounded-xl border border-green-500/40 bg-green-500/5 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{formData.address}</p>
+                            <p className="text-sm text-muted-foreground">{formData.postal_code} {formData.city}</p>
+                            <p className="text-xs text-green-600 mt-1">Verificeret dansk adresse</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAddressConfirmed(false);
+                            setSelectedCoords(null);
+                            setAddressQuery("");
+                            setFormData({ ...formData, address: "", city: "", postal_code: "" });
+                          }}
+                          className="text-xs text-muted-foreground hover:text-foreground underline flex-shrink-0"
+                        >
+                          Ændre
+                        </button>
+                      </div>
+
+                      {/* Map */}
+                      {selectedCoords && (
+                        <div className="mt-4">
+                          <Suspense fallback={<div className="h-[220px] rounded-xl bg-muted animate-pulse" />}>
+                            <AddressMap lat={selectedCoords.lat} lon={selectedCoords.lon} />
+                          </Suspense>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-primary mb-2">Postnummer *</label>
-                    <input
-                      type="text"
-                      value={formData.postal_code}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-                        setFormData({...formData, postal_code: value});
-                      }}
-                      className={`w-full max-w-xs px-4 py-3 rounded-lg border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-secondary ${
-                        formData.postal_code && !isValidPostalCode ? 'border-destructive' : 'border-border'
-                      }`}
-                      placeholder="2100"
-                      maxLength={4}
-                    />
-                    {formData.postal_code && !isValidPostalCode && (
-                      <p className="text-xs text-destructive mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Postnummer skal være 4 cifre
-                      </p>
-                    )}
-                  </div>
+                  )}
 
                   <div className="pt-4">
                     <label className="block text-sm font-medium text-primary mb-3">Offentlig transport i nærheden</label>
