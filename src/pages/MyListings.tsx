@@ -7,7 +7,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Eye, EyeOff, MapPin, Home, Check, ChevronLeft, ChevronRight, X, CreditCard, RefreshCw, Sparkles, Clock, Upload, Image as ImageIcon, AlertCircle, Gift } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, MapPin, Home, Check, ChevronLeft, ChevronRight, X, CreditCard, RefreshCw, Sparkles, Clock, Upload, Image as ImageIcon, AlertCircle, Gift, Loader2 } from "lucide-react";
 import { danishCities, getMatchingCities, isValidCity, getProperCityName } from "@/data/danishCities";
 import { useDawaAutocomplete } from "@/hooks/useDawaAutocomplete";
 import { format, differenceInDays } from "date-fns";
@@ -206,6 +206,8 @@ const MyListings = () => {
   const [boostDialog, setBoostDialog] = useState<Property | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<number>(14);
   const [boostedProperties, setBoostedProperties] = useState<Record<string, Date>>({});
+  const [boostPurchasing, setBoostPurchasing] = useState(false);
+  const [renewPurchasing, setRenewPurchasing] = useState(false);
   const [selectedBoost, setSelectedBoost] = useState<number>(1);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -775,110 +777,34 @@ const nextStep = () => {
 
   const handleRenewListing = async () => {
     if (!renewDialog) return;
-
-    const period = listingPeriods.find((p) => p.days === selectedPeriod);
-    if (!period) return;
-
+    setRenewPurchasing(true);
     try {
-      const currentExpiresAt = (renewDialog as any).expires_at;
-      const baseDate = currentExpiresAt && new Date(currentExpiresAt) > new Date() ? new Date(currentExpiresAt) : new Date();
-      const newExpiresAt = addDays(baseDate, selectedPeriod);
-
-      const updateData = {
-        status: "active",
-        expires_at: newExpiresAt.toISOString(),
-        listing_period: selectedPeriod,
-        is_published: true,
-      };
-
-      const { error } = await supabase
-        .from("properties")
-        .update(updateData)
-        .eq("id", renewDialog.id);
-
-      if (error) throw error;
-
-      // Update UI immediately (no waiting on refetch)
-      setProperties((prev) =>
-        prev.map((p) => (p.id === renewDialog.id ? ({ ...p, ...(updateData as any) } as any) : p))
-      );
-
-      toast({
-        title: "Annonce forlænget!",
-        description: `Din annonce er nu aktiv til ${format(newExpiresAt, "d. MMM yyyy", { locale: da })}. Betaling: ${period.price} kr`,
+      const productType = `listing_${selectedPeriod}day` as const;
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { product_type: productType, product_id: renewDialog.id },
       });
-
-      fetchProperties();
-    } catch (error) {
-      console.error("Error renewing listing:", error);
-      toast({
-        title: "Fejl",
-        description: "Kunne ikke forny annoncen",
-        variant: "destructive",
-      });
-    } finally {
-      setRenewDialog(null);
+      if (error || !data?.url) throw new Error(error?.message ?? "Ukendt fejl");
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fejl", description: err.message ?? "Kunne ikke starte betaling", variant: "destructive" });
+      setRenewPurchasing(false);
     }
   };
 
   const handleBoostListing = async () => {
     if (!boostDialog) return;
-
-    const boost = boostOptions.find(b => b.days === selectedBoost);
-    if (!boost) return;
-
-    const property = properties.find(p => p.id === boostDialog.id);
-    const existingBoostEnd = (property as any)?.boost_expires_at;
-    const now = new Date();
-    
-    // If boost is still active, extend from current end date (stacking)
-    // Otherwise start fresh from now
-    let baseDate = now;
-    if (existingBoostEnd && new Date(existingBoostEnd) > now) {
-      baseDate = new Date(existingBoostEnd);
-    }
-    
-    const boostExpiresAt = addDays(baseDate, selectedBoost);
-    const boostStartedAt = now; // Always update boost start to now (gives priority to new boosts)
-    
-    // Persist boost to database
-    const { error } = await supabase
-      .from('properties')
-      .update({ 
-        boost_expires_at: boostExpiresAt.toISOString(),
-        boost_started_at: boostStartedAt.toISOString()
-      })
-      .eq('id', boostDialog.id);
-
-    if (error) {
-      toast({
-        title: "Fejl",
-        description: "Kunne ikke aktivere boost",
-        variant: "destructive",
+    setBoostPurchasing(true);
+    try {
+      const productType = `boost_${selectedBoost}day` as const;
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { product_type: productType, product_id: boostDialog.id },
       });
-      return;
+      if (error || !data?.url) throw new Error(error?.message ?? "Ukendt fejl");
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({ title: "Fejl", description: err.message ?? "Kunne ikke starte betaling", variant: "destructive" });
+      setBoostPurchasing(false);
     }
-
-    // Update local state
-    setBoostedProperties(prev => ({
-      ...prev,
-      [boostDialog.id]: boostExpiresAt
-    }));
-    
-    // Update properties list
-    setProperties(prev => prev.map(p => 
-      p.id === boostDialog.id 
-        ? { ...p, boost_expires_at: boostExpiresAt.toISOString(), boost_started_at: boostStartedAt.toISOString() } as Property
-        : p
-    ));
-
-    const isExtending = existingBoostEnd && new Date(existingBoostEnd) > now;
-    toast({
-      title: isExtending ? "Boost forlænget!" : "Boost aktiveret!",
-      description: `Din annonce ${isExtending ? 'forlænget' : 'boosted'} i ${boost.label}. Betaling: ${boost.price} kr`,
-    });
-
-    setBoostDialog(null);
   };
 
   const isPropertyBoosted = (propertyId: string) => {
@@ -2296,10 +2222,12 @@ const nextStep = () => {
                 </button>
               ))}
             </div>
-            <Button 
+            <Button
               onClick={handleRenewListing}
+              disabled={renewPurchasing}
               className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
             >
+              {renewPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Betal {listingPeriods.find(p => p.days === selectedPeriod)?.price} kr og aktiver
             </Button>
           </div>
@@ -2333,10 +2261,12 @@ const nextStep = () => {
                 </button>
               ))}
             </div>
-            <Button 
+            <Button
               onClick={handleBoostListing}
+              disabled={boostPurchasing}
               className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
             >
+              {boostPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Betal {boostOptions.find(b => b.days === selectedBoost)?.price} kr og boost
             </Button>
           </div>

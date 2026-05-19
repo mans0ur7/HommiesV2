@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Add free 60-day trial: auto 30-day listing for new landlords\"; git push)"
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Add free 60-day trial: auto 30-day listing for new landlords\"; git push)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add vercel.json; git commit -m \"Add vercel.json: cache busting for index.html, long cache for assets\"; git push)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd;C:\\\\Users\\\\Manso\\\\.deno\\\\bin\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; npx supabase functions deploy create-checkout-session --project-ref nsqirjpcrgapbifvqzln 2>&1)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add supabase/functions/create-checkout-session/index.ts; git commit -m \"Fix Stripe: use automatic_payment_methods instead of explicit list\"; git push)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Fix: boost and renew dialogs now go through Stripe instead of bypassing payment\"; git push)"
     ]
   }
 }
