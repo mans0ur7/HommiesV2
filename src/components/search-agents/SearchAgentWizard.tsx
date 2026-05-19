@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { X, MapPin, Home, Bell, CreditCard, Check, ChevronRight, ChevronLeft, Sparkles, Search } from "lucide-react";
+import { X, MapPin, Home, Bell, CreditCard, Check, ChevronRight, ChevronLeft, Sparkles, Search, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,11 +105,28 @@ const SearchAgentWizard = ({
     return "Søgning i hele Danmark";
   };
 
-  const handleSubmit = () => {
+  const [purchasingSlot, setPurchasingSlot] = useState(false);
+
+  const handleSubmit = async () => {
+    if (requiresPayment) {
+      setPurchasingSlot(true);
+      try {
+        const { data: res, error } = await supabase.functions.invoke("create-checkout-session", {
+          body: { product_type: "search_agent" },
+        });
+        if (error || !res?.url) throw new Error(error?.message ?? "Ukendt fejl");
+        window.location.href = res.url;
+      } catch (err: any) {
+        toast.error(err.message ?? "Kunne ikke starte betaling");
+        setPurchasingSlot(false);
+      }
+      return;
+    }
+
     const data: CreateSearchAgentData & { id?: string } = {
       name: generateAgentName(),
       city: city || null,
-      area: selectedAreas.length > 0 ? selectedAreas[0] : null, // For now, store first area
+      area: selectedAreas.length > 0 ? selectedAreas[0] : null,
       min_rent: minRent > 0 ? minRent : null,
       max_rent: maxRent < 20000 ? maxRent : null,
       min_rooms: minRooms ? parseInt(minRooms) : null,
@@ -516,10 +535,11 @@ const SearchAgentWizard = ({
           ) : (
             <Button
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={isLoading || purchasingSlot}
               className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
             >
-              {isLoading ? "Opretter..." : requiresPayment ? `Betal ${pricePerSlot} kr og opret` : "Opret søgeagent"}
+              {(isLoading || purchasingSlot) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {purchasingSlot ? "Sender til betaling..." : isLoading ? "Opretter..." : requiresPayment ? `Betal ${pricePerSlot} kr og opret` : "Opret søgeagent"}
             </Button>
           )}
         </div>

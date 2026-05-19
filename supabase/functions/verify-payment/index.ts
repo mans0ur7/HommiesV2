@@ -60,6 +60,19 @@ Deno.serve(async (req) => {
         .eq("id", product_id).eq("user_id", user_id);
     }
 
+    if (product_type === "search_agent") {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("search_agent_slots")
+        .eq("id", user_id)
+        .single();
+      const currentSlots = (prof?.search_agent_slots ?? 1);
+      await supabase
+        .from("profiles")
+        .update({ search_agent_slots: currentSlots + 1 })
+        .eq("id", user_id);
+    }
+
     return new Response(JSON.stringify({ success: true, product_type }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

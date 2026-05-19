@@ -26,6 +26,8 @@ const SearchAgents = () => {
   const isMobile = useIsMobile();
   const { user, profile, loading } = useAuth();
   const { searchAgents, isLoading, createAgent, updateAgent, deleteAgent, toggleAgent } = useSearchAgents();
+  const availableSlots: number = (profile as any)?.search_agent_slots ?? 1;
+  const usedSlots = searchAgents.length;
   const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAgent, setEditingAgent] = useState<any>(null);
@@ -124,6 +126,12 @@ const SearchAgents = () => {
             </h1>
             <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
               Få besked når nye boliger matcher dine kriterier.
+            </p>
+            <p className="mt-2 text-sm text-foreground/50">
+              {usedSlots} af {availableSlots} pladser brugt
+              {usedSlots >= availableSlots && availableSlots > 0 && (
+                <span className="text-amber-500 ml-2">— køb ekstra plads for 29 kr</span>
+              )}
             </p>
           </div>
           <Button
@@ -353,8 +361,8 @@ const SearchAgents = () => {
       {/* Create Modal (Wizard) */}
       {showCreateModal && (
         <SearchAgentWizard
-          existingAgentsCount={searchAgents.length}
-          maxFreeAgents={MAX_FREE_AGENTS}
+          existingAgentsCount={usedSlots}
+          maxFreeAgents={availableSlots}
           pricePerSlot={PRICE_PER_SLOT}
           onClose={() => setShowCreateModal(false)}
           onSave={handleCreate}

@@ -9,7 +9,9 @@
       "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Add DAWA-verified address with Leaflet map in listing wizard step 2\"; git push)",
       "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\\\\supabase\\\\functions\\\\create-portal-session\")",
       "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd;C:\\\\Users\\\\Manso\\\\.deno\\\\bin\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; npx supabase functions deploy create-portal-session --project-ref nsqirjpcrgapbifvqzln 2>&1; npx supabase functions deploy create-checkout-session --project-ref nsqirjpcrgapbifvqzln 2>&1)",
-      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Add Stripe Customer Portal in Settings for card management\"; git push)"
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Add Stripe Customer Portal in Settings for card management\"; git push)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd;C:\\\\Users\\\\Manso\\\\.deno\\\\bin\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; npx supabase functions deploy verify-payment --project-ref nsqirjpcrgapbifvqzln 2>&1)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\cmd\"; cd \"c:\\\\Users\\\\Manso\\\\Desktop\\\\Hommies\"; git add -A; git commit -m \"Fix search agent slots: Stripe payment, slot tracking, verify-payment increments\"; git push)"
     ]
   }
 }

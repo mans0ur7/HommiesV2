@@ -68,9 +68,15 @@ const PaymentSuccess = () => {
               Du modtager en kvittering på din e-mail.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={() => navigate("/my-listings")} variant="default">
-                Se mine annoncer
-              </Button>
+              {productType === "search_agent" ? (
+                <Button onClick={() => navigate("/search-agents")} variant="default">
+                  Opret søgeagent nu
+                </Button>
+              ) : (
+                <Button onClick={() => navigate("/my-listings")} variant="default">
+                  Se mine annoncer
+                </Button>
+              )}
               <Button onClick={() => navigate("/")} variant="outline">
                 Gå til forsiden
               </Button>
