@@ -26,6 +26,7 @@ import ContractDetail from "./pages/ContractDetail";
 import SearchAgents from "./pages/SearchAgents";
 import SearchTogether from "./pages/SearchTogether";
 import MovingService from "./pages/MovingService";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -61,6 +62,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/matches" element={<Matches />} />
             <Route path="/documents" element={<Documents />} />
