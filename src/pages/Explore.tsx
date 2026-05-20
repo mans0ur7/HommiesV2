@@ -503,14 +503,19 @@ const Explore = () => {
           </div>
 
           <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 md:mx-0 md:px-0">
-            <div className="flex md:grid md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4" style={{ minWidth: 'max-content' }}>
+            <div
+              className="flex md:grid gap-3 md:gap-4 min-w-max md:min-w-0"
+              style={{
+                gridTemplateColumns: `repeat(${Math.min((selectedStudyCity ? cityAreas : studyCities).length, 6)}, minmax(0, 1fr))`,
+              }}
+            >
               {(selectedStudyCity ? cityAreas : studyCities).map((item) => {
                 const isActive = selectedStudyCity ? selectedArea === item.name : false;
                 return (
                   <button
                     key={item.name}
                     onClick={() => selectedStudyCity ? handleAreaClick(item.name) : handleStudyCityClick(item.name)}
-                    className={`group relative w-32 md:w-auto aspect-[3/4] rounded-2xl overflow-hidden md:min-w-0 flex-shrink-0 ring-2 ring-offset-2 ring-offset-background transition-all ${
+                    className={`group relative w-32 md:w-auto aspect-[4/3] rounded-2xl overflow-hidden md:min-w-0 flex-shrink-0 ring-2 ring-offset-2 ring-offset-background transition-all ${
                       isActive ? 'ring-foreground' : 'ring-transparent hover:ring-border'
                     }`}
                   >
