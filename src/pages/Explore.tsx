@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Search, MapPin, ChevronLeft, ChevronRight, ChevronDown, Map, LayoutGrid, Home, Users, SearchX, Building, MapPinned, X, BellPlus, SlidersHorizontal } from "lucide-react";
+import { Search, MapPin, ChevronLeft, ChevronRight, ChevronDown, Map, LayoutGrid, Home, Users, SearchX, Building, MapPinned, X, BellPlus, SlidersHorizontal, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/landing/Navbar";
@@ -51,7 +51,7 @@ const Explore = () => {
   const { user, profile: userProfile } = useAuth();
   const isMobile = useIsMobile();
   const isLandlord = userProfile?.user_type === "landlord";
-  const { canAccessRoomieFeatures } = useLandlordHasPublishedProperty();
+  const { canAccessRoomieFeatures, isLandlord: landlordNeedsListing } = useLandlordHasPublishedProperty();
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { createAgent, searchAgents } = useSearchAgents();
 
@@ -554,6 +554,11 @@ const Explore = () => {
                 Værelser
               </button>
               <button
+                title={
+                  landlordNeedsListing && !canAccessRoomieFeatures
+                    ? "Du skal have en aktiv annonce for at finde roomies"
+                    : undefined
+                }
                 onClick={() => {
                   if (!user) {
                     toast.error("Opret en bruger for at udforske roomies", {
@@ -567,15 +572,25 @@ const Explore = () => {
                     setActiveFilters([]);
                     setSortBy("newest");
                     setPropertyFilters(defaultPropertyFilters);
+                  } else {
+                    // Landlord without a published listing
+                    toast.error("Du skal have en aktiv annonce for at finde roomies", {
+                      description: "Opret og udgiv en annonce, så kan du matche med roomies der passer til din bolig.",
+                      action: { label: "Opret annonce", onClick: () => navigate("/my-listings") },
+                    });
                   }
                 }}
                 className={`flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold transition-all ${
                   activeTab === "roomies"
                     ? "bg-foreground text-background shadow-sm"
-                    : !user ? "text-muted-foreground/50 cursor-not-allowed" : "text-muted-foreground hover:text-foreground"
+                    : !user || (landlordNeedsListing && !canAccessRoomieFeatures)
+                      ? "text-muted-foreground/50 cursor-not-allowed"
+                      : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Users className="w-3.5 h-3.5" />
+                {landlordNeedsListing && !canAccessRoomieFeatures
+                  ? <Lock className="w-3.5 h-3.5" />
+                  : <Users className="w-3.5 h-3.5" />}
                 Roomies
               </button>
             </div>
