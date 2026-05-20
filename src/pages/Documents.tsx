@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Clock, CheckCircle, AlertCircle, Send, PenTool, ArrowLeft } from "lucide-react";
+import { FileText, Clock, CheckCircle, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,25 +16,17 @@ interface Contract {
   status: string;
   property_address: string;
   property_city: string;
-  monthly_rent: number | null;
-  start_date: string | null;
-  created_at: string;
   updated_at: string;
   landlord_id: string;
   tenant_id: string;
-  property_id: string;
   landlord_name: string | null;
   tenant_name: string | null;
 }
 
 const statusConfig: Record<string, { label: string; icon: React.ElementType; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  draft: { label: "Igangværende", icon: Clock, variant: "secondary" },
-  ready: { label: "Klar til gennemlæsning", icon: FileText, variant: "default" },
-  tenant_confirmed: { label: "Godkendt af lejer", icon: CheckCircle, variant: "default" },
-  sent_to_penneo: { label: "Sendt til signering", icon: Send, variant: "default" },
-  partially_signed: { label: "Delvist underskrevet", icon: PenTool, variant: "default" },
-  signed: { label: "Underskrevet", icon: CheckCircle, variant: "default" },
-  signing_failed: { label: "Signering fejlet", icon: AlertCircle, variant: "destructive" },
+  draft:  { label: "Kladde",               icon: Clock,         variant: "secondary" },
+  ready:  { label: "Afventer underskrift", icon: FileText,       variant: "default"   },
+  signed: { label: "Underskrevet",          icon: CheckCircle,   variant: "default"   },
 };
 
 export default function Documents() {
@@ -129,8 +121,8 @@ export default function Documents() {
           </h1>
           <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
             {isLandlord
-              ? "Administrer dine lejekontrakter."
-              : "Se dine lejekontrakter."}
+              ? "Administrer dine husordener og samboaftaler."
+              : "Se dine husordener og samboaftaler."}
           </p>
         </div>
 
@@ -142,9 +134,9 @@ export default function Documents() {
                 Ingen dokumenter endnu
               </h3>
               <p className="text-muted-foreground text-center max-w-sm">
-                {isLandlord 
-                  ? "Du har ikke oprettet nogen lejekontrakter endnu. Start en kontrakt fra en accepteret anmodning." 
-                  : "Der er ingen lejekontrakter tilgængelige for dig endnu."}
+                {isLandlord
+                  ? "Du har ikke oprettet nogen husordener endnu. Start en husorden fra en accepteret anmodning."
+                  : "Der er ingen husordener tilgængelige for dig endnu."}
               </p>
             </CardContent>
           </Card>
@@ -168,7 +160,7 @@ export default function Documents() {
                             {contract.property_city && `, ${contract.property_city}`}
                           </CardTitle>
                           <CardDescription>
-                            Udlejer er ved at udfylde kontrakten
+                            Ophavsmanden er ved at udfylde husordenen
                           </CardDescription>
                         </div>
                         <Badge variant={statusInfo.variant} className="flex items-center gap-1">
@@ -179,7 +171,7 @@ export default function Documents() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground">
-                        Du vil kunne læse kontrakten, når udlejeren har færdiggjort den.
+                        Du vil kunne læse husordenen, når ophavsmanden har færdiggjort den.
                       </p>
                     </CardContent>
                   </Card>
@@ -202,9 +194,9 @@ export default function Documents() {
                           {contract.property_city && `, ${contract.property_city}`}
                         </CardTitle>
                         <CardDescription>
-                          {isUserLandlord 
-                            ? `Lejer: ${contract.tenant_name || "Ikke udfyldt"}`
-                            : `Udlejer: ${contract.landlord_name || "Ikke udfyldt"}`}
+                          {isUserLandlord
+                            ? `Beboer: ${contract.tenant_name || "Ikke udfyldt"}`
+                            : `Ophavsmand: ${contract.landlord_name || "Ikke udfyldt"}`}
                         </CardDescription>
                       </div>
                       <Badge variant={statusInfo.variant} className="flex items-center gap-1">
@@ -215,12 +207,6 @@ export default function Documents() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      {contract.monthly_rent && (
-                        <span>{contract.monthly_rent.toLocaleString("da-DK")} kr/md</span>
-                      )}
-                      {contract.start_date && (
-                        <span>Fra: {new Date(contract.start_date).toLocaleDateString("da-DK")}</span>
-                      )}
                       <span>
                         Opdateret: {new Date(contract.updated_at).toLocaleDateString("da-DK")}
                       </span>

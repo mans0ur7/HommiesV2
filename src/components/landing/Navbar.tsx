@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { MessageCircle, Plus, Info, Mail, Globe, Settings, FileText, Menu, X, Search, Users, MoreVertical, BookOpen, Shield, ChevronDown, Bell } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
 import {
@@ -15,6 +16,7 @@ import NotificationPopover from "@/components/navigation/NotificationPopover";
 const Navbar = () => {
   const { user, profile, signOut } = useAuth();
   const { unreadCount: notifUnreadCount } = useNotifications();
+  const { unreadCount: inboxUnreadCount } = useUnreadMessages();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const navigate = useNavigate();
@@ -51,7 +53,14 @@ const Navbar = () => {
                 {userType === 'roomie' && (
                   <Link to="/focus" className={navLinkClass}>Focus</Link>
                 )}
-                <Link to="/inbox" className={navLinkClass}>Inbox</Link>
+                <Link to="/inbox" className={`${navLinkClass} relative`}>
+                  Inbox
+                  {inboxUnreadCount > 0 && (
+                    <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1.5 leading-none">
+                      {inboxUnreadCount > 99 ? "99+" : inboxUnreadCount}
+                    </span>
+                  )}
+                </Link>
               </>
             )}
 
@@ -161,7 +170,9 @@ const Navbar = () => {
                   >
                     <Bell className="w-[18px] h-[18px]" />
                     {notifUnreadCount > 0 && (
-                      <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
+                      <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] flex items-center justify-center bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full px-1 leading-none">
+                        {notifUnreadCount > 99 ? "99+" : notifUnreadCount}
+                      </span>
                     )}
                   </button>
                   <Link

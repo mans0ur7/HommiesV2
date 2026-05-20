@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { usePropertyRating } from "@/hooks/usePropertyRating";
+import { usePresence } from "@/hooks/usePresence";
 import RatingPrompt from "@/components/ratings/RatingPrompt";
 import TypingIndicator from "./TypingIndicator";
 import type { Conversation } from "@/types/inbox";
@@ -70,6 +71,8 @@ const ChatArea = ({
   const [loadingMembers, setLoadingMembers] = useState(false);
   
   const isLandlord = profile?.user_type === "landlord";
+  const { isOnline } = usePresence();
+  const otherUserOnline = conversation && !conversation.groupInfo && isOnline(conversation.otherUser.id);
 
   // Check if user can rate this property (7-day eligibility)
   const { canRate, ratableProperty, markAsRated } = usePropertyRating(
@@ -364,9 +367,11 @@ const ChatArea = ({
                 <User className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
               </div>
             )}
-            {/* Online indicator */}
-            {!conversation.groupInfo && (
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 rounded-full border-2 border-background" />
+            {otherUserOnline && (
+              <div
+                className="absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 rounded-full border-2 border-background"
+                title="Online nu"
+              />
             )}
           </div>
 

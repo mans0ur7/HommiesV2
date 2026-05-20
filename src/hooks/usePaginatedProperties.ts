@@ -38,6 +38,8 @@ export interface PaginatedProperty {
   boost_expires_at: string | null;
   rating_average: number | null;
   rating_count: number | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const PAGE_SIZE = 12;

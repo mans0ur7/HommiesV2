@@ -543,10 +543,12 @@ const PropertyDetail = () => {
             <div>
               <h2 className="text-xl font-bold text-foreground mb-4">Beliggenhed</h2>
               <div className="bg-muted rounded-2xl h-[300px] relative overflow-hidden mb-4">
-                <PropertyLocationMap 
+                <PropertyLocationMap
                   city={property.city}
                   address={property.address}
                   title={property.title}
+                  latitude={(property as any).latitude ?? null}
+                  longitude={(property as any).longitude ?? null}
                 />
                 <a 
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address}, ${property.postal_code} ${property.city}, Denmark`)}`}

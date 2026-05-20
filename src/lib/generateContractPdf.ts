@@ -3,459 +3,289 @@ import { format } from "date-fns";
 import { da } from "date-fns/locale";
 import hommiesLogo from "@/assets/hommies-logo.png";
 
-interface ContractData {
-  landlord_name: string;
-  landlord_address: string;
-  landlord_email: string;
-  landlord_phone: string;
-  landlord_cvr: string;
+export interface HusordensData {
+  // Parter
+  creator_name: string;
+  creator_email: string;
+  creator_phone: string;
   tenant_name: string;
-  tenant_address: string;
   tenant_email: string;
   tenant_phone: string;
+  // Bolig
   property_address: string;
   property_postal_code: string;
   property_city: string;
-  property_type: string;
-  property_size_sqm: number | null;
-  property_room_count: number | null;
-  is_furnished: boolean;
-  inventory_list: string;
-  start_date: Date | null;
-  is_time_limited: boolean;
-  end_date: Date | null;
-  notice_period_months: number;
-  monthly_rent: number | null;
-  aconto: number;
-  deposit: number | null;
-  prepaid_rent: number;
-  payment_day: number;
-  payment_account: string;
+  // Gyldighedsdato
+  effective_date: Date | null;
+  // Stilletid & støj
+  quiet_hours: string;
+  noise_policy: string;
+  // Rengøring & køkken
+  maintenance_responsibility: string;
+  kitchen_rules: string;
+  // Gæster & husdyr
+  guest_policy: string;
   pets_allowed: boolean;
   pets_description: string;
   smoking_allowed: boolean;
-  subletting_allowed: boolean;
-  maintenance_responsibility: string;
+  // Yderligere
   house_rules: string;
+  // Signing
+  creator_signed_at?: string | null;
+  tenant_signed_at?: string | null;
 }
 
-const propertyTypeLabels: Record<string, string> = {
-  apartment: "Lejlighed",
-  room: "Værelse",
-  house: "Hus",
-  studio: "Studio",
+const C = {
+  navy:       { r: 15,  g: 40,  b: 60  },
+  navyLight:  { r: 45,  g: 80,  b: 110 },
+  accent:     { r: 220, g: 100, b: 85  },
+  accentBg:   { r: 255, g: 245, b: 243 },
+  text:       { r: 40,  g: 40,  b: 45  },
+  muted:      { r: 120, g: 120, b: 128 },
+  border:     { r: 220, g: 220, b: 228 },
+  bg:         { r: 248, g: 248, b: 252 },
+  green:      { r: 34,  g: 140, b: 80  },
+  greenBg:    { r: 240, g: 252, b: 245 },
 };
 
-// Soft, elegant color palette
-const COLORS = {
-  primary: { r: 3, g: 42, b: 59 },
-  primaryLight: { r: 45, g: 80, b: 100 },
-  rose: { r: 255, g: 210, b: 205 },
-  roseLight: { r: 255, g: 235, b: 232 },
-  text: { r: 50, g: 50, b: 55 },
-  muted: { r: 130, g: 130, b: 135 },
-  light: { r: 250, g: 250, b: 252 },
-  border: { r: 230, g: 230, b: 235 },
-};
-
-// Convert image to base64
-const getBase64FromUrl = async (url: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
+const getBase64FromUrl = (url: string): Promise<string> =>
+  new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/png"));
-      } else {
-        reject(new Error("Could not get canvas context"));
-      }
+      const c = document.createElement("canvas");
+      c.width = img.width; c.height = img.height;
+      const ctx = c.getContext("2d");
+      if (ctx) { ctx.drawImage(img, 0, 0); resolve(c.toDataURL("image/png")); }
+      else reject(new Error("canvas ctx"));
     };
     img.onerror = reject;
     img.src = url;
   });
-};
 
-export async function generateContractPdf(data: ContractData): Promise<jsPDF> {
+export async function generateContractPdf(data: HusordensData): Promise<jsPDF> {
   const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 25;
-  const contentWidth = pageWidth - 2 * margin;
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const M = 22;
+  const CW = W - 2 * M;
   let y = 0;
 
-  // Load logo
-  let logoBase64: string | null = null;
-  try {
-    logoBase64 = await getBase64FromUrl(hommiesLogo);
-  } catch (e) {
-    console.warn("Could not load logo for PDF:", e);
-  }
+  let logo: string | null = null;
+  try { logo = await getBase64FromUrl(hommiesLogo); } catch {}
 
-  // Helper functions
-  const setColor = (color: { r: number; g: number; b: number }) => {
-    doc.setTextColor(color.r, color.g, color.b);
+  const rgb = (c: typeof C.navy) => doc.setTextColor(c.r, c.g, c.b);
+  const fill = (c: typeof C.navy) => doc.setFillColor(c.r, c.g, c.b);
+  const stroke = (c: typeof C.navy) => doc.setDrawColor(c.r, c.g, c.b);
+
+  const pageBreak = (need = 35) => {
+    if (y > H - need) { doc.addPage(); y = M + 5; }
   };
 
-  const setDrawColor = (color: { r: number; g: number; b: number }) => {
-    doc.setDrawColor(color.r, color.g, color.b);
+  const footer = () => {
+    const fy = H - 11;
+    stroke(C.border); doc.setLineWidth(0.3);
+    doc.line(M, fy - 4, W - M, fy - 4);
+    doc.setFontSize(7.5); rgb(C.muted); doc.setFont("helvetica", "normal");
+    doc.text("Hommies · Husorden og Samboaftale", M, fy);
+    doc.text(`Side ${doc.getNumberOfPages()}`, W - M, fy, { align: "right" });
   };
 
-  const setFillColor = (color: { r: number; g: number; b: number }) => {
-    doc.setFillColor(color.r, color.g, color.b);
-  };
-
-  const checkPageBreak = (needed: number = 30) => {
-    if (y > pageHeight - needed) {
-      doc.addPage();
-      y = margin + 5;
-    }
-  };
-
-  const addPageFooter = () => {
-    const footerY = pageHeight - 12;
-    
-    setDrawColor(COLORS.border);
-    doc.setLineWidth(0.3);
-    doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
-    
-    doc.setFontSize(8);
-    setColor(COLORS.muted);
-    doc.setFont("helvetica", "normal");
-    doc.text("Hommies · Din roomie platform", margin, footerY);
-    doc.text(`Side ${doc.getNumberOfPages()}`, pageWidth - margin, footerY, { align: "right" });
-  };
-
-  // ========== ELEGANT HEADER WITH LOGO ==========
-  y = 20;
-  
-  // Add logo if loaded
-  if (logoBase64) {
-    const logoHeight = 18;
-    const logoWidth = logoHeight * 3.5; // Approximate aspect ratio
-    doc.addImage(logoBase64, "PNG", margin, y - 5, logoWidth, logoHeight);
-    y += 8;
+  // ── HEADER ────────────────────────────────────────────────
+  y = 18;
+  if (logo) {
+    doc.addImage(logo, "PNG", M, y - 4, 52, 15);
   } else {
-    // Fallback text logo
-    doc.setFontSize(28);
-    doc.setFont("helvetica", "bold");
-    setColor(COLORS.primary);
-    doc.text("Hommies", margin, y + 8);
+    doc.setFontSize(22); doc.setFont("helvetica", "bold"); rgb(C.navy);
+    doc.text("Hommies", M, y + 6);
   }
-  
-  // Document date aligned right
-  doc.setFontSize(9);
-  setColor(COLORS.muted);
-  doc.setFont("helvetica", "normal");
-  doc.text(format(new Date(), "d. MMMM yyyy", { locale: da }), pageWidth - margin, y + 5, { align: "right" });
+  doc.setFontSize(8.5); doc.setFont("helvetica", "normal"); rgb(C.muted);
+  doc.text(format(new Date(), "d. MMMM yyyy", { locale: da }), W - M, y + 4, { align: "right" });
 
-  y += 25;
+  y += 22;
+  stroke(C.accent); doc.setLineWidth(1.2);
+  doc.line(M, y, W - M, y);
+  y += 16;
 
-  // Soft divider line
-  setDrawColor(COLORS.rose);
-  doc.setLineWidth(0.8);
-  doc.line(margin, y, pageWidth - margin, y);
+  // Title
+  doc.setFontSize(22); doc.setFont("helvetica", "bold"); rgb(C.navy);
+  doc.text("Husorden og Samboaftale", W / 2, y, { align: "center" });
+  y += 7;
+  doc.setFontSize(9.5); doc.setFont("helvetica", "normal"); rgb(C.muted);
+  doc.text(`${data.property_address}, ${data.property_postal_code} ${data.property_city}`, W / 2, y, { align: "center" });
+  y += 16;
 
-  y += 20;
+  // ── SECTION HELPERS ──────────────────────────────────────
+  const section = (title: string) => {
+    pageBreak(40);
+    y += 10;
+    fill(C.bg); stroke(C.border); doc.setLineWidth(0.3);
+    doc.roundedRect(M, y - 6, CW, 14, 3, 3, "FD");
+    doc.setFontSize(10.5); doc.setFont("helvetica", "bold"); rgb(C.navyLight);
+    doc.text(title, M + 8, y + 3);
+    y += 16;
+  };
 
-  // ========== DOCUMENT TITLE ==========
-  doc.setFontSize(20);
-  doc.setFont("helvetica", "normal");
-  setColor(COLORS.primary);
-  doc.text("Lejekontrakt", pageWidth / 2, y, { align: "center" });
+  const row = (label: string, value: string) => {
+    pageBreak(10);
+    doc.setFontSize(8.5);
+    rgb(C.muted); doc.setFont("helvetica", "normal");
+    doc.text(label, M + 4, y);
+    rgb(C.text); doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(value || "–", CW - 60);
+    doc.text(lines, M + 58, y);
+    y += Math.max(lines.length * 5, 7);
+  };
 
-  y += 25;
+  const block = (label: string, text: string) => {
+    if (!text?.trim()) return;
+    pageBreak(20);
+    doc.setFontSize(8.5); rgb(C.muted); doc.setFont("helvetica", "normal");
+    doc.text(label, M + 4, y); y += 6;
+    rgb(C.text); doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(text, CW - 8);
+    doc.text(lines, M + 4, y);
+    y += lines.length * 5 + 6;
+  };
 
-  // ========== SECTION HELPERS ==========
-  const addSectionTitle = (text: string) => {
-    checkPageBreak(35);
-    y += 12;
-    
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    setColor(COLORS.primary);
-    doc.text(text, margin, y);
-    
-    y += 3;
-    setDrawColor(COLORS.rose);
-    doc.setLineWidth(0.5);
-    doc.line(margin, y, margin + 40, y);
+  const pill = (text: string, ok: boolean) => {
+    pageBreak(12);
+    const col = ok ? C.green : C.accent;
+    fill({ r: ok ? C.greenBg.r : C.accentBg.r, g: ok ? C.greenBg.g : C.accentBg.g, b: ok ? C.greenBg.b : C.accentBg.b });
+    doc.roundedRect(M + 4, y - 5, 60, 9, 2, 2, "F");
+    doc.setFontSize(8.5); doc.setFont("helvetica", "bold");
+    doc.setTextColor(col.r, col.g, col.b);
+    doc.text(text, M + 34, y, { align: "center" });
     y += 10;
   };
 
-  const addFieldRow = (label: string, value: string, bold: boolean = false) => {
-    checkPageBreak(10);
-    doc.setFontSize(9);
-    
-    setColor(COLORS.muted);
-    doc.setFont("helvetica", "normal");
-    doc.text(label, margin, y);
-    
-    if (bold) {
-      setColor(COLORS.primary);
-      doc.setFont("helvetica", "bold");
+  // ── § 1 PARTERNE ─────────────────────────────────────────
+  section("§ 1  Parterne");
+
+  const half = (CW - 12) / 2;
+  const py = y;
+
+  // Venstre — ophavsmand
+  doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); rgb(C.muted);
+  doc.text("OPHAVSMAND / KONTAKTPERSON", M + 4, y); y += 7;
+  doc.setFontSize(10); doc.setFont("helvetica", "bold"); rgb(C.navy);
+  doc.text(data.creator_name || "–", M + 4, y); y += 6;
+  doc.setFontSize(8.5); doc.setFont("helvetica", "normal"); rgb(C.text);
+  if (data.creator_email) { doc.text(data.creator_email, M + 4, y); y += 5; }
+  if (data.creator_phone) { doc.text(data.creator_phone, M + 4, y); y += 5; }
+  const leftEnd = y;
+
+  // Højre — beboer
+  y = py;
+  const rx = M + half + 12;
+  doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); rgb(C.muted);
+  doc.text("BEBOER", rx, y); y += 7;
+  doc.setFontSize(10); doc.setFont("helvetica", "bold"); rgb(C.navy);
+  doc.text(data.tenant_name || "–", rx, y); y += 6;
+  doc.setFontSize(8.5); doc.setFont("helvetica", "normal"); rgb(C.text);
+  if (data.tenant_email) { doc.text(data.tenant_email, rx, y); y += 5; }
+  if (data.tenant_phone) { doc.text(data.tenant_phone, rx, y); y += 5; }
+
+  y = Math.max(leftEnd, y) + 4;
+
+  if (data.effective_date) {
+    doc.setFontSize(8.5); rgb(C.muted); doc.setFont("helvetica", "normal");
+    doc.text("Gyldig fra:", M + 4, y);
+    doc.setFont("helvetica", "bold"); rgb(C.navy);
+    doc.text(format(data.effective_date, "d. MMMM yyyy", { locale: da }), M + 36, y);
+    y += 8;
+  }
+
+  // ── § 2 STILLETID & STØJ ─────────────────────────────────
+  section("§ 2  Stilletid og støj");
+  block("Stilletid:", data.quiet_hours);
+  block("Støjregler:", data.noise_policy);
+
+  // ── § 3 RENGØRING & KØKKEN ───────────────────────────────
+  section("§ 3  Rengøring og køkken");
+  block("Rengøringsansvar:", data.maintenance_responsibility);
+  block("Køleregler:", data.kitchen_rules);
+
+  // ── § 4 GÆSTER & HUSDYR ──────────────────────────────────
+  section("§ 4  Gæster, husdyr og rygning");
+
+  doc.setFontSize(8.5); rgb(C.muted); doc.setFont("helvetica", "normal");
+  doc.text("Husdyr:", M + 4, y); y += 6;
+  pill(data.pets_allowed ? "Tilladt" : "Ikke tilladt", data.pets_allowed);
+  if (data.pets_allowed && data.pets_description) block("Beskrivelse:", data.pets_description);
+
+  doc.setFontSize(8.5); rgb(C.muted); doc.setFont("helvetica", "normal");
+  doc.text("Rygning:", M + 4, y); y += 6;
+  pill(data.smoking_allowed ? "Tilladt" : "Ikke tilladt", data.smoking_allowed);
+
+  block("Gæstepolitik:", data.guest_policy);
+
+  // ── § 5 YDERLIGERE REGLER ────────────────────────────────
+  if (data.house_rules?.trim()) {
+    section("§ 5  Yderligere regler");
+    block("", data.house_rules);
+  }
+
+  // ── § 6 UNDERSKRIFTER ────────────────────────────────────
+  pageBreak(80);
+  section("§ 6  Underskrifter");
+
+  doc.setFontSize(8.5); rgb(C.muted); doc.setFont("helvetica", "normal");
+  doc.text(
+    "Begge parter bekræfter at have læst og accepteret denne husorden.",
+    M + 4, y
+  );
+  y += 14;
+
+  const sigW = (CW - 16) / 2;
+
+  const drawSig = (name: string, role: string, signedAt: string | null | undefined, x: number) => {
+    const sy = y;
+    doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); rgb(C.muted);
+    doc.text(role, x, sy);
+    doc.setFontSize(9.5); doc.setFont("helvetica", "bold"); rgb(C.navy);
+    doc.text(name || "–", x, sy + 7);
+
+    if (signedAt) {
+      // Signed — green confirmed box
+      fill(C.greenBg); stroke(C.green); doc.setLineWidth(0.5);
+      doc.roundedRect(x, sy + 12, sigW, 16, 3, 3, "FD");
+      doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(C.green.r, C.green.g, C.green.b);
+      doc.text("✓  Digitalt underskrevet", x + 6, sy + 21);
+      doc.setFontSize(7.5); doc.setFont("helvetica", "normal"); rgb(C.muted);
+      doc.text(format(new Date(signedAt), "d. MMM yyyy · HH:mm", { locale: da }), x + 6, sy + 27);
     } else {
-      setColor(COLORS.text);
-      doc.setFont("helvetica", "normal");
+      // Not signed — blank line
+      stroke(C.border); doc.setLineWidth(0.5);
+      doc.line(x, sy + 28, x + sigW, sy + 28);
+      doc.setFontSize(7.5); rgb(C.muted); doc.setFont("helvetica", "normal");
+      doc.text("Underskrift", x, sy + 33);
+      doc.text("Dato", x + sigW - 22, sy + 33);
     }
-    doc.text(value || "–", margin + 55, y);
-    y += 7;
   };
 
-  const addParagraph = (text: string) => {
-    if (!text) return;
-    checkPageBreak(20);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    setColor(COLORS.text);
-    const lines = doc.splitTextToSize(text, contentWidth);
-    doc.text(lines, margin, y);
-    y += lines.length * 4.5 + 6;
-  };
+  drawSig(data.creator_name, "OPHAVSMAND", data.creator_signed_at, M + 4);
+  drawSig(data.tenant_name,  "BEBOER",    data.tenant_signed_at,  M + 4 + sigW + 16);
+  y += 42;
 
-  // ========== § 1 - PARTERNE ==========
-  addSectionTitle("Parterne");
-
-  const colWidth = (contentWidth - 15) / 2;
-  const partyStartY = y;
-
-  // Udlejer column
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.muted);
-  doc.text("UDLEJER", margin, y);
+  // Legal note
+  pageBreak(20);
   y += 6;
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.primary);
-  doc.text(data.landlord_name || "–", margin, y);
-  y += 6;
-  
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  setColor(COLORS.text);
-  if (data.landlord_address) { doc.text(data.landlord_address, margin, y); y += 5; }
-  setColor(COLORS.muted);
-  if (data.landlord_email) { doc.text(data.landlord_email, margin, y); y += 5; }
-  if (data.landlord_phone) { doc.text(data.landlord_phone, margin, y); y += 5; }
-  if (data.landlord_cvr) { doc.text(`CVR: ${data.landlord_cvr}`, margin, y); y += 5; }
-  
-  const landlordEndY = y;
+  doc.setFontSize(7.5); rgb(C.muted); doc.setFont("helvetica", "italic");
+  const note = doc.splitTextToSize(
+    "Denne husorden er en samboaftale og er juridisk bindende under dansk aftaleloven (§1). Digital accept med tidsstempel og bruger-ID udgør gyldig underskrift.",
+    CW
+  );
+  doc.text(note, M + 4, y);
 
-  // Lejer column
-  y = partyStartY;
-  const rightColX = margin + colWidth + 15;
-  
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.muted);
-  doc.text("LEJER", rightColX, y);
-  y += 6;
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.primary);
-  doc.text(data.tenant_name || "–", rightColX, y);
-  y += 6;
-  
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  setColor(COLORS.text);
-  if (data.tenant_address) { doc.text(data.tenant_address, rightColX, y); y += 5; }
-  setColor(COLORS.muted);
-  if (data.tenant_email) { doc.text(data.tenant_email, rightColX, y); y += 5; }
-  if (data.tenant_phone) { doc.text(data.tenant_phone, rightColX, y); y += 5; }
-
-  y = Math.max(landlordEndY, y) + 8;
-
-  // ========== § 2 - LEJEMÅLET ==========
-  addSectionTitle("Lejemålet");
-
-  addFieldRow("Adresse", `${data.property_address}, ${data.property_postal_code} ${data.property_city}`, true);
-  addFieldRow("Type", propertyTypeLabels[data.property_type] || data.property_type || "–");
-  if (data.property_size_sqm) addFieldRow("Størrelse", `${data.property_size_sqm} m²`);
-  if (data.property_room_count) addFieldRow("Værelser", data.property_room_count.toString());
-  addFieldRow("Møbleret", data.is_furnished ? "Ja" : "Nej");
-
-  if (data.is_furnished && data.inventory_list) {
-    y += 4;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    setColor(COLORS.muted);
-    doc.text("Inventar:", margin, y);
-    y += 6;
-    addParagraph(data.inventory_list);
-  }
-
-  // ========== § 3 - LEJEPERIODE ==========
-  addSectionTitle("Lejeperiode");
-
-  if (data.start_date) {
-    addFieldRow("Indflytning", format(data.start_date, "d. MMMM yyyy", { locale: da }), true);
-  }
-  
-  if (data.is_time_limited && data.end_date) {
-    addFieldRow("Slutdato", format(data.end_date, "d. MMMM yyyy", { locale: da }));
-    addFieldRow("Lejeperiode", "Tidsbegrænset");
-  } else {
-    addFieldRow("Lejeperiode", "Tidsubegrænset");
-  }
-  
-  addFieldRow("Opsigelsesvarsel", `${data.notice_period_months} måned${data.notice_period_months > 1 ? "er" : ""}`);
-
-  // ========== § 4 - ØKONOMI ==========
-  addSectionTitle("Leje og betaling");
-
-  const monthlyRent = data.monthly_rent || 0;
-  const aconto = data.aconto || 0;
-  const deposit = data.deposit || 0;
-  const prepaidRent = data.prepaid_rent || 0;
-  const totalMoveIn = monthlyRent + deposit + prepaidRent;
-
-  checkPageBreak(50);
-  y += 2;
-  
-  setFillColor(COLORS.roseLight);
-  doc.roundedRect(margin, y, contentWidth, 20, 6, 6, "F");
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  setColor(COLORS.text);
-  doc.text("Månedlig husleje", margin + 12, y + 12);
-  
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.primary);
-  doc.text(`${monthlyRent.toLocaleString("da-DK")} kr.`, pageWidth - margin - 12, y + 13, { align: "right" });
-  
-  y += 28;
-
-  addFieldRow("Aconto/forbrug", `${aconto.toLocaleString("da-DK")} kr.`);
-  addFieldRow("Depositum", `${deposit.toLocaleString("da-DK")} kr.`);
-  if (prepaidRent > 0) addFieldRow("Forudbetalt leje", `${prepaidRent.toLocaleString("da-DK")} kr.`);
-  addFieldRow("Betalingsdag", `Den ${data.payment_day}. i måneden`);
-  if (data.payment_account) addFieldRow("Betalingskonto", data.payment_account);
-
-  y += 4;
-  
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.primary);
-  doc.text("Samlet ved indflytning:", margin, y);
-  doc.text(`${totalMoveIn.toLocaleString("da-DK")} kr.`, margin + 55, y);
-  y += 10;
-
-  // ========== § 5 - VILKÅR ==========
-  addSectionTitle("Ordensregler");
-
-  const rules = [
-    { label: "Husdyr", value: data.pets_allowed ? (data.pets_description || "Tilladt") : "Ikke tilladt" },
-    { label: "Rygning", value: data.smoking_allowed ? "Tilladt" : "Ikke tilladt" },
-    { label: "Fremleje", value: data.subletting_allowed ? "Tilladt" : "Ikke tilladt" },
-  ];
-
-  rules.forEach(rule => {
-    addFieldRow(rule.label, rule.value);
-  });
-
-  if (data.maintenance_responsibility) {
-    y += 4;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    setColor(COLORS.muted);
-    doc.text("Vedligeholdelse:", margin, y);
-    y += 6;
-    addParagraph(data.maintenance_responsibility);
-  }
-
-  if (data.house_rules) {
-    y += 2;
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "italic");
-    setColor(COLORS.muted);
-    doc.text("Husorden:", margin, y);
-    y += 6;
-    addParagraph(data.house_rules);
-  }
-
-  // ========== § 6 - UNDERSKRIFTER ==========
-  checkPageBreak(75);
-  addSectionTitle("Underskrifter");
-
-  y += 2;
-  doc.setFontSize(9);
-  setColor(COLORS.muted);
-  doc.setFont("helvetica", "normal");
-  doc.text("Begge parter bekræfter ved underskrift at have læst og accepteret denne kontrakt.", margin, y);
-  y += 18;
-
-  const sigBoxWidth = (contentWidth - 20) / 2;
-
-  // Udlejer signature
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.muted);
-  doc.text("UDLEJER", margin, y);
-  y += 5;
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  setColor(COLORS.text);
-  doc.text(data.landlord_name, margin, y);
-  y += 18;
-  
-  setDrawColor(COLORS.border);
-  doc.setLineWidth(0.5);
-  doc.line(margin, y, margin + sigBoxWidth, y);
-  y += 5;
-  
-  doc.setFontSize(8);
-  setColor(COLORS.muted);
-  doc.text("Underskrift", margin, y);
-  doc.text("Dato", margin + sigBoxWidth - 30, y);
-
-  // Lejer signature
-  const tenantSigX = margin + sigBoxWidth + 20;
-  y -= 28;
-  
-  doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  setColor(COLORS.muted);
-  doc.text("LEJER", tenantSigX, y);
-  y += 5;
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  setColor(COLORS.text);
-  doc.text(data.tenant_name, tenantSigX, y);
-  y += 18;
-  
-  setDrawColor(COLORS.border);
-  doc.line(tenantSigX, y, tenantSigX + sigBoxWidth, y);
-  y += 5;
-  
-  doc.setFontSize(8);
-  setColor(COLORS.muted);
-  doc.text("Underskrift", tenantSigX, y);
-  doc.text("Dato", tenantSigX + sigBoxWidth - 30, y);
-
-  // Add footer to all pages
-  const totalPages = doc.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    addPageFooter();
-  }
+  // Footers on all pages
+  const n = doc.getNumberOfPages();
+  for (let i = 1; i <= n; i++) { doc.setPage(i); footer(); }
 
   return doc;
 }
 
-export async function downloadContractPdf(data: ContractData, filename?: string): Promise<void> {
+export async function downloadContractPdf(data: HusordensData, filename?: string): Promise<void> {
   const doc = await generateContractPdf(data);
-  const pdfFilename = filename || `lejekontrakt-${format(new Date(), "yyyy-MM-dd")}.pdf`;
-  doc.save(pdfFilename);
+  doc.save(filename ?? `husorden-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 }

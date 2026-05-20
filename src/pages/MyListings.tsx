@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import GenderCompositionSelector from "@/components/listings/GenderCompositionSelector";
+import { compressImage } from "@/lib/compressImage";
 
 const AddressMap = lazy(() => import("@/components/listings/AddressMap"));
 
@@ -350,7 +351,9 @@ const MyListings = () => {
     setFloorPlanUrl((property as any).floor_plan_url || null);
     setCurrentStep(1);
     setAddressQuery(property.address ? `${property.address}, ${property.city}` : "");
-    setSelectedCoords(null);
+    const existingLat = (property as any).latitude;
+    const existingLon = (property as any).longitude;
+    setSelectedCoords(existingLat && existingLon ? { lat: existingLat, lon: existingLon } : null);
     setAddressConfirmed(true); // existing address counts as confirmed
     setShowForm(true);
     fetchProperties();
@@ -409,6 +412,8 @@ const MyListings = () => {
         floor_plan_url: floorPlanUrl,
         is_multi_room: formData.is_multi_room,
         available_rooms: formData.available_rooms,
+        latitude:  selectedCoords?.lat  ?? null,
+        longitude: selectedCoords?.lon  ?? null,
       };
 
       if (editingProperty) {
@@ -646,13 +651,12 @@ const nextStep = () => {
       const listingFolder = draftListingId ?? "temp";
 
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${user.id}/${listingFolder}/${Date.now()}-${i}.${fileExt}`;
+        const compressed = await compressImage(files[i]);
+        const fileName = `${user.id}/${listingFolder}/${Date.now()}-${i}.jpg`;
 
         const { error: uploadError } = await supabase.storage
           .from("property-images")
-          .upload(fileName, file);
+          .upload(fileName, compressed, { contentType: "image/jpeg" });
 
         if (uploadError) throw uploadError;
 
@@ -710,12 +714,12 @@ const nextStep = () => {
 
     try {
       const listingFolder = draftListingId ?? editingProperty?.id ?? "temp";
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}/${listingFolder}/floor-plan-${Date.now()}.${fileExt}`;
+      const compressed = await compressImage(file, 2000, 2000, 0.85); // lidt større til plantegninger
+      const fileName = `${user.id}/${listingFolder}/floor-plan-${Date.now()}.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from("property-images")
-        .upload(fileName, file);
+        .upload(fileName, compressed, { contentType: "image/jpeg" });
 
       if (uploadError) throw uploadError;
 
@@ -930,6 +934,8 @@ const nextStep = () => {
         is_multi_room: formData.is_multi_room,
         available_rooms: formData.available_rooms,
         floor_plan_url: floorPlanUrl,
+        latitude:  selectedCoords?.lat  ?? null,
+        longitude: selectedCoords?.lon  ?? null,
       };
 
       if (editingProperty) {
@@ -1652,7 +1658,7 @@ const nextStep = () => {
                         <div className="flex flex-col items-center">
                           <Upload className="w-12 h-12 text-muted-foreground mb-4" />
                           <p className="font-medium text-primary mb-2">Klik for at uploade billeder</p>
-                          <p className="text-sm text-muted-foreground">PNG, JPG eller WEBP (max 10MB per fil)</p>
+                          <p className="text-sm text-muted-foreground">PNG, JPG eller WEBP — optimeres automatisk</p>
                         </div>
                       )}
                     </label>

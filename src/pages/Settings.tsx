@@ -7,12 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Mail, Lock, Phone, AlertTriangle, CreditCard, ChevronRight, Ban, User, EyeOff, Eye, ExternalLink, Loader2, ShieldCheck, Receipt } from "lucide-react";
+import { ArrowLeft, Mail, Lock, Phone, AlertTriangle, CreditCard, ChevronRight, Ban, User, EyeOff, Eye, ExternalLink, Loader2, ShieldCheck, Receipt, Bell, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/landing/Navbar";
 import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import {
+  isPushSupported,
+  getNotificationPermission,
+  subscribeToPush,
+  unsubscribeFromPush,
+  hasActivePushSubscription,
+} from "@/lib/push";
 
 interface BlockedUser {
   id: string;
@@ -24,7 +31,7 @@ interface BlockedUser {
   };
 }
 
-type SettingsSection = 'payment' | 'visibility' | 'email' | 'password' | 'phone' | 'blocked' | 'report';
+type SettingsSection = 'payment' | 'notifications' | 'visibility' | 'email' | 'password' | 'phone' | 'blocked' | 'report' | 'delete';
 
 const PaymentSection = () => {
   const { toast } = useToast();
@@ -137,6 +144,18 @@ const PaymentSection = () => {
   );
 };
 
+const NotifRow = ({
+  title, desc, checked, onChange,
+}: { title: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) => (
+  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
+    <div className="pr-4">
+      <p className="font-medium text-foreground text-sm">{title}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
+    </div>
+    <Switch checked={checked} onCheckedChange={onChange} />
+  </div>
+);
+
 const Settings = () => {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -157,9 +176,27 @@ const Settings = () => {
   
   // Phone
   const [phone, setPhone] = useState("");
-  
+  const [phoneSaving, setPhoneSaving] = useState(false);
+
+  // Notifications
+  const [notifyMessages, setNotifyMessages] = useState(true);
+  const [notifyRequests, setNotifyRequests] = useState(true);
+  const [notifyNewProperties, setNotifyNewProperties] = useState(true);
+  const [notifyMarketing, setNotifyMarketing] = useState(false);
+  const [notifSaving, setNotifSaving] = useState(false);
+
+  // Push notifications (browser-level)
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission>("default");
+  const [pushActive, setPushActive] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+
   // Report problem
   const [problemDescription, setProblemDescription] = useState("");
+
+  // Delete account
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // Blocked users
   const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
@@ -173,6 +210,11 @@ const Settings = () => {
   useEffect(() => {
     if (profile) {
       setHiddenFromExplore((profile as any).hidden_from_explore ?? false);
+      setPhone((profile as any).phone ?? "");
+      setNotifyMessages((profile as any).notify_email_messages ?? true);
+      setNotifyRequests((profile as any).notify_email_requests ?? true);
+      setNotifyNewProperties((profile as any).notify_email_new_properties ?? true);
+      setNotifyMarketing((profile as any).notify_email_marketing ?? false);
     }
   }, [profile]);
 
@@ -181,6 +223,37 @@ const Settings = () => {
       fetchBlockedUsers();
     }
   }, [user]);
+
+  useEffect(() => {
+    const supported = isPushSupported();
+    setPushSupported(supported);
+    if (!supported) return;
+    setPushPermission(getNotificationPermission());
+    hasActivePushSubscription().then(setPushActive);
+  }, [user]);
+
+  const handleTogglePush = async () => {
+    if (!user) return;
+    setPushLoading(true);
+    try {
+      if (pushActive) {
+        const res = await unsubscribeFromPush(user.id);
+        if (!res.ok) throw new Error(res.message);
+        setPushActive(false);
+        toast({ title: "Push-notifikationer slået fra" });
+      } else {
+        const res = await subscribeToPush(user.id);
+        if (!res.ok) throw new Error(res.message);
+        setPushActive(true);
+        setPushPermission("granted");
+        toast({ title: "Push-notifikationer aktiveret" });
+      }
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Fejl", description: err.message });
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const fetchBlockedUsers = async () => {
     if (!user) return;
@@ -404,6 +477,78 @@ const Settings = () => {
     }
   };
 
+  const handleSavePhone = async () => {
+    if (!user) return;
+    setPhoneSaving(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ phone: phone.trim() || null } as any)
+        .eq("user_id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast({ title: "Telefonnummer gemt" });
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Fejl", description: err.message });
+    } finally {
+      setPhoneSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "SLET") {
+      toast({
+        variant: "destructive",
+        title: "Bekræftelse mangler",
+        description: 'Skriv "SLET" med store bogstaver for at fortsætte',
+      });
+      return;
+    }
+    setIsDeletingAccount(true);
+    try {
+      const { error } = await supabase.functions.invoke("delete-account");
+      if (error) throw error;
+
+      toast({
+        title: "Konto slettet",
+        description: "Din konto og alle data er slettet permanent",
+      });
+
+      await supabase.auth.signOut();
+      navigate("/", { replace: true });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Fejl",
+        description: err.message ?? "Kunne ikke slette konto",
+      });
+      setIsDeletingAccount(false);
+    }
+  };
+
+  const handleSaveNotifications = async () => {
+    if (!user) return;
+    setNotifSaving(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          notify_email_messages: notifyMessages,
+          notify_email_requests: notifyRequests,
+          notify_email_new_properties: notifyNewProperties,
+          notify_email_marketing: notifyMarketing,
+        } as any)
+        .eq("user_id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast({ title: "Indstillinger gemt" });
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Fejl", description: err.message });
+    } finally {
+      setNotifSaving(false);
+    }
+  };
+
   if (!user) {
     navigate("/auth");
     return null;
@@ -411,12 +556,14 @@ const Settings = () => {
 
   const menuItems = [
     { id: 'payment' as const, label: 'Betaling og priser', icon: CreditCard, color: 'text-secondary' },
+    { id: 'notifications' as const, label: 'Notifikationer', icon: Bell, color: 'text-secondary' },
     ...(isRoomie ? [{ id: 'visibility' as const, label: 'Profilsynlighed', icon: hiddenFromExplore ? EyeOff : Eye, color: hiddenFromExplore ? 'text-orange-500' : 'text-green-500' }] : []),
     { id: 'email' as const, label: 'E-mailadresse', icon: Mail, color: 'text-secondary' },
     { id: 'password' as const, label: 'Adgangskode', icon: Lock, color: 'text-secondary' },
     { id: 'phone' as const, label: 'Telefonnummer', icon: Phone, color: 'text-secondary' },
     { id: 'blocked' as const, label: 'Blokerede brugere', icon: Ban, color: 'text-orange-500' },
     { id: 'report' as const, label: 'Rapportér problem', icon: AlertTriangle, color: 'text-destructive' },
+    { id: 'delete' as const, label: 'Slet konto', icon: Trash2, color: 'text-destructive' },
   ];
 
   const renderContent = () => {
@@ -562,7 +709,7 @@ const Settings = () => {
               <h2 className="text-xl font-semibold text-foreground mb-1">Telefonnummer</h2>
               <p className="text-muted-foreground text-sm">Tilføj eller opdater dit nummer</p>
             </div>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefonnummer</Label>
@@ -574,14 +721,111 @@ const Settings = () => {
                   placeholder="+45 12 34 56 78"
                   className="bg-muted/30"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Vises kun for brugere du selv accepterer at chatte med.
+                </p>
               </div>
-              <Button 
-                disabled={isSaving}
+              <Button
+                onClick={handleSavePhone}
+                disabled={phoneSaving}
                 className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-6"
               >
-                Gem telefonnummer
+                {phoneSaving ? "Gemmer…" : "Gem telefonnummer"}
               </Button>
             </div>
+          </div>
+        );
+
+      case 'notifications':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-1">Notifikationer</h2>
+              <p className="text-muted-foreground text-sm">Vælg hvordan vi må kontakte dig</p>
+            </div>
+
+            {/* Push notifications block */}
+            <div className="p-4 rounded-xl border border-border bg-muted/20">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                  <Bell className="w-5 h-5 text-secondary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-3 mb-1">
+                    <p className="font-medium text-foreground">Push-notifikationer</p>
+                    {pushActive && (
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-green-600 bg-green-50 border border-green-200 rounded-full px-2 py-0.5">
+                        Aktiv
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Få notifikationer direkte på din enhed når du får beskeder eller anmodninger.
+                  </p>
+                  {!pushSupported ? (
+                    <p className="text-xs text-amber-600">
+                      Din browser understøtter ikke push-notifikationer.
+                    </p>
+                  ) : pushPermission === "denied" ? (
+                    <p className="text-xs text-amber-600">
+                      Notifikationer er blokeret i browserindstillingerne — du skal aktivere dem manuelt der.
+                    </p>
+                  ) : (
+                    <Button
+                      onClick={handleTogglePush}
+                      disabled={pushLoading}
+                      variant={pushActive ? "outline" : "default"}
+                      size="sm"
+                    >
+                      {pushLoading
+                        ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        : <Bell className="w-4 h-4 mr-2" />}
+                      {pushActive ? "Slå push fra" : "Tillad push på denne enhed"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-semibold">E-mail</p>
+              <div className="space-y-3">
+                <NotifRow
+                  title="Nye beskeder"
+                  desc="Send mig en e-mail når jeg får en ny besked"
+                  checked={notifyMessages}
+                  onChange={setNotifyMessages}
+                />
+                <NotifRow
+                  title="Anmodninger"
+                  desc="Send mig en e-mail når nogen sender mig en anmodning"
+                  checked={notifyRequests}
+                  onChange={setNotifyRequests}
+                />
+                {isRoomie && (
+                  <NotifRow
+                    title="Nye boliger fra mine søgeagenter"
+                    desc="Send mig en e-mail når en bolig matcher en af mine søgeagenter"
+                    checked={notifyNewProperties}
+                    onChange={setNotifyNewProperties}
+                  />
+                )}
+                <NotifRow
+                  title="Tips, tilbud og nyheder"
+                  desc="Send mig lejlighedsvise opdateringer fra Hommies"
+                  checked={notifyMarketing}
+                  onChange={setNotifyMarketing}
+                />
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSaveNotifications}
+              disabled={notifSaving}
+              className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-6"
+            >
+              {notifSaving ? "Gemmer…" : "Gem indstillinger"}
+            </Button>
           </div>
         );
 
@@ -645,6 +889,68 @@ const Settings = () => {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        );
+
+      case 'delete':
+        return (
+          <div className="space-y-6 animate-fade-in">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-1">Slet konto</h2>
+              <p className="text-muted-foreground text-sm">Slet din konto og alle tilknyttede data permanent</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-destructive/5 border border-destructive/20">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div className="space-y-2 text-sm">
+                  <p className="font-medium text-destructive">Denne handling kan ikke fortrydes</p>
+                  <p className="text-muted-foreground">Når du sletter din konto, slettes følgende permanent:</p>
+                  <ul className="list-disc list-inside text-muted-foreground space-y-0.5 pl-1">
+                    <li>Din profil og dine billeder</li>
+                    <li>Alle samtaler, beskeder og anmodninger</li>
+                    <li>Dine annoncer, søgeagenter og favoritter</li>
+                    <li>Dine husordener og dokumenter</li>
+                    <li>Dine matches og forbindelser</li>
+                  </ul>
+                  <p className="text-xs text-muted-foreground pt-1">
+                    Eventuelle igangværende betalinger fortsætter i Stripe og kan ikke automatisk refunderes.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label htmlFor="deleteConfirm">
+                Skriv <span className="font-bold text-destructive">SLET</span> for at bekræfte
+              </Label>
+              <Input
+                id="deleteConfirm"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="SLET"
+                className="bg-muted/30 font-mono"
+                disabled={isDeletingAccount}
+              />
+              <Button
+                onClick={handleDeleteAccount}
+                disabled={isDeletingAccount || deleteConfirmText !== "SLET"}
+                variant="destructive"
+                className="w-full sm:w-auto"
+              >
+                {isDeletingAccount ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sletter konto…
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Slet min konto permanent
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         );

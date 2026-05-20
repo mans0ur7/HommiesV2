@@ -1,20 +1,19 @@
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import copenhagenImg from "@/assets/cities/copenhagen.jpg";
 import aarhusImg from "@/assets/cities/aarhus.jpg";
 import odenseImg from "@/assets/cities/odense.jpg";
 import aalborgImg from "@/assets/cities/aalborg.jpg";
 import roskildeImg from "@/assets/cities/roskilde.jpg";
-import amagerImg from "@/assets/cities/amager.jpg";
-import lyngbyImg from "@/assets/cities/lyngby.jpg";
 
-const cities = [
-  { name: "København", image: copenhagenImg, count: 124 },
-  { name: "Aarhus", image: aarhusImg, count: 89 },
-  { name: "Odense", image: odenseImg, count: 67 },
-  { name: "Aalborg", image: aalborgImg, count: 45 },
-  { name: "Roskilde", image: roskildeImg, count: 32 },
-  { name: "Amager", image: amagerImg, count: 28 },
-  { name: "Lyngby", image: lyngbyImg, count: 41 },
+// Canonical city names as stored in the DB (case-insensitive match)
+const CITIES = [
+  { name: "København", image: copenhagenImg, aliases: ["københavn", "copenhagen", "kbh"] },
+  { name: "Aarhus",    image: aarhusImg,    aliases: ["aarhus", "århus"]                 },
+  { name: "Odense",    image: odenseImg,    aliases: ["odense"]                           },
+  { name: "Aalborg",   image: aalborgImg,   aliases: ["aalborg"]                          },
+  { name: "Roskilde",  image: roskildeImg,  aliases: ["roskilde"]                         },
 ];
 
 const ExploreSection = () => {
@@ -22,9 +21,31 @@ const ExploreSection = () => {
   const go = (city: string) =>
     navigate(`/explore?city=${encodeURIComponent(city)}`);
 
-  // Layout: row 1 = København (large 2-col) + Aarhus + Odense
-  //         row 2 = Aalborg + Roskilde + Amager + Lyngby (4 small)
-  const [kbh, aar, ode, aal, ros] = cities;
+  const { data: counts = {} } = useQuery<Record<string, number>>({
+    queryKey: ["city-property-counts"],
+    staleTime: 1000 * 60 * 5,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("properties")
+        .select("city")
+        .eq("is_published", true);
+
+      const map: Record<string, number> = {};
+      (data ?? []).forEach(({ city }) => {
+        if (!city) return;
+        const lower = city.toLowerCase().trim();
+        map[lower] = (map[lower] ?? 0) + 1;
+      });
+      return map;
+    },
+  });
+
+  const cityData = CITIES.map((c) => ({
+    ...c,
+    count: c.aliases.reduce((sum, alias) => sum + (counts[alias] ?? 0), 0),
+  }));
+
+  const [kbh, aar, ode, aal, ros] = cityData;
 
   return (
     <section className="bg-secondary/30 py-14 sm:py-20">
@@ -40,7 +61,6 @@ const ExploreSection = () => {
           </div>
         </div>
 
-        {/* Mosaic */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <CityTile city={kbh} className="col-span-2 row-span-2 aspect-[4/5] lg:aspect-auto" onClick={go} />
           <CityTile city={aar} className="aspect-square" onClick={go} />
@@ -75,7 +95,9 @@ const CityTile = ({
     <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
     <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2 text-background">
       <h3 className="text-xl sm:text-2xl font-semibold tracking-tight">{city.name}</h3>
-      <span className="text-xs opacity-80 mb-1">{city.count} værelser</span>
+      <span className="text-xs opacity-80 mb-1">
+        {city.count > 0 ? `${city.count} ${city.count === 1 ? "bolig" : "boliger"}` : "Ingen boliger"}
+      </span>
     </div>
   </button>
 );

@@ -10,6 +10,7 @@ import HousingSection from "@/components/landing/HousingSection";
 import CTASection from "@/components/landing/CTASection";
 import FAQSection from "@/components/landing/FAQSection";
 import Footer from "@/components/landing/Footer";
+import PartnerBanner from "@/components/landing/PartnerBanner";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -37,6 +38,7 @@ const Index = () => {
       <ExploreSection />
       <HowItWorksSection />
       <HousingSection />
+      <PartnerBanner />
       <CTASection />
       <FAQSection />
       <Footer />

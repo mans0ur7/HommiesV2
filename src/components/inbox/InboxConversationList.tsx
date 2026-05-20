@@ -1,5 +1,6 @@
 import { Search, Home, User, UsersRound, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { usePresence } from "@/hooks/usePresence";
 
 interface Conversation {
   id: string;
@@ -54,6 +55,8 @@ const InboxConversationList = ({
   loading,
   activeTab,
 }: InboxConversationListProps) => {
+  const { isOnline } = usePresence();
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -141,6 +144,12 @@ const InboxConversationList = ({
               {conversation.unreadCount > 9 ? "9+" : conversation.unreadCount}
             </span>
           </div>
+        )}
+        {!isGroup && isOnline(conversation.otherUser.id) && conversation.unreadCount === 0 && (
+          <div
+            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background"
+            title="Online nu"
+          />
         )}
       </div>
 

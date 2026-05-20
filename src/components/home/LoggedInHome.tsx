@@ -6,7 +6,6 @@ import {
   ChevronRight,
   User,
   Heart,
-  Truck,
   ArrowUpRight,
   ArrowRight,
   Sparkles,
@@ -21,6 +20,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 import LocationCard from "./LocationCard";
 import PropertyCard from "./PropertyCard";
 import ExperienceRatingPrompt from "./ExperienceRatingPrompt";
+import PartnerBanner from "@/components/landing/PartnerBanner";
 
 import { useConversationPartners } from "@/hooks/useConversationPartners";
 import { useFavoriteProperties } from "@/hooks/useFavoriteProperties";
@@ -231,33 +231,14 @@ const LoggedInHome = () => {
           </div>
         </section>
 
-        {/* ───────── INLINE NOTICES (rating + Oscar) ───────── */}
-        <section className="px-4 md:px-6 lg:px-12 pb-6">
-          <div className="container mx-auto max-w-7xl space-y-3">
+        {/* ───────── INLINE NOTICES (rating) ───────── */}
+        <section className="px-4 md:px-6 lg:px-12 pb-2">
+          <div className="container mx-auto max-w-7xl">
             <ExperienceRatingPrompt />
-
-            <a
-              href="https://hejoscar.dk/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-4 rounded-2xl border border-border/60 bg-background hover:border-foreground/20 transition-colors p-4"
-            >
-              <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-foreground group-hover:text-background transition-colors">
-                <Truck className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">
-                  Skal du flytte? <span className="font-semibold">Spar 10%</span> på
-                  biludlejning
-                </p>
-                <p className="text-xs text-foreground/55">
-                  Via vores partner Oscar Biludlejning
-                </p>
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-foreground/40 group-hover:text-foreground transition-colors shrink-0" />
-            </a>
           </div>
         </section>
+
+        <PartnerBanner />
 
         {/* ───────── MATCHED ROOMIES ───────── */}
         <section className="px-4 md:px-6 lg:px-12 py-10 md:py-14">
