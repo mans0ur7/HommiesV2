@@ -56,9 +56,10 @@ const ExperienceRatingPrompt = () => {
     setIsVisible(true);
   }, []);
 
-  const handleInitialSubmit = () => {
-    if (overallRating === 0) return;
-    setShowModal(true);
+  const handleStarSelect = (star: number) => {
+    setOverallRating(star);
+    // Open the detailed modal right away (small delay lets the star fill animate)
+    setTimeout(() => setShowModal(true), 200);
   };
 
   const handleDetailedSubmit = () => {
@@ -127,10 +128,7 @@ const ExperienceRatingPrompt = () => {
                   <button
                     key={star}
                     type="button"
-                    onClick={() => {
-                      setOverallRating(star);
-                      setTimeout(() => handleInitialSubmit(), 200);
-                    }}
+                    onClick={() => handleStarSelect(star)}
                     onMouseEnter={() => setHoveredRating(star)}
                     onMouseLeave={() => setHoveredRating(0)}
                     className="transition-all duration-200 hover:scale-125 active:scale-95"
