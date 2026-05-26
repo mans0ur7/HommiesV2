@@ -64,13 +64,13 @@ Deno.serve(async (req) => {
       const { data: prof } = await supabase
         .from("profiles")
         .select("search_agent_slots")
-        .eq("id", user_id)
+        .eq("user_id", user_id)
         .single();
       const currentSlots = (prof?.search_agent_slots ?? 1);
       await supabase
         .from("profiles")
         .update({ search_agent_slots: currentSlots + 1 })
-        .eq("id", user_id);
+        .eq("user_id", user_id);
     }
 
     return new Response(JSON.stringify({ success: true, product_type }), {

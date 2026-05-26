@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Handshake, Shield, Lightbulb, ArrowRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 
@@ -29,6 +30,11 @@ const story = [
 ];
 
 const About = () => {
+  const { user } = useAuth();
+  const ctaTo = user ? "/explore" : "/auth?mode=signup";
+  const ctaPrimaryLabel = user ? "Find dit næste hjem" : "Bliv en del af fællesskabet";
+  const ctaSecondaryLabel = user ? "Find dit næste hjem" : "Opret gratis profil";
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -56,10 +62,10 @@ const About = () => {
 
               <div className="lg:col-span-5 flex lg:justify-end">
                 <Link
-                  to="/auth?mode=signup"
+                  to={ctaTo}
                   className="inline-flex items-center gap-2 bg-foreground text-background hover:bg-foreground/90 rounded-full px-6 py-3 text-sm font-medium transition-colors"
                 >
-                  Bliv en del af fællesskabet
+                  {ctaPrimaryLabel}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -160,10 +166,10 @@ const About = () => {
               Opret en gratis profil, og oplev en nemmere måde at finde bolig på.
             </p>
             <Link
-              to="/auth?mode=signup"
+              to={ctaTo}
               className="inline-flex items-center gap-2 bg-foreground text-background hover:bg-foreground/90 rounded-full px-7 py-3.5 text-sm font-medium transition-colors"
             >
-              Opret gratis profil
+              {ctaSecondaryLabel}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { isNativeApp } from "@/lib/native";
 
 interface Profile {
   id: string;
@@ -29,6 +30,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  profileLoaded: boolean;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -50,6 +52,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  // False until the first profile fetch resolves — gates the profile guard so
+  // existing users aren't redirected during the brief load window.
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -63,6 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setProfile(null);
     }
+    setProfileLoaded(true);
   };
 
   const refreshProfile = async () => {
@@ -85,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }, 0);
         } else {
           setProfile(null);
+          setProfileLoaded(true);
         }
         setLoading(false);
       }
@@ -96,6 +103,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
+      } else {
+        setProfileLoaded(true);
       }
       setLoading(false);
     });
@@ -104,8 +113,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+    // In the native app the origin is https://localhost, which a confirmation
+    // email link can't open on a device — send users to the real website instead.
+    const redirectUrl = isNativeApp() ? "https://hommies.dk/" : `${window.location.origin}/`;
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -140,6 +151,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         session,
         profile,
         loading,
+        profileLoaded,
         signUp,
         signIn,
         signOut,

@@ -1,4 +1,7 @@
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { isNativeApp } from "@/lib/native";
+import Onboarding, { ONBOARDING_SEEN_KEY } from "@/components/onboarding/Onboarding";
 import LoggedInHome from "@/components/home/LoggedInHome";
 import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
@@ -14,6 +17,7 @@ import PartnerBanner from "@/components/landing/PartnerBanner";
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -28,7 +32,23 @@ const Index = () => {
     return <LoggedInHome />;
   }
 
-  // Show public landing page for non-authenticated users
+  // In the native app there is no public landing page: first launch shows the
+  // onboarding slides, after that we go straight to login/registration.
+  if (isNativeApp()) {
+    if (localStorage.getItem(ONBOARDING_SEEN_KEY) !== "true") {
+      return (
+        <Onboarding
+          onDone={() => {
+            localStorage.setItem(ONBOARDING_SEEN_KEY, "true");
+            navigate("/auth", { replace: true });
+          }}
+        />
+      );
+    }
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Show public landing page for non-authenticated users (web)
   return (
     <div className="min-h-screen bg-background">
       <Navbar />

@@ -2,8 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import BugReportButton from "@/components/BugReportButton";
 import Index from "./pages/Index";
 import Explore from "./pages/Explore";
 import PropertyDetail from "./pages/PropertyDetail";
@@ -40,6 +42,24 @@ const queryClient = new QueryClient({
   },
 });
 
+// Forces a logged-in user without a profile to finish profile creation before
+// they can use the rest of the app — prevents orphaned, profile-less accounts.
+const ProfileGuard = () => {
+  const { user, profile, loading, profileLoaded } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loading || !profileLoaded) return;
+    const exempt = location.pathname === "/complete-profile" || location.pathname === "/auth";
+    if (user && !profile && !exempt) {
+      navigate("/complete-profile", { replace: true });
+    }
+  }, [user, profile, loading, profileLoaded, location.pathname, navigate]);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -47,6 +67,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ProfileGuard />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/explore" element={<Explore />} />
@@ -76,6 +97,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <BugReportButton />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

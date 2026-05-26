@@ -39,7 +39,7 @@ const MobileHeader = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border md:hidden">
+      <header className="safe-area-top sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border md:hidden">
         <div className="flex h-14 items-center justify-between px-4">
           {/* Hamburger Menu Button */}
           <button
@@ -119,7 +119,7 @@ const MobileHeader = () => {
           )}
         >
           {/* Menu Header */}
-          <div className="flex items-center justify-between h-14 px-4 border-b border-border">
+          <div className="safe-area-top flex items-center justify-between h-14 px-4 border-b border-border">
             <span className="font-semibold text-foreground">Menu</span>
             <button
               onClick={closeMenu}

@@ -37,7 +37,7 @@ const genderOptions = [
 ];
 
 const CompleteProfile = () => {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -215,14 +215,17 @@ const CompleteProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-6 sm:py-12 px-4">
+    <div
+      className="min-h-screen bg-background pb-6 sm:pb-12 px-4"
+      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.5rem)" }}
+    >
       <div className="w-full max-w-lg mx-auto">
         <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/auth")}
+            onClick={async () => { await signOut(); navigate("/auth"); }}
             className="shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />

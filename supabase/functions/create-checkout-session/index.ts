@@ -46,10 +46,21 @@ Deno.serve(async (req) => {
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("stripe_customer_id, name")
-      .eq("id", user.id)
+      .eq("user_id", user.id)
       .single();
 
     let customerId = profile?.stripe_customer_id;
+
+    // Verify the stored customer still exists in the active Stripe account.
+    // After switching Stripe accounts, old customer IDs are unknown to the new one.
+    if (customerId) {
+      try {
+        const existing = await stripe.customers.retrieve(customerId);
+        if ((existing as any).deleted) customerId = null;
+      } catch {
+        customerId = null;
+      }
+    }
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -61,14 +72,13 @@ Deno.serve(async (req) => {
       await supabaseAdmin
         .from("profiles")
         .update({ stripe_customer_id: customerId })
-        .eq("id", user.id);
+        .eq("user_id", user.id);
     }
 
     const origin = req.headers.get("origin") ?? "https://hommies.dk";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      automatic_payment_methods: { enabled: true },
       line_items: [{
         price_data: {
           currency: "dkk",
@@ -87,6 +97,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err: any) {
+    console.error("create-checkout-session error:", err?.message ?? err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

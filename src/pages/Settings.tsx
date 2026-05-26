@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { submitReport } from "@/lib/bugReport";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -438,11 +439,20 @@ const Settings = () => {
       return;
     }
 
-    toast({
-      title: "Tak for din feedback",
-      description: "Vi har modtaget din besked og vil se på det hurtigst muligt",
-    });
-    setProblemDescription("");
+    try {
+      await submitReport(problemDescription, "problem", user?.email);
+      toast({
+        title: "Tak for din feedback",
+        description: "Vi har modtaget din besked og vender tilbage hurtigst muligt.",
+      });
+      setProblemDescription("");
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Kunne ikke sende",
+        description: "Prøv igen om lidt.",
+      });
+    }
   };
 
   const handleToggleHiddenFromExplore = async (hidden: boolean) => {

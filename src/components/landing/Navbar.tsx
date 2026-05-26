@@ -35,7 +35,7 @@ const Navbar = () => {
   const navLinkClass = "px-3 py-1.5 rounded-full text-[13.5px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted/70 transition-colors flex items-center gap-1.5";
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur-xl border-b border-border/60">
+    <nav className="safe-area-top sticky top-0 z-50 w-full bg-background/70 backdrop-blur-xl border-b border-border/60">
       <div className="container mx-auto px-3 md:px-6 lg:px-12">
         <div className="flex h-14 md:h-16 items-center justify-between gap-4">
           {/* Logo */}
