@@ -496,7 +496,7 @@ const SearchAgentWizard = ({
                     Engangsbetaling. Sletning frigør pladsen til ny agent.
                   </p>
                 </div>
-              ) : (
+              ) : (!isEditing && existingAgentsCount === 0) ? (
                 <div className="p-4 rounded-xl border-2 border-green-500/30 bg-green-500/5">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -510,7 +510,7 @@ const SearchAgentWizard = ({
                     </div>
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
           )}
         </div>
