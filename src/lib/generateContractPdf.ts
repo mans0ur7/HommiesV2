@@ -1,4 +1,4 @@
-import jsPDF from "jspdf";
+import type JsPDF from "jspdf";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
 import hommiesLogo from "@/assets/hommies-logo.png";
@@ -63,7 +63,10 @@ const getBase64FromUrl = (url: string): Promise<string> =>
     img.src = url;
   });
 
-export async function generateContractPdf(data: HusordensData): Promise<jsPDF> {
+export async function generateContractPdf(data: HusordensData): Promise<JsPDF> {
+  // Loaded on demand so the ~400KB PDF libs (jspdf + html2canvas) stay out of
+  // the page bundle until a contract PDF is actually generated.
+  const { default: jsPDF } = await import("jspdf");
   const doc = new jsPDF();
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
