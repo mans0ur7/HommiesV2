@@ -1,5 +1,6 @@
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { fulfillCheckout } from "../_shared/fulfill.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,55 +29,14 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { user_id, product_type, product_id } = session.metadata!;
+    // Idempotent — safe even if the webhook already fulfilled this session.
+    await fulfillCheckout(supabase, session);
 
-    // Log betaling
-    await supabase.from("payments").insert({
-      user_id,
-      product_type,
-      product_id: product_id || null,
-      stripe_session_id: session.id,
-      amount: session.amount_total,
-      currency: session.currency,
-      status: "completed",
-    });
-
-    // Aktiver produkt
-    if (product_type.startsWith("boost_") && product_id) {
-      const days = product_type === "boost_1day" ? 1 : product_type === "boost_3day" ? 3 : 7;
-      const expires = new Date();
-      expires.setDate(expires.getDate() + days);
-      await supabase.from("properties")
-        .update({ boost_started_at: new Date().toISOString(), boost_expires_at: expires.toISOString() })
-        .eq("id", product_id).eq("user_id", user_id);
-    }
-
-    if (product_type.startsWith("listing_") && product_id) {
-      const days = product_type === "listing_7day" ? 7 : product_type === "listing_14day" ? 14 : 30;
-      const expires = new Date();
-      expires.setDate(expires.getDate() + days);
-      await supabase.from("properties")
-        .update({ is_published: true, expires_at: expires.toISOString(), listing_period: days })
-        .eq("id", product_id).eq("user_id", user_id);
-    }
-
-    if (product_type === "search_agent") {
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("search_agent_slots")
-        .eq("user_id", user_id)
-        .single();
-      const currentSlots = (prof?.search_agent_slots ?? 1);
-      await supabase
-        .from("profiles")
-        .update({ search_agent_slots: currentSlots + 1 })
-        .eq("user_id", user_id);
-    }
-
-    return new Response(JSON.stringify({ success: true, product_type }), {
+    return new Response(JSON.stringify({ success: true, product_type: session.metadata?.product_type }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err: any) {
+    console.error("verify-payment error:", err?.message ?? err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
