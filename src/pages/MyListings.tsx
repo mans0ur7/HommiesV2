@@ -453,10 +453,25 @@ const MyListings = () => {
 
   const togglePublish = async (propertyId: string, currentStatus: boolean) => {
     try {
+      // Publishing (not hiding) outside the free trial requires a valid paid
+      // period — otherwise route to payment instead of publishing for free.
+      if (!currentStatus && !freeTrialInfo.active) {
+        const property = properties.find((p) => p.id === propertyId);
+        const expiresAt = (property as any)?.expires_at;
+        const hasValidPeriod = expiresAt && new Date(expiresAt) > new Date();
+        if (!hasValidPeriod) {
+          if (property) setRenewDialog(property);
+          return;
+        }
+      }
+
       const updateData: Record<string, any> = { is_published: !currentStatus };
-      if (!currentStatus && freeTrialInfo.active) {
-        updateData.expires_at = addDays(new Date(), 30).toISOString();
-        updateData.listing_period = 30;
+      if (!currentStatus) {
+        updateData.status = "active";
+        if (freeTrialInfo.active) {
+          updateData.expires_at = addDays(new Date(), 30).toISOString();
+          updateData.listing_period = 30;
+        }
       }
 
       const { error } = await supabase
@@ -889,12 +904,6 @@ const nextStep = () => {
         : listingPeriods.find(p => p.days === selectedListingPeriod);
       if (!period) return;
 
-      // Calculate price with launch offer if applicable (only for non-free-trial new listings)
-      const finalPrice = editingProperty
-        ? period.price
-        : isFreeTrialListing ? 0 : getListingPrice(period.price, true);
-      const usedLaunchOffer = !editingProperty && isLaunchOfferEligible && !isFreeTrialListing;
-
       const expiresAt = addDays(new Date(), period.days);
 
       const propertyData = {
@@ -948,27 +957,45 @@ const nextStep = () => {
 
         toast({
           title: "Annonce opdateret og aktiveret!",
-          description: `Din annonce er nu aktiv i ${selectedListingPeriod} dage. Betaling: ${period.price} kr`,
+          description: `Din annonce er nu aktiv i ${selectedListingPeriod} dage.`,
         });
-      } else {
-        const { error } = await supabase.from("properties").insert(propertyData);
-
-        if (error) throw error;
-
-        const discountText = usedLaunchOffer ? " (inkl. 50% launch-rabat)" : "";
-        toast({
-          title: "Annonce oprettet!",
-          description: isFreeTrialListing
-            ? `Din annonce er gratis aktiv i 30 dage (gratis periode)`
-            : `Din annonce er nu aktiv i ${period.days} dage. Betaling: ${finalPrice} kr${discountText}`,
-        });
-        
-        // Update hasExistingListings immediately so launch offer is no longer shown
-        setHasExistingListings(true);
+        closeForm();
+        fetchProperties();
+        return;
       }
 
-      closeForm();
-      fetchProperties();
+      if (isFreeTrialListing) {
+        const { error } = await supabase.from("properties").insert(propertyData);
+        if (error) throw error;
+
+        setHasExistingListings(true);
+        toast({
+          title: "Annonce oprettet!",
+          description: "Din annonce er gratis aktiv i 30 dage (gratis periode)",
+        });
+        closeForm();
+        fetchProperties();
+        return;
+      }
+
+      // Paid new listing — save as an unpublished draft, then send to Stripe.
+      // verify-payment / stripe-webhook publishes it once payment succeeds.
+      const { data: inserted, error: insertErr } = await supabase
+        .from("properties")
+        .insert({ ...propertyData, status: "pending_payment", is_published: false, expires_at: null })
+        .select("id")
+        .single();
+      if (insertErr || !inserted) throw insertErr ?? new Error("Kunne ikke oprette annonce");
+
+      const productType = `listing_${selectedListingPeriod}day`;
+      const { data: checkout, error: checkoutErr } = await supabase.functions.invoke(
+        "create-checkout-session",
+        { body: { product_type: productType, product_id: inserted.id } }
+      );
+      if (checkoutErr || !checkout?.url) {
+        throw new Error(checkoutErr?.message ?? "Kunne ikke starte betaling");
+      }
+      window.location.href = checkout.url;
     } catch (error) {
       console.error("Error saving property:", error);
       toast({

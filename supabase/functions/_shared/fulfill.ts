@@ -47,7 +47,7 @@ export async function fulfillCheckout(admin: AnyClient, session: any): Promise<s
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
     await admin.from("properties")
-      .update({ is_published: true, expires_at: expires.toISOString(), listing_period: days })
+      .update({ is_published: true, status: "active", expires_at: expires.toISOString(), listing_period: days })
       .eq("id", product_id).eq("user_id", user_id);
   }
 
