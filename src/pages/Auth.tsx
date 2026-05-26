@@ -9,6 +9,8 @@ import { z } from "zod";
 import { Eye, EyeOff, Home, Users, ArrowLeft, ArrowRight } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
 import { useShowcaseImages } from "@/hooks/useShowcaseImages";
+import { supabase } from "@/integrations/supabase/client";
+import { isNativeApp } from "@/lib/native";
 
 const emailSchema = z.string().email("Ugyldig email-adresse");
 const passwordSchema = z
@@ -81,6 +83,26 @@ const Auth = () => {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const result = emailSchema.safeParse(email);
+    if (!result.success) {
+      setErrors({ email: "Indtast din email ovenfor, så sender vi et nulstillingslink" });
+      return;
+    }
+    const redirectTo = isNativeApp()
+      ? "https://hommies.dk/reset-password"
+      : `${window.location.origin}/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) {
+      toast({ variant: "destructive", title: "Fejl", description: error.message });
+    } else {
+      toast({
+        title: "Tjek din email",
+        description: "Vi har sendt et link til at nulstille din adgangskode.",
+      });
     }
   };
 
@@ -185,7 +207,7 @@ const Auth = () => {
                     <button
                       type="button"
                       className="text-xs text-foreground/60 hover:text-foreground transition-colors"
-                      onClick={() => toast({ title: "Kommer snart", description: "Glemt adgangskode er på vej." })}
+                      onClick={handleForgotPassword}
                     >
                       Glemt?
                     </button>

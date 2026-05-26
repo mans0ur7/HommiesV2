@@ -14,6 +14,7 @@ const Explore = lazy(() => import("./pages/Explore"));
 const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
 const Auth = lazy(() => import("./pages/Auth"));
 const CompleteProfile = lazy(() => import("./pages/CompleteProfile"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Profile = lazy(() => import("./pages/Profile"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const MyListings = lazy(() => import("./pages/MyListings"));
@@ -53,7 +54,10 @@ const ProfileGuard = () => {
 
   useEffect(() => {
     if (loading || !profileLoaded) return;
-    const exempt = location.pathname === "/complete-profile" || location.pathname === "/auth";
+    const exempt =
+      location.pathname === "/complete-profile" ||
+      location.pathname === "/auth" ||
+      location.pathname === "/reset-password";
     if (user && !profile && !exempt) {
       navigate("/complete-profile", { replace: true });
     }
@@ -83,6 +87,7 @@ const App = () => (
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/complete-profile" element={<CompleteProfile />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             <Route path="/profile" element={<Profile />} />
             <Route path="/user/:userId" element={<UserProfile />} />
