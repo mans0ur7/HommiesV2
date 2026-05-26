@@ -3,33 +3,35 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import BugReportButton from "@/components/BugReportButton";
-import Index from "./pages/Index";
-import Explore from "./pages/Explore";
-import PropertyDetail from "./pages/PropertyDetail";
-import Auth from "./pages/Auth";
-import CompleteProfile from "./pages/CompleteProfile";
 
-import Profile from "./pages/Profile";
-import UserProfile from "./pages/UserProfile";
-import MyListings from "./pages/MyListings";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
-import Settings from "./pages/Settings";
-import Payment from "./pages/Payment";
-import Inbox from "./pages/Inbox";
-import Matches from "./pages/Matches";
-import Documents from "./pages/Documents";
-import ContractWizard from "./pages/ContractWizard";
-import ContractDetail from "./pages/ContractDetail";
-import SearchAgents from "./pages/SearchAgents";
-import SearchTogether from "./pages/SearchTogether";
-import MovingService from "./pages/MovingService";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import NotFound from "./pages/NotFound";
+// Lazy-loaded routes — each page is fetched on demand instead of shipping the
+// whole app in the initial bundle.
+const Index = lazy(() => import("./pages/Index"));
+const Explore = lazy(() => import("./pages/Explore"));
+const PropertyDetail = lazy(() => import("./pages/PropertyDetail"));
+const Auth = lazy(() => import("./pages/Auth"));
+const CompleteProfile = lazy(() => import("./pages/CompleteProfile"));
+const Profile = lazy(() => import("./pages/Profile"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const MyListings = lazy(() => import("./pages/MyListings"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Payment = lazy(() => import("./pages/Payment"));
+const Inbox = lazy(() => import("./pages/Inbox"));
+const Matches = lazy(() => import("./pages/Matches"));
+const Documents = lazy(() => import("./pages/Documents"));
+const ContractWizard = lazy(() => import("./pages/ContractWizard"));
+const ContractDetail = lazy(() => import("./pages/ContractDetail"));
+const SearchAgents = lazy(() => import("./pages/SearchAgents"));
+const SearchTogether = lazy(() => import("./pages/SearchTogether"));
+const MovingService = lazy(() => import("./pages/MovingService"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +62,12 @@ const ProfileGuard = () => {
   return null;
 };
 
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+  </div>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -68,6 +76,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ProfileGuard />
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/explore" element={<Explore />} />
@@ -97,6 +106,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
           <BugReportButton />
         </BrowserRouter>
       </TooltipProvider>
