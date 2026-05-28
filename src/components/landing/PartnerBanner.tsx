@@ -39,6 +39,13 @@ export default function PartnerBanner() {
               Som Hommies-bruger får du 10% rabat hos Oscars Biludlejning — uanset om du lejer
               ud eller lejer ind. Nemt, hurtigt og til en god pris.
             </p>
+            <p className="mt-2.5 text-sm text-foreground/70">
+              Brug rabatkoden{" "}
+              <span className="font-semibold text-foreground bg-foreground/10 rounded-md px-1.5 py-0.5 tracking-wide">
+                HOMMIES10
+              </span>{" "}
+              ved booking.
+            </p>
             <p className="mt-2 text-xs text-foreground/40">Via vores partner · oscarsbiludlejning.dk</p>
           </div>
 
