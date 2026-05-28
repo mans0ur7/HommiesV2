@@ -14,6 +14,7 @@ import Navbar from "@/components/landing/Navbar";
 import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { isNativeApp } from "@/lib/native";
 import {
   isPushSupported,
   getNotificationPermission,
@@ -37,6 +38,7 @@ type SettingsSection = 'payment' | 'notifications' | 'visibility' | 'email' | 'p
 const PaymentSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const native = isNativeApp();
   const [loadingPortal, setLoadingPortal] = useState(false);
 
   const openPortal = async () => {
@@ -50,6 +52,28 @@ const PaymentSection = () => {
       setLoadingPortal(false);
     }
   };
+
+  // Native app: card management, receipts and purchases are handled on the web
+  // (store billing rules), so show a notice instead of the Stripe portal.
+  if (native) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground mb-1">Betaling og priser</h2>
+          <p className="text-muted-foreground text-sm">Administrer dine betalingsoplysninger og se kvitteringer</p>
+        </div>
+        <div className="rounded-xl border border-border bg-muted/30 p-6 text-center">
+          <div className="w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center mx-auto mb-4">
+            <CreditCard className="w-6 h-6 text-secondary" />
+          </div>
+          <p className="font-medium text-foreground mb-1">Administreres på hommies.dk</p>
+          <p className="text-sm text-muted-foreground">
+            Betalingskort, kvitteringer og køb administreres på vores hjemmeside i din browser.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -10,6 +10,7 @@ import { ArrowLeft, CreditCard, Sparkles, Clock, Search, Gift, CheckCircle, Load
 import { toast } from "sonner";
 import { differenceInDays } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { isNativeApp } from "@/lib/native";
 
 const FREE_TRIAL_DAYS = 60;
 
@@ -22,6 +23,7 @@ const Payment = () => {
   const { user, loading, profile } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const native = isNativeApp();
   const isLandlord = profile?.user_type === "landlord";
   const isRoomie = profile?.user_type === "roomie";
   const [purchasing, setPurchasing] = useState<ProductType | null>(null);
@@ -58,6 +60,9 @@ const Payment = () => {
 
   const handlePurchase = async (productType: ProductType) => {
     if (!user) return;
+    // In-app digital purchases are web-only for now (Google Play requires Play
+    // Billing for digital goods — handled separately, not via Stripe).
+    if (native) return;
     setPurchasing(productType);
 
     try {
@@ -88,6 +93,38 @@ const Payment = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+
+  // Native app: digital purchases must go through the store's billing, so the
+  // Stripe-based purchase UI is web-only. Show an informational notice instead.
+  if (native) {
+    return (
+      <AppLayout>
+        <div className="min-h-screen bg-background">
+          {!isMobile && <Navbar />}
+          <div className="max-w-xl mx-auto px-4 py-16 md:py-24">
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground mb-8 -ml-1 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Tilbage
+            </button>
+            <div className="rounded-2xl border border-border bg-muted/30 p-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center mx-auto mb-5">
+                <ShieldCheck className="w-6 h-6 text-secondary" />
+              </div>
+              <h1 className="text-2xl font-semibold text-foreground mb-2">Opgraderinger på hommies.dk</h1>
+              <p className="text-sm text-foreground/60 leading-relaxed">
+                Boost, annonceperioder og ekstra søgeagenter administreres på vores hjemmeside
+                <span className="text-foreground font-medium"> hommies.dk</span> i din browser.
+                Du kan stadig oprette din første søgeagent og bruge gratis-perioden direkte i appen.
+              </p>
+            </div>
+          </div>
+        </div>
+      </AppLayout>
     );
   }
 

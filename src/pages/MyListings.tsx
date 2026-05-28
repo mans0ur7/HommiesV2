@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import GenderCompositionSelector from "@/components/listings/GenderCompositionSelector";
 import { compressImage } from "@/lib/compressImage";
+import { isNativeApp } from "@/lib/native";
 
 const AddressMap = lazy(() => import("@/components/listings/AddressMap"));
 
@@ -196,6 +197,7 @@ const MyListings = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const native = isNativeApp();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loadingProperties, setLoadingProperties] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -809,6 +811,10 @@ const nextStep = () => {
 
   const handleRenewListing = async () => {
     if (!renewDialog) return;
+    if (native) {
+      toast({ title: "Kun på hommies.dk", description: "Fornyelse af annoncer foregår på hjemmesiden." });
+      return;
+    }
     setRenewPurchasing(true);
     try {
       const productType = `listing_${selectedPeriod}day` as const;
@@ -825,6 +831,10 @@ const nextStep = () => {
 
   const handleBoostListing = async () => {
     if (!boostDialog) return;
+    if (native) {
+      toast({ title: "Kun på hommies.dk", description: "Boost af annoncer foregår på hjemmesiden." });
+      return;
+    }
     setBoostPurchasing(true);
     try {
       const productType = `boost_${selectedBoost}day` as const;
@@ -975,6 +985,13 @@ const nextStep = () => {
         });
         closeForm();
         fetchProperties();
+        return;
+      }
+
+      // Paid new listing — web only (Google Play requires its own billing for
+      // digital goods, so Stripe purchases are disabled in the native app).
+      if (native) {
+        toast({ title: "Kun på hommies.dk", description: "Køb af annonceperiode foregår på hjemmesiden. Du kan stadig oprette annoncer gratis i din gratis-periode." });
         return;
       }
 
@@ -2026,7 +2043,7 @@ const nextStep = () => {
                   <Button
                     type="button"
                     onClick={handlePaymentAndSubmit}
-                    disabled={!canProceed()}
+                    disabled={!canProceed() || (native && !freeTrialInfo.active && !editingProperty)}
                     className={`${freeTrialInfo.active && !editingProperty ? 'bg-green-600 hover:bg-green-700' : isLaunchOfferEligible && !editingProperty ? 'bg-green-600 hover:bg-green-700' : 'bg-secondary hover:bg-secondary/90'} text-secondary-foreground w-full sm:w-auto order-1 sm:order-2`}
                   >
                     {freeTrialInfo.active && !editingProperty
@@ -2036,8 +2053,10 @@ const nextStep = () => {
                       {freeTrialInfo.active && !editingProperty
                         ? "Offentliggør gratis"
                         : editingProperty
-                          ? `Betal ${listingPeriods.find(p => p.days === selectedListingPeriod)?.price} kr og publicer`
-                          : `Betal ${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr og publicer`
+                          ? "Gem og publicer"
+                          : native
+                            ? "Køb på hommies.dk"
+                            : `Betal ${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr og publicer`
                       }
                     </span>
                   </Button>
@@ -2125,10 +2144,11 @@ const nextStep = () => {
                         </span>
                       </div>
                       
-                      {/* Action buttons - compact on mobile */}
+                      {/* Action buttons - paid upgrades, web only (Play Billing handled separately) */}
+                      {!native && (
                       <div className="flex gap-1 md:gap-2 mb-1.5 md:mb-3">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => {
                             setSelectedPeriod(14);
@@ -2139,8 +2159,8 @@ const nextStep = () => {
                           <RefreshCw className="w-3 h-3 md:w-4 md:h-4 md:mr-1" />
                           <span className="hidden md:inline">{(property as any).status === "active" ? "Forlæng" : "Forny"}</span>
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => {
                             setSelectedBoost(1);
@@ -2152,6 +2172,7 @@ const nextStep = () => {
                           <span className="hidden md:inline">Boost</span>
                         </Button>
                       </div>
+                      )}
                       
                       <div className="flex gap-1 md:gap-2">
                         <Button 
