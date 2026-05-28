@@ -117,7 +117,7 @@ const Auth = () => {
       {/* ───────── LEFT — FORM ───────── */}
       <div
         className="flex flex-col px-4 sm:px-8 lg:px-12 pb-6 lg:pb-8 min-h-screen lg:min-h-0"
-        style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.5rem)" }}
+        style={{ paddingTop: "calc(var(--safe-top) + 1.5rem)" }}
       >
         {/* Top bar */}
         <div className="flex items-center justify-between">

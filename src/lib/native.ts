@@ -6,10 +6,16 @@ export const isNativeApp = () => Capacitor.isNativePlatform();
 export async function initNativeApp() {
   if (!Capacitor.isNativePlatform()) return;
 
+  // Flag native platform(s) so CSS can apply status-bar-safe insets. Android 15+
+  // forces edge-to-edge and env(safe-area-inset-top) doesn't cover the status
+  // bar, so .native-android gets a minimum top inset (see index.css).
+  document.documentElement.classList.add("native-app");
+  if (Capacitor.getPlatform() === "android") {
+    document.documentElement.classList.add("native-android");
+  }
+
   try {
-    // Keep the web content below the system status bar instead of drawing under it
-    await StatusBar.setOverlaysWebView({ overlay: false });
-    // Light status bar (dark icons) to match the white app background
+    // Dark icons to match the white app background.
     await StatusBar.setStyle({ style: Style.Light });
     if (Capacitor.getPlatform() === "android") {
       await StatusBar.setBackgroundColor({ color: "#ffffff" });

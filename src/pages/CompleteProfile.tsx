@@ -217,7 +217,7 @@ const CompleteProfile = () => {
   return (
     <div
       className="min-h-screen bg-background pb-6 sm:pb-12 px-4"
-      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.5rem)" }}
+      style={{ paddingTop: "calc(var(--safe-top) + 1.5rem)" }}
     >
       <div className="w-full max-w-lg mx-auto">
         <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">

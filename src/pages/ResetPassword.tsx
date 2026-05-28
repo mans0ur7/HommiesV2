@@ -68,7 +68,7 @@ const ResetPassword = () => {
   return (
     <div
       className="min-h-screen bg-background flex flex-col items-center justify-center px-4"
-      style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 1.5rem)" }}
+      style={{ paddingTop: "calc(var(--safe-top) + 1.5rem)" }}
     >
       <div className="w-full max-w-md">
         <img src={hommiesLogo} alt="Hommies" className="h-8 mx-auto mb-8" />

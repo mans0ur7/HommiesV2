@@ -172,13 +172,26 @@
   animation: spin-smooth 1s linear infinite;
 }
 
-/* Safe area for iPhone home indicator / bottom nav */
+/* Safe-area insets. On iOS env(safe-area-inset-*) covers the notch/home
+   indicator. On Android 15+ the app is forced edge-to-edge but env() does NOT
+   report the status/navigation bars (only display cutouts), so for the native
+   Android app we enforce a sensible minimum inset. */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html.native-android {
+  --safe-top: max(env(safe-area-inset-top, 0px), 28px);
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+}
+
 .safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--safe-bottom);
 }
 
 .safe-area-top {
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: var(--safe-top);
 }
 
 /* Hide scrollbar for horizontal scroll containers */
