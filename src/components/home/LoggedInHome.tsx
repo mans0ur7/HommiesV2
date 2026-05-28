@@ -61,7 +61,7 @@ const LoggedInHome = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cityScrollIndex, setCityScrollIndex] = useState(0);
   const cityScrollRef = useRef<HTMLDivElement>(null);
-  const firstName = profile?.name?.split(" ")[0] || "der";
+  const firstName = profile?.name?.split(" ")[0];
 
   const visibleCities = 4;
   const maxScrollIndex = Math.max(0, locations.length - visibleCities);
@@ -127,7 +127,7 @@ const LoggedInHome = () => {
               <div>
                 <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-3">
                   <span className="w-6 h-px bg-foreground/30" />
-                  {greeting}, {firstName}
+                  {greeting}{firstName ? `, ${firstName}` : ""}
                 </span>
                 <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05]">
                   Hvor skal du hjem
