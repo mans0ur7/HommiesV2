@@ -4,6 +4,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { danishCities, getMatchingCities } from "@/data/danishCities";
 import { supabase } from "@/integrations/supabase/client";
+import { Geolocation } from "@capacitor/geolocation";
+import { isNativeApp } from "@/lib/native";
 
 // City images
 import copenhagenImg from "@/assets/cities/copenhagen.jpg";
@@ -150,27 +152,30 @@ const LocationModal = ({ open, onClose, selectedCity, onSelectCity }: LocationMo
     return nearestCity;
   };
 
-  const handleShowNearby = () => {
-    if (navigator.geolocation) {
-      setIsLoadingLocation(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const nearestCity = findNearestCity(position.coords.latitude, position.coords.longitude);
-          setIsLoadingLocation(false);
-          onSelectCity(nearestCity);
-          onClose();
-        },
-        () => {
-          setIsLoadingLocation(false);
-          onSelectCity("København");
-          onClose();
-        },
-        { 
-          enableHighAccuracy: false, // Faster with less accuracy
-          timeout: 10000, // 10 second timeout
-          maximumAge: 300000 // Cache for 5 minutes
+  const handleShowNearby = async () => {
+    setIsLoadingLocation(true);
+    try {
+      // On native this triggers the Android runtime permission prompt; on web
+      // the plugin uses the browser's geolocation.
+      if (isNativeApp()) {
+        const perm = await Geolocation.requestPermissions();
+        if (perm.location === "denied" && perm.coarseLocation === "denied") {
+          throw new Error("location permission denied");
         }
-      );
+      }
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000,
+      });
+      const nearestCity = findNearestCity(position.coords.latitude, position.coords.longitude);
+      onSelectCity(nearestCity);
+    } catch {
+      // Fall back to a sensible default if location is unavailable/denied.
+      onSelectCity("København");
+    } finally {
+      setIsLoadingLocation(false);
+      onClose();
     }
   };
 
