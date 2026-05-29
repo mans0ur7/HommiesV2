@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { isNativeApp } from "@/lib/native";
 import { useSearchAgents, CreateSearchAgentData } from "@/hooks/useSearchAgents";
 import { useNotifications } from "@/hooks/useNotifications";
 import SearchAgentWizard from "@/components/search-agents/SearchAgentWizard";
@@ -131,7 +132,7 @@ const SearchAgents = () => {
             </p>
             <p className="mt-2 text-sm text-foreground/50">
               {t("searchAgents.slotsUsed", { used: usedSlots, total: availableSlots })}
-              {usedSlots >= availableSlots && availableSlots > 0 && (
+              {usedSlots >= availableSlots && availableSlots > 0 && !isNativeApp() && (
                 <span className="text-amber-500 ml-2">{t("searchAgents.buyExtra")}</span>
               )}
             </p>
