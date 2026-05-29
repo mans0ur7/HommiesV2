@@ -993,6 +993,19 @@
     "phone": "Telefon: +45 31 21 74 17",
     "policyLink": "Læs også hele privatlivspolitikken"
   },
+  "tour": {
+    "s1Title": "Velkommen til Hommies!",
+    "s1Body": "Find værelser og roomies i hele Danmark. Søg, swipe og match — alt på én platform.",
+    "s2Title": "Match med personlighed",
+    "s2Body": "Vi matcher dig baseret på livsstil, alder, sprog og beskæftigelse — ikke kun kvadratmeter.",
+    "s3Title": "Skriv direkte",
+    "s3Body": "Når du matcher med en roomie eller udlejer, åbnes en chat — ingen ventetid.",
+    "s4Title": "Søg med dine venner",
+    "s4Body": "Brug Focus til at oprette grupper og gemme boliger sammen med dine kommende roomies.",
+    "skip": "Spring over",
+    "next": "Næste",
+    "gotIt": "Lad os komme i gang"
+  },
   "match": {
     "eyebrow": "Det er et match!",
     "title": "It's a match!",

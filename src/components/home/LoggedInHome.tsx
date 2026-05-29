@@ -22,6 +22,7 @@ import LocationCard from "./LocationCard";
 import PropertyCard from "./PropertyCard";
 import ExperienceRatingPrompt from "./ExperienceRatingPrompt";
 import ProfileCompletenessCard from "./ProfileCompletenessCard";
+import FirstLoginTour from "@/components/onboarding/FirstLoginTour";
 import PartnerBanner from "@/components/landing/PartnerBanner";
 
 import { useConversationPartners } from "@/hooks/useConversationPartners";
@@ -386,6 +387,7 @@ const LoggedInHome = () => {
 
         {!isMobile && <Footer />}
       </div>
+      <FirstLoginTour />
     </AppLayout>
   );
 };

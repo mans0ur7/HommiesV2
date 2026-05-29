@@ -7,6 +7,7 @@ import { useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import BugReportButton from "@/components/BugReportButton";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
+import { useAppBadge } from "@/hooks/useAppBadge";
 
 // Lazy-loaded routes — each page is fetched on demand instead of shipping the
 // whole app in the initial bundle.
@@ -54,6 +55,7 @@ const ProfileGuard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   useDeepLinks();
+  useAppBadge();
 
   useEffect(() => {
     if (loading || !profileLoaded) return;

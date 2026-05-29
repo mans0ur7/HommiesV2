@@ -993,6 +993,19 @@
     "phone": "Phone: +45 31 21 74 17",
     "policyLink": "Read the full privacy policy"
   },
+  "tour": {
+    "s1Title": "Welcome to Hommies!",
+    "s1Body": "Find rooms and roomies across Denmark. Search, swipe and match — all in one place.",
+    "s2Title": "Match by personality",
+    "s2Body": "We match you on lifestyle, age, languages and occupation — not just square meters.",
+    "s3Title": "Message directly",
+    "s3Body": "When you match with a roomie or landlord, a chat opens immediately — no waiting.",
+    "s4Title": "Search together",
+    "s4Body": "Use Focus to create groups and save homes with your future roommates.",
+    "skip": "Skip",
+    "next": "Next",
+    "gotIt": "Let's get started"
+  },
   "match": {
     "eyebrow": "It's a match!",
     "title": "It's a match!",

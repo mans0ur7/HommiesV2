@@ -426,8 +426,21 @@ const Inbox = () => {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">{t("inbox.loading")}</div>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-4 md:px-6 py-6">
+          <div className="h-8 w-48 bg-muted rounded animate-pulse mb-6" />
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 bg-card border border-border/40 rounded-xl">
+                <div className="w-12 h-12 rounded-full bg-muted animate-pulse flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 bg-muted rounded animate-pulse" />
+                  <div className="h-3 w-48 bg-muted/70 rounded animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
