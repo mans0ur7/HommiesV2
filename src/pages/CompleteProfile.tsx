@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,25 +22,26 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const workOptions = [
-  { value: "student", label: "Studerende" },
-  { value: "employed", label: "Ansat" },
-  { value: "self-employed", label: "Selvstændig" },
-  { value: "unemployed", label: "Arbejdsløs" },
-  { value: "other", label: "Andet" },
+  { value: "student", labelKey: "profile.workStudent" },
+  { value: "employed", labelKey: "profile.workEmployed" },
+  { value: "self-employed", labelKey: "profile.workSelfEmployed" },
+  { value: "unemployed", labelKey: "profile.workUnemployed" },
+  { value: "other", labelKey: "profile.workOther" },
 ];
 
 import { allNationalities } from "@/data/nationalities";
 
 const genderOptions = [
-  { value: "male", label: "Mand" },
-  { value: "female", label: "Kvinde" },
-  { value: "other", label: "Andet" },
+  { value: "male", labelKey: "matches.male" },
+  { value: "female", labelKey: "matches.female" },
+  { value: "other", labelKey: "matches.other" },
 ];
 
 const CompleteProfile = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -101,8 +103,8 @@ const CompleteProfile = () => {
     if (!firstName.trim()) {
       toast({
         variant: "destructive",
-        title: "Fornavn påkrævet",
-        description: "Indtast venligst dit fornavn",
+        title: t("profile.firstNameRequired"),
+        description: t("profile.firstNameRequiredBody"),
       });
       return;
     }
@@ -110,8 +112,8 @@ const CompleteProfile = () => {
     if (!lastName.trim()) {
       toast({
         variant: "destructive",
-        title: "Efternavn påkrævet",
-        description: "Indtast venligst dit efternavn",
+        title: t("profile.lastNameRequired"),
+        description: t("profile.lastNameRequiredBody"),
       });
       return;
     }
@@ -119,8 +121,8 @@ const CompleteProfile = () => {
     if (!birthday) {
       toast({
         variant: "destructive",
-        title: "Fødselsdag påkrævet",
-        description: "Indtast venligst din fødselsdag",
+        title: t("profile.birthdayRequired"),
+        description: t("profile.birthdayRequiredBody"),
       });
       return;
     }
@@ -128,8 +130,8 @@ const CompleteProfile = () => {
     if (!gender) {
       toast({
         variant: "destructive",
-        title: "Køn påkrævet",
-        description: "Vælg venligst dit køn",
+        title: t("profile.genderRequired"),
+        description: t("profile.genderRequiredBody"),
       });
       return;
     }
@@ -197,15 +199,15 @@ const CompleteProfile = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Fejl",
-          description: "Kunne ikke oprette profil. Prøv igen.",
+          title: t("profile.error"),
+          description: t("profile.errorCreate"),
         });
         console.error("Profile creation error:", error);
       } else {
         await refreshProfile();
         toast({
-          title: "Profil oprettet!",
-          description: "Velkommen til Hommies",
+          title: t("profile.created"),
+          description: t("profile.welcome"),
         });
         navigate("/");
       }
@@ -231,9 +233,9 @@ const CompleteProfile = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="text-center flex-1 pr-10">
-            <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">Færdiggør din profil</h1>
+            <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">{t("profile.completeTitle")}</h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Fortæl os lidt om dig selv
+              {t("profile.tellAboutYou")}
             </p>
           </div>
         </div>
@@ -263,26 +265,26 @@ const CompleteProfile = () => {
                 className="hidden"
               />
             </div>
-            <p className="text-sm text-muted-foreground">Upload profilbillede (valgfrit)</p>
+            <p className="text-sm text-muted-foreground">{t("profile.uploadAvatar")}</p>
           </div>
 
           {/* Name Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">Fornavn *</Label>
+              <Label htmlFor="firstName">{t("profile.firstName")} *</Label>
               <Input
                 id="firstName"
-                placeholder="Dit fornavn"
+                placeholder={t("profile.firstNamePlaceholder")}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Efternavn *</Label>
+              <Label htmlFor="lastName">{t("profile.lastName")} *</Label>
               <Input
                 id="lastName"
-                placeholder="Dit efternavn"
+                placeholder={t("profile.lastNamePlaceholder")}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
@@ -292,7 +294,7 @@ const CompleteProfile = () => {
 
           {/* Birthday */}
           <div className="space-y-2">
-            <Label htmlFor="birthday">Fødselsdag *</Label>
+            <Label htmlFor="birthday">{t("profile.birthday")} *</Label>
             <Input
               id="birthday"
               type="date"
@@ -313,12 +315,12 @@ const CompleteProfile = () => {
             <Label htmlFor="gender">Køn *</Label>
             <Select value={gender} onValueChange={setGender} required>
               <SelectTrigger>
-                <SelectValue placeholder="Vælg køn" />
+                <SelectValue placeholder={t("profile.selectGender")} />
               </SelectTrigger>
               <SelectContent>
                 {genderOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -327,7 +329,7 @@ const CompleteProfile = () => {
 
           {/* Work/Occupation Type */}
           <div className="space-y-2">
-            <Label htmlFor="work">Beskæftigelse</Label>
+            <Label htmlFor="work">{t("profile.occupation")}</Label>
             <Select value={work} onValueChange={(value) => {
               setWork(value);
               // Reset the detail fields when changing occupation type
@@ -335,12 +337,12 @@ const CompleteProfile = () => {
               setWorkOther("");
             }}>
               <SelectTrigger>
-                <SelectValue placeholder="Vælg beskæftigelse" />
+                <SelectValue placeholder={t("profile.selectOccupation")} />
               </SelectTrigger>
               <SelectContent>
                 {workOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -350,10 +352,10 @@ const CompleteProfile = () => {
           {/* Conditional detail field based on occupation type */}
           {work === "student" && (
             <div className="space-y-2">
-              <Label htmlFor="study">Hvad studerer du?</Label>
+              <Label htmlFor="study">{t("profile.studyWhat")}</Label>
               <Input
                 id="study"
-                placeholder="F.eks. Økonomi på CBS"
+                placeholder={t("profile.studyPlaceholder")}
                 value={study}
                 onChange={(e) => setStudy(e.target.value)}
               />
@@ -362,10 +364,10 @@ const CompleteProfile = () => {
 
           {work === "employed" && (
             <div className="space-y-2">
-              <Label htmlFor="workOther">Hvad arbejder du med?</Label>
+              <Label htmlFor="workOther">{t("profile.workWhat")}</Label>
               <Input
                 id="workOther"
-                placeholder="F.eks. Marketing hos Novo Nordisk"
+                placeholder={t("profile.workPlaceholder")}
                 value={workOther}
                 onChange={(e) => setWorkOther(e.target.value)}
               />
@@ -374,10 +376,10 @@ const CompleteProfile = () => {
 
           {work === "self-employed" && (
             <div className="space-y-2">
-              <Label htmlFor="workOther">Hvad er din virksomhed/branche?</Label>
+              <Label htmlFor="workOther">{t("profile.businessWhat")}</Label>
               <Input
                 id="workOther"
-                placeholder="F.eks. Freelance webdesigner"
+                placeholder={t("profile.businessPlaceholder")}
                 value={workOther}
                 onChange={(e) => setWorkOther(e.target.value)}
               />
@@ -386,10 +388,10 @@ const CompleteProfile = () => {
 
           {work === "other" && (
             <div className="space-y-2">
-              <Label htmlFor="workOther">Beskriv din beskæftigelse</Label>
+              <Label htmlFor="workOther">{t("profile.otherWhat")}</Label>
               <Input
                 id="workOther"
-                placeholder="Hvad laver du?"
+                placeholder={t("profile.otherPlaceholder")}
                 value={workOther}
                 onChange={(e) => setWorkOther(e.target.value)}
               />
@@ -398,15 +400,15 @@ const CompleteProfile = () => {
 
           {/* Nationality with search */}
           <div className="space-y-2">
-            <Label htmlFor="nationality">Nationalitet</Label>
+            <Label htmlFor="nationality">{t("profile.nationality")}</Label>
             <Select value={nationality} onValueChange={setNationality}>
               <SelectTrigger>
-                <SelectValue placeholder="Vælg nationalitet" />
+                <SelectValue placeholder={t("profile.selectNationality")} />
               </SelectTrigger>
               <SelectContent className="max-h-60">
                 <div className="p-2">
                   <Input
-                    placeholder="Søg nationalitet..."
+                    placeholder={t("profile.searchNationality")}
                     value={nationalitySearch}
                     onChange={(e) => setNationalitySearch(e.target.value)}
                     className="mb-2"
@@ -423,10 +425,10 @@ const CompleteProfile = () => {
 
           {/* Bio */}
           <div className="space-y-2">
-            <Label htmlFor="bio">Om mig</Label>
+            <Label htmlFor="bio">{t("profile.aboutMe")}</Label>
             <Textarea
               id="bio"
-              placeholder="Fortæl lidt om dig selv, dine interesser, hvad du leder efter i et hjem..."
+              placeholder={t("profile.bioPlaceholder")}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={4}
@@ -438,21 +440,21 @@ const CompleteProfile = () => {
             className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
             disabled={isLoading}
           >
-            {isLoading ? "Gemmer..." : "Gem profil"}
+            {isLoading ? t("profile.saving") : t("profile.saveProfile")}
           </Button>
         </form>
 
         <AlertDialog open={showIncompleteDialog} onOpenChange={setShowIncompleteDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Udfyld alle felter?</AlertDialogTitle>
+              <AlertDialogTitle>{t("profile.fillAll")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Du har ikke udfyldt alle felter. Når du udfylder beskæftigelse, nationalitet og "om mig", øger det chancen for at finde det perfekte match – både for udlejere og roomies!
+                {t("profile.fillAllBody")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={() => setShowIncompleteDialog(false)}>
-                Udfyld felter
+                {t("profile.fillAllCta")}
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => {
@@ -467,7 +469,7 @@ const CompleteProfile = () => {
                   }, 0);
                 }}
               >
-                Fortsæt alligevel
+                {t("profile.continueAnyway")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
