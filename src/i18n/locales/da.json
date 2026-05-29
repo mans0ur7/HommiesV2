@@ -131,5 +131,25 @@
     "needListingTitle": "Du skal have en aktiv annonce for at finde roomies",
     "needListingBody": "Opret og udgiv en annonce, så kan du matche med roomies der passer til din bolig.",
     "needListingAction": "Opret annonce"
+  },
+  "matches": {
+    "location": "Lokation",
+    "filters": "Filtre",
+    "ignore": "Ignorer",
+    "connect": "Send anmodning",
+    "noMoreRoomies": "Ingen flere roomies lige nu.",
+    "noMoreProperties": "Ingen flere boliger lige nu.",
+    "checkBackRoomies": "Kig forbi i morgen – nye profiler kommer dagligt.",
+    "checkBackProperties": "Kig forbi i morgen – nye boliger kommer dagligt.",
+    "no": "NEJ",
+    "yes": "JA",
+    "connectionSent": "Anmodning sendt!",
+    "alreadyConnected": "I er allerede forbundet",
+    "connectionFailed": "Kunne ikke sende anmodning",
+    "fetchFailed": "Kunne ikke hente data",
+    "ignoreFailed": "Kunne ikke ignorere",
+    "male": "Mand",
+    "female": "Kvinde",
+    "other": "Andet"
   }
 }

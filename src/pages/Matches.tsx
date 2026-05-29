@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Home, Users, MapPin, SlidersHorizontal, Sparkles, X, Check } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 
@@ -92,6 +93,7 @@ const defaultRoomieFilters: RoomieFilters = {
 
 const Matches = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, profile: userProfile } = useAuth();
   const isMobile = useIsMobile();
   const isLandlord = userProfile?.user_type === "landlord";
@@ -291,7 +293,7 @@ const Matches = () => {
         filteredProfiles = filteredProfiles.filter(p => {
           // Gender filter
           if (roomieFilters.gender !== "all") {
-            const genderMap: Record<string, string> = { "male": "Mand", "female": "Kvinde", "other": "Andet" };
+            const genderMap: Record<string, string> = { "male": t("matches.male"), "female": t("matches.female"), "other": t("matches.other") };
             if (p.gender !== genderMap[roomieFilters.gender]) return false;
           }
           // Age filter
@@ -382,7 +384,7 @@ const Matches = () => {
 
         // Apply landlord gender filter after owner data is available
         if (propertyFilters.landlordGender !== "all") {
-          const genderMap: Record<string, string> = { "male": "Mand", "female": "Kvinde" };
+          const genderMap: Record<string, string> = { "male": t("matches.male"), "female": t("matches.female") };
           propertiesWithOwners = propertiesWithOwners.filter(p => 
             p.owner?.gender === genderMap[propertyFilters.landlordGender]
           );
@@ -412,7 +414,7 @@ const Matches = () => {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error("Kunne ikke hente data");
+      toast.error(t("matches.fetchFailed"));
     } finally {
       setLoading(false);
     }
@@ -441,7 +443,7 @@ const Matches = () => {
 
       if (error) throw error;
 
-      toast.success("Connection sendt!");
+      toast.success(t("matches.connectionSent"));
       trackView(currentItem);
       
       setTimeout(() => {
@@ -451,9 +453,9 @@ const Matches = () => {
     } catch (error: any) {
       console.error("Error connecting:", error);
       if (error.code === "23505") {
-        toast.info("Du har allerede connected");
+        toast.info(t("matches.alreadyConnected"));
       } else {
-        toast.error("Kunne ikke sende connection");
+        toast.error(t("matches.connectionFailed"));
       }
       setSwipeDirection(null);
     }
@@ -489,7 +491,7 @@ const Matches = () => {
     } catch (error: any) {
       console.error("Error ignoring:", error);
       if (error.code !== "23505") {
-        toast.error("Kunne ikke ignorere");
+        toast.error(t("matches.ignoreFailed"));
       }
       setSwipeDirection(null);
       setCurrentIndex(prev => prev + 1);
@@ -535,7 +537,7 @@ const Matches = () => {
                     }`}
                   >
                     <Home className="w-3.5 h-3.5" />
-                    <span>Værelser</span>
+                    <span>{t("explore.tabRooms")}</span>
                   </button>
                   <button
                     onClick={() => handleTabChange("roomies")}
@@ -546,13 +548,13 @@ const Matches = () => {
                     }`}
                   >
                     <Users className="w-3.5 h-3.5" />
-                    <span>Roomies</span>
+                    <span>{t("explore.tabRoomies")}</span>
                   </button>
                 </div>
               ) : (
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs md:text-sm font-medium">
                   <Home className="w-3.5 h-3.5" />
-                  <span>Værelser</span>
+                  <span>{t("explore.tabRooms")}</span>
                 </div>
               )}
               {aiRanked && !aiLoading && (
@@ -571,7 +573,7 @@ const Matches = () => {
                 className="rounded-full border border-border/70 bg-background hover:bg-muted/40 px-3 h-8 text-xs md:text-sm text-foreground"
               >
                 <MapPin className="w-3.5 h-3.5 mr-1.5" />
-                <span className="max-w-[100px] truncate">{selectedCity || "Lokation"}</span>
+                <span className="max-w-[100px] truncate">{selectedCity || t("matches.location")}</span>
               </Button>
               <Button
                 variant="ghost"
@@ -580,7 +582,7 @@ const Matches = () => {
                 className="rounded-full border border-border/70 bg-background hover:bg-muted/40 px-3 h-8 text-xs md:text-sm text-foreground relative"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5 mr-1.5" />
-                <span>Filtre</span>
+                <span>{t("matches.filters")}</span>
                 {hasActiveFilters && (
                   <span className="ml-1.5 w-1.5 h-1.5 bg-foreground rounded-full" />
                 )}
@@ -604,10 +606,10 @@ const Matches = () => {
                   )}
                 </div>
                 <h3 className="text-lg md:text-xl font-medium text-foreground mb-1.5 tracking-tight">
-                  Ingen flere {activeTab === "roomies" ? "roomies" : "boliger"} lige nu.
+                  {activeTab === "roomies" ? t("matches.noMoreRoomies") : t("matches.noMoreProperties")}
                 </h3>
                 <p className="text-sm text-foreground/60">
-                  Kig forbi i morgen – nye {activeTab === "roomies" ? "profiler" : "boliger"} kommer dagligt.
+                  {activeTab === "roomies" ? t("matches.checkBackRoomies") : t("matches.checkBackProperties")}
                 </p>
               </div>
             ) : (
@@ -616,7 +618,7 @@ const Matches = () => {
                 {!isMobile && (
                   <button
                     onClick={handleIgnore}
-                    aria-label="Ignorer"
+                    aria-label={t("matches.ignore")}
                     className="shrink-0 w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-background border-2 border-border hover:border-destructive hover:text-destructive text-foreground/70 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
                   >
                     <X className="w-6 h-6 lg:w-7 lg:h-7" strokeWidth={2.5} />
@@ -659,13 +661,13 @@ const Matches = () => {
                           className="absolute top-6 left-6 z-20 px-4 py-2 rounded-xl border-4 border-destructive text-destructive font-bold text-2xl rotate-[-15deg] pointer-events-none"
                           style={{ opacity: Math.min(Math.max(-dragX / 100, 0), 1) }}
                         >
-                          NEJ
+                          {t("matches.no")}
                         </div>
                         <div
                           className="absolute top-6 right-6 z-20 px-4 py-2 rounded-xl border-4 border-primary text-primary font-bold text-2xl rotate-[15deg] pointer-events-none"
                           style={{ opacity: Math.min(Math.max(dragX / 100, 0), 1) }}
                         >
-                          JA
+                          {t("matches.yes")}
                         </div>
                       </>
                     )}
@@ -694,7 +696,7 @@ const Matches = () => {
                 {!isMobile && (
                   <button
                     onClick={handleConnect}
-                    aria-label="Send anmodning"
+                    aria-label={t("matches.connect")}
                     className="shrink-0 w-14 h-14 lg:w-16 lg:h-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
                   >
                     <Check className="w-6 h-6 lg:w-7 lg:h-7" strokeWidth={3} />

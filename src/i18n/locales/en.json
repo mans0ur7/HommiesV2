@@ -131,5 +131,25 @@
     "needListingTitle": "You need an active listing to find roomies",
     "needListingBody": "Create and publish a listing so you can match with roomies that fit your home.",
     "needListingAction": "Create listing"
+  },
+  "matches": {
+    "location": "Location",
+    "filters": "Filters",
+    "ignore": "Ignore",
+    "connect": "Send request",
+    "noMoreRoomies": "No more roomies right now.",
+    "noMoreProperties": "No more homes right now.",
+    "checkBackRoomies": "Check back tomorrow – new profiles come in daily.",
+    "checkBackProperties": "Check back tomorrow – new homes come in daily.",
+    "no": "NO",
+    "yes": "YES",
+    "connectionSent": "Request sent!",
+    "alreadyConnected": "You're already connected",
+    "connectionFailed": "Could not send request",
+    "fetchFailed": "Could not load data",
+    "ignoreFailed": "Could not ignore",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
   }
 }
