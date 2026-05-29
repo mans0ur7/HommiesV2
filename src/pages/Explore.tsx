@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Search, MapPin, ChevronLeft, ChevronRight, ChevronDown, Map, LayoutGrid, Home, Users, SearchX, Building, MapPinned, X, BellPlus, SlidersHorizontal, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,15 +32,15 @@ import { usePaginatedRoomies, RoomieFilters as PaginatedRoomieFilters } from "@/
 import { LoadMoreTrigger } from "@/components/ui/load-more-trigger";
 
 const propertySortOptions = [
-  { value: "newest", label: "Nyeste først" },
-  { value: "price-low", label: "Pris: Lav til høj" },
-  { value: "price-high", label: "Pris: Høj til lav" },
+  { value: "newest", labelKey: "explore.sortNewest" },
+  { value: "price-low", labelKey: "explore.sortPriceLow" },
+  { value: "price-high", labelKey: "explore.sortPriceHigh" },
 ];
 
 const propertyQuickFilters = [
-  { id: "top-rated", label: "Top rated" },
-  { id: "budget", label: "Budget friendly" },
-  { id: "favorites", label: "Favoritter" },
+  { id: "top-rated", labelKey: "explore.filterTopRated" },
+  { id: "budget", labelKey: "explore.filterBudget" },
+  { id: "favorites", labelKey: "explore.filterFavorites" },
 ];
 
 const PROPERTIES_PER_PAGE = 9;
@@ -48,6 +49,7 @@ const ROOMIES_PER_PAGE = 15;
 const Explore = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, profile: userProfile } = useAuth();
   const isMobile = useIsMobile();
   const isLandlord = userProfile?.user_type === "landlord";
@@ -292,12 +294,12 @@ const Explore = () => {
 
   const handleFollowArea = () => {
     if (!user) {
-      toast.error("Log ind for at oprette en søgeagent");
+      toast.error(t("explore.agentLoginRequired"));
       navigate("/auth");
       return;
     }
     if (isLandlord) {
-      toast.error("Søgeagenter er kun for lejere");
+      toast.error(t("explore.agentRoomiesOnly"));
       return;
     }
     const city = selectedStudyCity || appliedSearch || null;
@@ -309,7 +311,7 @@ const Explore = () => {
         : "Søgning i hele Danmark";
     const existingAgent = searchAgents.find(a => a.city === city && a.area === area);
     if (existingAgent) {
-      toast.info("Du har allerede en søgeagent for dette område");
+      toast.info(t("explore.agentExists"));
       navigate("/search-agents");
       return;
     }
@@ -344,16 +346,16 @@ const Explore = () => {
                   className="inline-flex items-center gap-1 text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
-                  Tilbage
+                  {t("explore.back")}
                 </button>
 
                 <h1 className="font-bold tracking-tight text-foreground leading-[1.05]"
                     style={{ fontSize: 'clamp(2rem, 5vw, 3.75rem)' }}>
-                  Find dit næste
-                  <span className="block text-secondary italic font-serif">hjem.</span>
+                  {t("explore.title1")}
+                  <span className="block text-secondary italic font-serif">{t("explore.titleHome")}</span>
                 </h1>
                 <p className="text-sm md:text-lg text-muted-foreground max-w-xl">
-                  Værelser, lejligheder og roomies — kurateret til danske studerende.
+                  {t("explore.subtitle")}
                 </p>
 
                 {/* Search bar — large, ground-level, single field */}
@@ -363,7 +365,7 @@ const Explore = () => {
                       <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                       <Input
                         ref={inputRef}
-                        placeholder="Søg by, område eller adresse"
+                        placeholder={t("explore.searchPlaceholder")}
                         value={searchQuery}
                         onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                         onKeyPress={handleKeyPress}
@@ -374,7 +376,7 @@ const Explore = () => {
                         <button
                           onClick={handleClearSearch}
                           className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-                          aria-label="Nulstil søgning"
+                          aria-label={t("explore.clearSearch")}
                         >
                           <X className="w-3.5 h-3.5 text-muted-foreground" />
                         </button>
@@ -385,7 +387,7 @@ const Explore = () => {
                       className="h-11 md:h-12 px-4 md:px-6 rounded-xl gap-2 font-semibold text-sm md:text-base shrink-0"
                     >
                       <Search className="w-4 h-4" />
-                      <span className="hidden sm:inline">Søg</span>
+                      <span className="hidden sm:inline">{t("explore.search")}</span>
                     </Button>
                   </div>
 
@@ -417,11 +419,11 @@ const Explore = () => {
                         </ul>
                       ) : dawaLoading ? (
                         <div className="py-6 px-4 text-center">
-                          <p className="text-sm text-muted-foreground">Søger…</p>
+                          <p className="text-sm text-muted-foreground">{t("explore.searching")}</p>
                         </div>
                       ) : (
                         <div className="py-6 px-4 text-center">
-                          <p className="text-sm text-muted-foreground">Ingen resultater for "{searchQuery}"</p>
+                          <p className="text-sm text-muted-foreground">{t("explore.noResultsFor", { query: searchQuery })}</p>
                         </div>
                       )}
                     </div>
@@ -465,7 +467,7 @@ const Explore = () => {
                     <div className="col-span-3 row-span-2 rounded-2xl overflow-hidden bg-secondary/20 flex items-center justify-center text-center p-3">
                       <div>
                         <p className="text-2xl font-bold text-foreground">{propertiesLoaded}{hasMoreProperties ? '+' : ''}</p>
-                        <p className="text-xs text-muted-foreground mt-1">aktive boliger</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t("explore.activeProperties")}</p>
                       </div>
                     </div>
                   ) : (
@@ -493,10 +495,10 @@ const Explore = () => {
               )}
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-                  {selectedStudyCity ? 'Områder' : 'Studiebyer'}
+                  {selectedStudyCity ? t("explore.areas") : t("explore.studyCities")}
                 </p>
                 <h2 className="text-xl md:text-3xl font-bold tracking-tight text-foreground">
-                  {selectedStudyCity ? selectedStudyCity : 'Hvor vil du bo?'}
+                  {selectedStudyCity ? selectedStudyCity : t("explore.whereLive")}
                 </h2>
               </div>
             </div>
@@ -556,19 +558,19 @@ const Explore = () => {
                 }`}
               >
                 <Home className="w-3.5 h-3.5" />
-                Værelser
+                {t("explore.tabRooms")}
               </button>
               <button
                 title={
                   landlordNeedsListing && !canAccessRoomieFeatures
-                    ? "Du skal have en aktiv annonce for at finde roomies"
+                    ? t("explore.needListingTitle")
                     : undefined
                 }
                 onClick={() => {
                   if (!user) {
-                    toast.error("Opret en bruger for at udforske roomies", {
-                      description: "Log ind eller opret en konto for at se og matche med roomies.",
-                      action: { label: "Opret bruger", onClick: () => navigate("/auth?mode=signup") },
+                    toast.error(t("explore.roomieSignupTitle"), {
+                      description: t("explore.roomieSignupBody"),
+                      action: { label: t("explore.roomieSignupAction"), onClick: () => navigate("/auth?mode=signup") },
                     });
                     return;
                   }
@@ -579,9 +581,9 @@ const Explore = () => {
                     setPropertyFilters(defaultPropertyFilters);
                   } else {
                     // Landlord without a published listing
-                    toast.error("Du skal have en aktiv annonce for at finde roomies", {
-                      description: "Opret og udgiv en annonce, så kan du matche med roomies der passer til din bolig.",
-                      action: { label: "Opret annonce", onClick: () => navigate("/my-listings") },
+                    toast.error(t("explore.needListingTitle"), {
+                      description: t("explore.needListingBody"),
+                      action: { label: t("explore.needListingAction"), onClick: () => navigate("/my-listings") },
                     });
                   }
                 }}
@@ -596,7 +598,7 @@ const Explore = () => {
                 {landlordNeedsListing && !canAccessRoomieFeatures
                   ? <Lock className="w-3.5 h-3.5" />
                   : <Users className="w-3.5 h-3.5" />}
-                Roomies
+                {t("explore.tabRoomies")}
               </button>
             </div>
 
@@ -620,7 +622,7 @@ const Explore = () => {
                         showSortDropdown ? "border-foreground bg-muted" : "border-border hover:bg-muted"
                       }`}
                     >
-                      {propertySortOptions.find(o => o.value === sortBy)?.label || "Sorter"}
+                      {t(propertySortOptions.find(o => o.value === sortBy)?.labelKey ?? "explore.sort")}
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
                     </button>
                     {showSortDropdown && (
@@ -633,7 +635,7 @@ const Explore = () => {
                               sortBy === option.value ? "bg-muted font-semibold" : ""
                             }`}
                           >
-                            {option.label}
+                            {t(option.labelKey)}
                           </button>
                         ))}
                       </div>
@@ -651,7 +653,7 @@ const Explore = () => {
                             : "border-border hover:bg-muted"
                         }`}
                       >
-                        {filter.label}
+                        {t(filter.labelKey)}
                       </button>
                     ))}
                   </div>
@@ -676,7 +678,7 @@ const Explore = () => {
                       className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
-                      Nulstil
+                      {t("explore.reset")}
                     </button>
                   )}
 
@@ -686,7 +688,7 @@ const Explore = () => {
                     onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
                     className="gap-1.5 text-xs h-8 rounded-full"
                   >
-                    {viewMode === "list" ? <><Map className="w-3.5 h-3.5" />Kort</> : <><LayoutGrid className="w-3.5 h-3.5" />Liste</>}
+                    {viewMode === "list" ? <><Map className="w-3.5 h-3.5" />{t("explore.map")}</> : <><LayoutGrid className="w-3.5 h-3.5" />{t("explore.list")}</>}
                   </Button>
                 </>
               )}
@@ -717,7 +719,7 @@ const Explore = () => {
                       className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
-                      Nulstil
+                      {t("explore.reset")}
                     </button>
                   )}
                 </>
@@ -733,9 +735,9 @@ const Explore = () => {
               {/* Editorial result header */}
               <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6 md:mb-8">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Resultater</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">{t("explore.results")}</p>
                   <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
-                    {propertiesLoaded}{hasMoreProperties ? '+' : ''} {propertiesLoaded === 1 ? 'bolig' : 'boliger'}
+                    {propertiesLoaded}{hasMoreProperties ? '+' : ''} {propertiesLoaded === 1 ? t("explore.home") : t("explore.homes")}
                     {selectedArea && <span className="text-muted-foreground font-normal"> · {selectedArea}</span>}
                     {!selectedArea && selectedStudyCity && <span className="text-muted-foreground font-normal"> · {selectedStudyCity}</span>}
                     {!selectedArea && !selectedStudyCity && appliedSearch && <span className="text-muted-foreground font-normal"> · {appliedSearch}</span>}
@@ -752,13 +754,13 @@ const Explore = () => {
                       disabled={createAgent.isPending}
                     >
                       <BellPlus className="w-3.5 h-3.5" />
-                      {createAgent.isPending ? "Opretter…" : "Følg område"}
+                      {createAgent.isPending ? t("explore.creating") : t("explore.followArea")}
                     </Button>
                   )}
                   {selectedArea && (
                     <Button onClick={handleClearAreaFilter} variant="outline" size="sm" className="gap-1.5 text-xs h-9 rounded-full">
                       <MapPin className="w-3.5 h-3.5" />
-                      Fjern område
+                      {t("explore.removeArea")}
                     </Button>
                   )}
                 </div>
@@ -775,17 +777,17 @@ const Explore = () => {
                   <div className="text-center py-16 md:py-24 border border-dashed border-border rounded-3xl">
                     <SearchX className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg md:text-2xl font-bold text-foreground mb-2">
-                      Ingen boliger fundet{selectedArea ? ` nær ${selectedArea}` : appliedSearch ? ` på "${appliedSearch}"` : ''}
+                      {selectedArea ? t("explore.noPropertiesNear", { area: selectedArea }) : appliedSearch ? t("explore.noPropertiesForQuery", { query: appliedSearch }) : t("explore.noPropertiesFound")}
                     </h3>
                     <p className="text-sm md:text-base text-muted-foreground mb-6 px-4 max-w-md mx-auto">
                       {selectedArea
-                        ? "Der er ingen boliger i dette område endnu. Prøv et andet."
-                        : "Prøv en anden by eller fjern nogle filtre."}
+                        ? t("explore.noPropertiesAreaBody")
+                        : t("explore.noPropertiesBody")}
                     </p>
                     {selectedArea ? (
-                      <Button onClick={handleClearAreaFilter} variant="outline">Vis alle boliger</Button>
+                      <Button onClick={handleClearAreaFilter} variant="outline">{t("explore.showAllProperties")}</Button>
                     ) : appliedSearch && (
-                      <Button onClick={handleClearSearch} variant="outline">Vis alle boliger</Button>
+                      <Button onClick={handleClearSearch} variant="outline">{t("explore.showAllProperties")}</Button>
                     )}
                   </div>
                 ) : (
@@ -805,7 +807,7 @@ const Explore = () => {
                             rating={property.rating_average || null}
                             ratingCount={property.rating_count || 0}
                             image={property.images?.[0] || ""}
-                            landlordName="Udlejer"
+                            landlordName={t("explore.landlord")}
                             isFavorite={isFavorite(property.id)}
                             onToggleFavorite={toggleFavorite}
                             isBoosted={isPropertyBoosted(property)}
@@ -826,11 +828,11 @@ const Explore = () => {
                 <ErrorBoundary
                   onError={(err) => {
                     console.error("Map render error:", err);
-                    toast.error("Kortvisning kunne ikke indlæses");
+                    toast.error(t("explore.mapError"));
                   }}
                   fallback={
                     <div className="bg-muted rounded-3xl h-[500px] flex items-center justify-center">
-                      <p className="text-muted-foreground text-sm">Kortvisning kunne ikke indlæses.</p>
+                      <p className="text-muted-foreground text-sm">{t("explore.mapError")}</p>
                     </div>
                   }
                 >
@@ -847,10 +849,10 @@ const Explore = () => {
           ) : (
             <>
               <div className="mb-6 md:mb-8">
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">Mennesker</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">{t("explore.people")}</p>
                 <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
-                  {roomiesLoaded}{hasMoreRoomies ? '+' : ''} {roomiesLoaded === 1 ? 'roomie' : 'roomies'}
-                  {roomieFiltersCount > 0 && <span className="text-muted-foreground font-normal text-base md:text-lg ml-2">med filtre</span>}
+                  {roomiesLoaded}{hasMoreRoomies ? '+' : ''} {roomiesLoaded === 1 ? t("explore.roomie") : t("explore.roomies")}
+                  {roomieFiltersCount > 0 && <span className="text-muted-foreground font-normal text-base md:text-lg ml-2">{t("explore.withFilters")}</span>}
                 </h2>
               </div>
 
@@ -863,8 +865,8 @@ const Explore = () => {
               ) : roomies.length === 0 ? (
                 <div className="text-center py-16 md:py-24 border border-dashed border-border rounded-3xl">
                   <Users className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg md:text-2xl font-bold text-foreground mb-2">Ingen roomies fundet</h3>
-                  <p className="text-sm md:text-base text-muted-foreground">Prøv at justere dine filtre.</p>
+                  <h3 className="text-lg md:text-2xl font-bold text-foreground mb-2">{t("explore.noRoomiesFound")}</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">{t("explore.noRoomiesBody")}</p>
                 </div>
               ) : (
                 <>
@@ -878,7 +880,7 @@ const Explore = () => {
                         <ExploreRoomieCard
                           id={roomie.user_id}
                           name={roomie.name}
-                          occupation={roomie.study || roomie.work || "Roomie"}
+                          occupation={roomie.study || roomie.work || t("explore.roomieOccupation")}
                           image={roomie.avatar_url || ""}
                           age={roomie.age}
                           onClick={() => handleRoomieClick(roomie.user_id)}
