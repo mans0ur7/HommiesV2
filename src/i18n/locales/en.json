@@ -165,5 +165,23 @@
     "chatCreateFailed": "Could not create chat",
     "groupRequestAccepted": "Group request accepted!",
     "groupRequestRejected": "Group request rejected"
+  },
+  "reset": {
+    "linkExpired": "The link has expired",
+    "linkExpiredBody": "The reset link is invalid or has expired. Request a new one from the login page.",
+    "backToLogin": "Back to login",
+    "newPasswordHeading": "New password",
+    "chooseNewPassword": "Choose a new password for your account.",
+    "newPasswordLabel": "New password",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "savePassword": "Save new password",
+    "passwordsDontMatch": "Passwords don't match",
+    "error": "Error",
+    "passwordUpdated": "Password updated",
+    "passwordUpdatedBody": "You can now log in with your new password.",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordNeedsUpper": "Password must include at least one uppercase letter",
+    "passwordNeedsNumber": "Password must include at least one number"
   }
 }

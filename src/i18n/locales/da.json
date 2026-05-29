@@ -165,5 +165,23 @@
     "chatCreateFailed": "Kunne ikke oprette chat",
     "groupRequestAccepted": "Gruppe-anmodning accepteret!",
     "groupRequestRejected": "Gruppe-anmodning afvist"
+  },
+  "reset": {
+    "linkExpired": "Linket er udløbet",
+    "linkExpiredBody": "Nulstillingslinket er ugyldigt eller udløbet. Bed om et nyt fra login-siden.",
+    "backToLogin": "Tilbage til login",
+    "newPasswordHeading": "Ny adgangskode",
+    "chooseNewPassword": "Vælg en ny adgangskode til din konto.",
+    "newPasswordLabel": "Ny adgangskode",
+    "hidePassword": "Skjul adgangskode",
+    "showPassword": "Vis adgangskode",
+    "savePassword": "Gem ny adgangskode",
+    "passwordsDontMatch": "Adgangskoderne matcher ikke",
+    "error": "Fejl",
+    "passwordUpdated": "Adgangskode opdateret",
+    "passwordUpdatedBody": "Du kan nu logge ind med din nye adgangskode.",
+    "passwordTooShort": "Adgangskode skal være mindst 8 tegn",
+    "passwordNeedsUpper": "Adgangskode skal indeholde mindst ét stort bogstav",
+    "passwordNeedsNumber": "Adgangskode skal indeholde mindst ét tal"
   }
 }

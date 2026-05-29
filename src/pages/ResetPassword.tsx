@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ const passwordSchema = z
 const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [checking, setChecking] = useState(true);
   const [ready, setReady] = useState(false);
   const [password, setPassword] = useState("");
@@ -51,17 +53,17 @@ const ResetPassword = () => {
       return;
     }
     if (password !== confirmPassword) {
-      setError("Adgangskoderne matcher ikke");
+      setError(t("reset.passwordsDontMatch"));
       return;
     }
     setLoading(true);
     const { error: updateError } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (updateError) {
-      toast({ variant: "destructive", title: "Fejl", description: updateError.message });
+      toast({ variant: "destructive", title: t("reset.error"), description: updateError.message });
       return;
     }
-    toast({ title: "Adgangskode opdateret", description: "Du kan nu logge ind med din nye adgangskode." });
+    toast({ title: t("reset.passwordUpdated"), description: t("reset.passwordUpdatedBody") });
     navigate("/");
   };
 
@@ -79,22 +81,22 @@ const ResetPassword = () => {
           </div>
         ) : !ready ? (
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-foreground mb-2">Linket er udløbet</h1>
+            <h1 className="text-2xl font-semibold text-foreground mb-2">{t("reset.linkExpired")}</h1>
             <p className="text-foreground/60 text-sm mb-6">
-              Nulstillingslinket er ugyldigt eller udløbet. Bed om et nyt fra login-siden.
+              {t("reset.linkExpiredBody")}
             </p>
             <Button onClick={() => navigate("/auth")} className="rounded-full">
-              Tilbage til login
+              {t("reset.backToLogin")}
             </Button>
           </div>
         ) : (
           <>
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">Ny adgangskode</h1>
-            <p className="text-foreground/60 text-sm mb-8">Vælg en ny adgangskode til din konto.</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">{t("reset.newPasswordHeading")}</h1>
+            <p className="text-foreground/60 text-sm mb-8">{t("reset.chooseNewPassword")}</p>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-xs text-foreground/60">Ny adgangskode</Label>
+                <Label htmlFor="password" className="text-xs text-foreground/60">{t("reset.newPasswordLabel")}</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -108,16 +110,16 @@ const ResetPassword = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground"
-                    aria-label={showPassword ? "Skjul adgangskode" : "Vis adgangskode"}
+                    aria-label={showPassword ? t("reset.hidePassword") : t("reset.showPassword")}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="text-xs text-foreground/50">Mindst 8 tegn, ét stort bogstav og ét tal.</p>
+                <p className="text-xs text-foreground/50">{t("auth.passwordHint")}</p>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="confirmPassword" className="text-xs text-foreground/60">Bekræft adgangskode</Label>
+                <Label htmlFor="confirmPassword" className="text-xs text-foreground/60">{t("auth.confirmPassword")}</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -134,7 +136,7 @@ const ResetPassword = () => {
                 className="w-full h-12 rounded-full bg-foreground text-background hover:bg-foreground/90 text-sm font-medium"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Gem ny adgangskode"}
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("reset.savePassword")}
               </Button>
             </form>
           </>
