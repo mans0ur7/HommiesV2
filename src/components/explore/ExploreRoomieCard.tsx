@@ -1,4 +1,5 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
 import { User, Sparkles } from "lucide-react";
 
 interface ExploreRoomieCardProps {
@@ -11,6 +12,7 @@ interface ExploreRoomieCardProps {
 }
 
 const ExploreRoomieCard = ({ id, name, occupation, image, age, onClick }: ExploreRoomieCardProps) => {
+  const { t } = useTranslation();
   const handleClick = () => {
     if (onClick) {
       onClick();
@@ -47,7 +49,7 @@ const ExploreRoomieCard = ({ id, name, occupation, image, age, onClick }: Explor
         </h4>
         <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-1 flex items-center justify-center gap-1">
           <Sparkles className="w-2.5 h-2.5 md:w-3 md:h-3 text-secondary" aria-hidden="true" />
-          {occupation || "Roomie"}
+          {occupation || t("explore.roomieOccupation")}
         </p>
       </div>
     </div>

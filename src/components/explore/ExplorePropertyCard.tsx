@@ -1,5 +1,6 @@
 import { Heart, Sparkles, Star, Home, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface ExplorePropertyCardProps {
   id: string;
@@ -35,6 +36,7 @@ const ExplorePropertyCard = ({
   roomCount
 }: ExplorePropertyCardProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -78,7 +80,7 @@ const ExplorePropertyCard = ({
           {isBoosted && (
             <span className="px-2 py-1 rounded-full text-[10px] md:text-xs font-semibold bg-gradient-to-r from-amber-400 to-orange-500 text-white flex items-center gap-1 shadow-lg">
               <Sparkles className="w-3 h-3" />
-              Boosted
+              {t("myListings.boostedLabel")}
             </span>
           )}
         </div>
