@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
-import { Check, X, Briefcase, GraduationCap, Globe, ExternalLink } from "lucide-react";
+import { Check, X, Briefcase, GraduationCap, Globe, ExternalLink, Flag, MoreVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ReportUserModal from "@/components/ReportUserModal";
 
 interface MatchRequest {
   id: string;
@@ -55,7 +63,9 @@ const RequestProfileModal = ({
 }: RequestProfileModalProps) => {
   const [profile, setProfile] = useState<FullProfile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (request && open) {
@@ -139,6 +149,24 @@ const RequestProfileModal = ({
           <ExternalLink className="w-3 h-3" />
           Vis profil
         </button>
+
+        {/* Report dropdown - Top Right */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              aria-label={t("report.reportTrigger")}
+              className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 hover:bg-white backdrop-blur-sm transition-colors shadow-sm"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setReportOpen(true)} className="text-destructive cursor-pointer">
+              <Flag className="w-4 h-4 mr-2" />
+              {t("report.reportTrigger")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Header with Avatar */}
         <div className="relative bg-gradient-to-br from-primary/20 via-secondary/20 to-muted p-6 pt-12">
@@ -233,6 +261,15 @@ const RequestProfileModal = ({
           </div>
         </div>
       </DialogContent>
+      {request && (
+        <ReportUserModal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          reportedUserId={request.sender_id}
+          reportedUserName={profile?.name}
+          onReported={onClose}
+        />
+      )}
     </Dialog>
   );
 };
