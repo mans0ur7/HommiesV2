@@ -77,6 +77,40 @@ const quickFilterOptions = [
   { id: "favorites", label: "Favoritter" },
 ];
 
+// Editorial-style section label: little dash + tiny uppercase letters.
+// Declared at module scope (not inside the component) so the slider's
+// React tree doesn't unmount/remount every keystroke during a drag.
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex items-center gap-3 mb-3">
+    <span className="h-px w-6 bg-foreground/30" />
+    <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/60">
+      {children}
+    </span>
+  </div>
+);
+
+// Toggle chip used for boolean filters (images) and amenities.
+const ToggleChip = ({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) => (
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+      selected
+        ? "bg-foreground text-background border-foreground"
+        : "bg-background text-foreground/80 border-border/60 hover:border-foreground/40"
+    }`}
+  >
+    {children}
+  </button>
+);
+
 const ExploreFiltersPanel = ({
   filters,
   onFiltersChange,
@@ -178,39 +212,11 @@ const ExploreFiltersPanel = ({
     setIsOpen(false);
   };
 
-  // Editorial-style section label: little dash + tiny uppercase letters
-  const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex items-center gap-3 mb-3">
-      <span className="h-px w-6 bg-foreground/30" />
-      <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/60">
-        {children}
-      </span>
-    </div>
-  );
-
-  // Toggle chip used for boolean filters (images) and amenities
-  const ToggleChip = ({
-    selected,
-    onClick,
-    children,
-  }: {
-    selected: boolean;
-    onClick: () => void;
-    children: React.ReactNode;
-  }) => (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-        selected
-          ? "bg-foreground text-background border-foreground"
-          : "bg-background text-foreground/80 border-border/60 hover:border-foreground/40"
-      }`}
-    >
-      {children}
-    </button>
-  );
-
-  const FilterContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+  // NOTE: declared as a function returning a JSX *value* but called inline as
+  // {renderFilters({ isMobile })} — NOT as <FilterContent />. The latter form
+  // treats every render as a new component type and unmounts the Slider mid-
+  // drag, which made the slider jump one step then freeze.
+  const renderFilters = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="space-y-9">
       {/* Mobile-only: Sort Options */}
       {isMobile && onSortChange && (
@@ -409,7 +415,7 @@ const ExploreFiltersPanel = ({
             </span>
           </div>
           <h2 className="text-2xl font-medium tracking-tight text-foreground mb-6">Filtre.</h2>
-          <FilterContent isMobile={false} />
+          {renderFilters({ isMobile: false })}
         </div>
       </div>
     );
@@ -447,7 +453,7 @@ const ExploreFiltersPanel = ({
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto px-6 py-6 flex-1">
-            <FilterContent isMobile={false} />
+            {renderFilters({ isMobile: false })}
           </div>
           <StickyFooter />
         </DialogContent>
@@ -486,7 +492,7 @@ const ExploreFiltersPanel = ({
           </SheetTitle>
         </SheetHeader>
         <div className="overflow-y-auto px-6 py-6 flex-1">
-          <FilterContent isMobile={true} />
+          {renderFilters({ isMobile: true })}
         </div>
         <StickyFooter />
       </SheetContent>

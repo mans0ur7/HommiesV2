@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { X, Search, Navigation, Loader2 } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Search, Navigation, Loader2 } from "lucide-react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { danishCities, getMatchingCities } from "@/data/danishCities";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +37,7 @@ const popularCityImages: Record<string, string> = {
 };
 
 const LocationModal = ({ open, onClose, selectedCity, onSelectCity }: LocationModalProps) => {
+  const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [popularCities, setPopularCities] = useState<CityStats[]>([]);
@@ -185,22 +187,23 @@ const LocationModal = ({ open, onClose, selectedCity, onSelectCity }: LocationMo
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden">
-        {/* Header */}
-        <div className="p-6 pb-4">
-          <button
-            onClick={onClose}
-            className="absolute top-4 left-4 p-1 rounded-full hover:bg-muted transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          
-          <h2 className="text-xl font-semibold text-center mt-2">
-            Find dit match i{" "}
-            <span className="text-accent underline decoration-wavy decoration-accent/50">
-              Danmark
+    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={`p-0 gap-0 bg-background ${
+          isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+        }`}
+      >
+        {/* Header — editorial */}
+        <div className="px-6 pt-6 pb-5 border-b border-border/60">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">
+              Lokation
             </span>
+          </div>
+          <h2 className="text-3xl font-medium tracking-tight text-foreground">
+            Hvor vil du bo?
           </h2>
         </div>
 
@@ -295,8 +298,8 @@ const LocationModal = ({ open, onClose, selectedCity, onSelectCity }: LocationMo
             </>
           ) : null}
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 
