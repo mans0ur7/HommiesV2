@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Home, Search, Heart, MessageCircle, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
@@ -13,33 +14,34 @@ interface NavItem {
 const BottomNavigation = () => {
   const location = useLocation();
   const { profile } = useAuth();
+  const { t } = useTranslation();
   const isLandlord = profile?.user_type === "landlord";
   const { unreadCount } = useUnreadMessages();
 
   const navItems: NavItem[] = [
     {
-      label: "Hjem",
+      label: t("nav.home"),
       href: "/",
       icon: <Home className="w-5 h-5" />,
     },
     {
-      label: "Udforsk",
+      label: t("nav.explore"),
       href: "/explore",
       icon: <Search className="w-5 h-5" />,
     },
     {
-      label: "Match",
+      label: t("nav.match"),
       href: "/matches",
       icon: <Heart className="w-5 h-5" />,
     },
     {
-      label: "Indbakke",
+      label: t("nav.inbox"),
       href: "/inbox",
       icon: <MessageCircle className="w-5 h-5" />,
     },
     // Only show Focus for non-landlords
     ...(!isLandlord ? [{
-      label: "Focus",
+      label: t("nav.focus"),
       href: "/focus",
       icon: <Users className="w-5 h-5" />,
     }] : []),

@@ -1,0 +1,78 @@
+{
+  "lang": {
+    "da": "Dansk",
+    "en": "English"
+  },
+  "nav": {
+    "home": "Home",
+    "explore": "Explore",
+    "match": "Match",
+    "inbox": "Inbox",
+    "focus": "Focus"
+  },
+  "menu": {
+    "title": "Menu",
+    "tools": "Tools",
+    "searchAgents": "Search agents",
+    "documents": "Documents",
+    "myListings": "My listings",
+    "information": "Information",
+    "about": "About us",
+    "story": "Our story",
+    "contact": "Contact us",
+    "privacy": "Privacy policy",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "auth": {
+    "loginEyebrow": "Log in",
+    "signupEyebrow": "Create profile",
+    "loginTitle": "Welcome back.",
+    "signupTitle": "Find your next home.",
+    "loginSubtitle": "Log in to continue finding your perfect home.",
+    "signupSubtitle": "Create your profile in a minute and start matching.",
+    "iAm": "I am…",
+    "roomie": "Tenant",
+    "roomieSub": "Looking for a home",
+    "landlord": "Landlord",
+    "landlordSub": "Renting out a home",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "forgot": "Forgot?",
+    "passwordHint": "At least 8 characters, one uppercase letter and one number.",
+    "loginButton": "Log in",
+    "signupButton": "Create account",
+    "loading": "Please wait…",
+    "terms": "By creating an account you accept our terms and privacy policy.",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "resetSentTitle": "Check your email",
+    "resetSentBody": "We've sent you a link to reset your password.",
+    "enterEmailFirst": "Enter your email above and we'll send a reset link"
+  },
+  "home": {
+    "greetingNight": "Good night",
+    "greetingMorning": "Good morning",
+    "greetingDay": "Hello",
+    "greetingEvening": "Good evening",
+    "heroQuestion": "Where are you heading home to today?",
+    "searchPlaceholder": "Search city, area or address",
+    "search": "Search",
+    "seeMatches": "See your matches",
+    "popularCities": "Popular student cities",
+    "matchedRoomiesEyebrow": "Matched roomies",
+    "peopleForYou": "People who match you.",
+    "seeAll": "See all",
+    "noConversations": "You don't have any active conversations yet.",
+    "findRoomies": "Find roomies",
+    "favoritesEyebrow": "Favorites",
+    "savedHomes": "Homes you've saved."
+  },
+  "settings": {
+    "title": "Settings.",
+    "subtitle": "Manage your account and preferences.",
+    "language": "Language",
+    "languageDesc": "Choose the app language"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "lang": {
+    "da": "Dansk",
+    "en": "English"
+  },
+  "nav": {
+    "home": "Hjem",
+    "explore": "Udforsk",
+    "match": "Match",
+    "inbox": "Indbakke",
+    "focus": "Focus"
+  },
+  "menu": {
+    "title": "Menu",
+    "tools": "Værktøjer",
+    "searchAgents": "Søgeagenter",
+    "documents": "Dokumenter",
+    "myListings": "Mine annoncer",
+    "information": "Information",
+    "about": "Om os",
+    "story": "Vores historie",
+    "contact": "Kontakt os",
+    "privacy": "Privatlivspolitik",
+    "settings": "Indstillinger",
+    "logout": "Log ud"
+  },
+  "auth": {
+    "loginEyebrow": "Log ind",
+    "signupEyebrow": "Opret profil",
+    "loginTitle": "Velkommen tilbage.",
+    "signupTitle": "Find dit næste hjem.",
+    "loginSubtitle": "Log ind for at fortsætte med at finde dit perfekte hjem.",
+    "signupSubtitle": "Opret din profil på et minut og kom i gang med at matche.",
+    "iAm": "Jeg er…",
+    "roomie": "Lejer",
+    "roomieSub": "Søger en bolig",
+    "landlord": "Udlejer",
+    "landlordSub": "Udlejer en bolig",
+    "email": "Email",
+    "password": "Adgangskode",
+    "confirmPassword": "Bekræft adgangskode",
+    "forgot": "Glemt?",
+    "passwordHint": "Mindst 8 tegn, ét stort bogstav og ét tal.",
+    "loginButton": "Log ind",
+    "signupButton": "Opret konto",
+    "loading": "Vent venligst…",
+    "terms": "Ved at oprette en konto accepterer du vores vilkår og privatlivspolitik.",
+    "noAccount": "Har du ikke en konto?",
+    "haveAccount": "Har du allerede en konto?",
+    "resetSentTitle": "Tjek din email",
+    "resetSentBody": "Vi har sendt et link til at nulstille din adgangskode.",
+    "enterEmailFirst": "Indtast din email ovenfor, så sender vi et nulstillingslink"
+  },
+  "home": {
+    "greetingNight": "God nat",
+    "greetingMorning": "God morgen",
+    "greetingDay": "Goddag",
+    "greetingEvening": "God aften",
+    "heroQuestion": "Hvor skal du hjem til i dag?",
+    "searchPlaceholder": "Søg by, område eller adresse",
+    "search": "Søg",
+    "seeMatches": "Se dine matches",
+    "popularCities": "Populære studiebyer",
+    "matchedRoomiesEyebrow": "Matchede roomies",
+    "peopleForYou": "Mennesker, der passer til dig.",
+    "seeAll": "Se alle",
+    "noConversations": "Du har ingen aktive samtaler endnu.",
+    "findRoomies": "Find roomies",
+    "favoritesEyebrow": "Favoritter",
+    "savedHomes": "Boliger du har gemt."
+  },
+  "settings": {
+    "title": "Indstillinger.",
+    "subtitle": "Administrer din konto og præferencer.",
+    "language": "Sprog",
+    "languageDesc": "Vælg sproget for appen"
+  }
+}

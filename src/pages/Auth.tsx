@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Eye, EyeOff, Home, Users, ArrowLeft, ArrowRight } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
@@ -35,6 +36,7 @@ const Auth = () => {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setIsLogin(searchParams.get("mode") !== "signup");
@@ -89,7 +91,7 @@ const Auth = () => {
   const handleForgotPassword = async () => {
     const result = emailSchema.safeParse(email);
     if (!result.success) {
-      setErrors({ email: "Indtast din email ovenfor, så sender vi et nulstillingslink" });
+      setErrors({ email: t("auth.enterEmailFirst") });
       return;
     }
     const redirectTo = isNativeApp()
@@ -100,8 +102,8 @@ const Auth = () => {
       toast({ variant: "destructive", title: "Fejl", description: error.message });
     } else {
       toast({
-        title: "Tjek din email",
-        description: "Vi har sendt et link til at nulstille din adgangskode.",
+        title: t("auth.resetSentTitle"),
+        description: t("auth.resetSentBody"),
       });
     }
   };
@@ -137,25 +139,23 @@ const Auth = () => {
             {/* Eyebrow + heading */}
             <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-5">
               <span className="w-6 h-px bg-foreground/30" />
-              {isLogin ? "Log ind" : "Opret profil"}
+              {isLogin ? t("auth.loginEyebrow") : t("auth.signupEyebrow")}
             </span>
             <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground leading-[1.05] mb-3">
-              {isLogin ? "Velkommen tilbage." : "Find dit næste hjem."}
+              {isLogin ? t("auth.loginTitle") : t("auth.signupTitle")}
             </h1>
             <p className="text-foreground/60 text-base mb-8 max-w-sm">
-              {isLogin
-                ? "Log ind for at fortsætte med at finde dit perfekte hjem."
-                : "Opret din profil på et minut og kom i gang med at matche."}
+              {isLogin ? t("auth.loginSubtitle") : t("auth.signupSubtitle")}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label className="text-xs text-foreground/60">Jeg er…</Label>
+                  <Label className="text-xs text-foreground/60">{t("auth.iAm")}</Label>
                   <div className="grid grid-cols-2 gap-2.5">
                     {[
-                      { id: "roomie", icon: Users, label: "Lejer", sub: "Søger en bolig" },
-                      { id: "landlord", icon: Home, label: "Udlejer", sub: "Udlejer en bolig" },
+                      { id: "roomie", icon: Users, label: t("auth.roomie"), sub: t("auth.roomieSub") },
+                      { id: "landlord", icon: Home, label: t("auth.landlord"), sub: t("auth.landlordSub") },
                     ].map(({ id, icon: Icon, label, sub }) => {
                       const active = userType === id;
                       return (
@@ -188,7 +188,7 @@ const Auth = () => {
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs text-foreground/60">Email</Label>
+                <Label htmlFor="email" className="text-xs text-foreground/60">{t("auth.email")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -202,14 +202,14 @@ const Auth = () => {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-xs text-foreground/60">Adgangskode</Label>
+                  <Label htmlFor="password" className="text-xs text-foreground/60">{t("auth.password")}</Label>
                   {isLogin && (
                     <button
                       type="button"
                       className="text-xs text-foreground/60 hover:text-foreground transition-colors"
                       onClick={handleForgotPassword}
                     >
-                      Glemt?
+                      {t("auth.forgot")}
                     </button>
                   )}
                 </div>
@@ -233,13 +233,13 @@ const Auth = () => {
                 </div>
                 {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 {!isLogin && !errors.password && (
-                  <p className="text-xs text-foreground/50">Mindst 8 tegn, ét stort bogstav og ét tal.</p>
+                  <p className="text-xs text-foreground/50">{t("auth.passwordHint")}</p>
                 )}
               </div>
 
               {!isLogin && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirmPassword" className="text-xs text-foreground/60">Bekræft adgangskode</Label>
+                  <Label htmlFor="confirmPassword" className="text-xs text-foreground/60">{t("auth.confirmPassword")}</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -263,11 +263,11 @@ const Auth = () => {
                 {isLoading ? (
                   <>
                     <span className="animate-spin mr-2">⏳</span>
-                    Vent venligst…
+                    {t("auth.loading")}
                   </>
                 ) : (
                   <>
-                    {isLogin ? "Log ind" : "Opret konto"}
+                    {isLogin ? t("auth.loginButton") : t("auth.signupButton")}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -275,19 +275,19 @@ const Auth = () => {
 
               {!isLogin && (
                 <p className="text-[11px] text-foreground/45 text-center leading-relaxed">
-                  Ved at oprette en konto accepterer du vores vilkår og privatlivspolitik.
+                  {t("auth.terms")}
                 </p>
               )}
             </form>
 
             <div className="mt-8 text-center">
               <p className="text-sm text-foreground/60">
-                {isLogin ? "Har du ikke en konto?" : "Har du allerede en konto?"}{" "}
+                {isLogin ? t("auth.noAccount") : t("auth.haveAccount")}{" "}
                 <button
                   onClick={switchMode}
                   className="text-foreground font-semibold hover:underline underline-offset-4"
                 >
-                  {isLogin ? "Opret konto" : "Log ind"}
+                  {isLogin ? t("auth.signupButton") : t("auth.loginButton")}
                 </button>
               </p>
             </div>

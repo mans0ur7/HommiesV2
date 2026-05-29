@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   ChevronLeft,
@@ -54,6 +55,7 @@ const locations = [
 const LoggedInHome = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const { partners } = useConversationPartners();
   const { properties: favoriteProperties } = useFavoriteProperties();
@@ -112,7 +114,7 @@ const LoggedInHome = () => {
   const today = new Date();
   const hour = today.getHours();
   const greeting =
-    hour < 5 ? "God nat" : hour < 12 ? "God morgen" : hour < 18 ? "Goddag" : "God aften";
+    hour < 5 ? t("home.greetingNight") : hour < 12 ? t("home.greetingMorning") : hour < 18 ? t("home.greetingDay") : t("home.greetingEvening");
 
   return (
     <AppLayout>
@@ -130,8 +132,7 @@ const LoggedInHome = () => {
                   {greeting}{firstName ? `, ${firstName}` : ""}
                 </span>
                 <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05]">
-                  Hvor skal du hjem
-                  <br className="hidden md:block" /> til i dag?
+                  {t("home.heroQuestion")}
                 </h1>
               </div>
               <button
@@ -139,7 +140,7 @@ const LoggedInHome = () => {
                 className="hidden md:inline-flex items-center gap-2 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
               >
                 <Sparkles className="w-4 h-4" />
-                Se dine matches
+                {t("home.seeMatches")}
                 <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>
@@ -149,7 +150,7 @@ const LoggedInHome = () => {
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/50" />
                 <Input
-                  placeholder="Søg by, område eller adresse…"
+                  placeholder={t("home.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
@@ -160,7 +161,7 @@ const LoggedInHome = () => {
                 onClick={handleSearch}
                 className="h-11 md:h-12 px-5 md:px-6 rounded-xl bg-foreground text-background hover:bg-foreground/90 text-sm font-medium gap-2 shrink-0"
               >
-                Søg
+                {t("home.search")}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -169,7 +170,7 @@ const LoggedInHome = () => {
             <div className="mt-10 md:mt-14">
               <div className="flex items-end justify-between mb-5">
                 <h2 className="text-lg md:text-2xl font-semibold tracking-tight text-foreground">
-                  Populære studiebyer
+                  {t("home.popularCities")}
                 </h2>
                 <div className="hidden md:flex items-center gap-2">
                   <button
@@ -247,10 +248,10 @@ const LoggedInHome = () => {
               <div>
                 <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-2">
                   <span className="w-6 h-px bg-foreground/30" />
-                  Matchede roomies
+                  {t("home.matchedRoomiesEyebrow")}
                 </span>
                 <h2 className="text-2xl md:text-4xl font-semibold tracking-tight text-foreground">
-                  Mennesker, der passer til dig.
+                  {t("home.peopleForYou")}
                 </h2>
               </div>
               {partners.length > 0 && (
@@ -258,7 +259,7 @@ const LoggedInHome = () => {
                   onClick={() => navigate("/matches")}
                   className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Se alle
+                  {t("home.seeAll")}
                   <ArrowUpRight className="w-4 h-4" />
                 </button>
               )}
@@ -299,14 +300,14 @@ const LoggedInHome = () => {
             ) : (
               <div className="rounded-3xl border border-dashed border-border/70 px-6 py-12 text-center">
                 <p className="text-sm text-foreground/60 mb-4">
-                  Du har ingen aktive samtaler endnu.
+                  {t("home.noConversations")}
                 </p>
                 <Button
                   onClick={() => navigate("/matches")}
                   variant="outline"
                   className="rounded-full"
                 >
-                  Find roomies
+                  {t("home.findRoomies")}
                 </Button>
               </div>
             )}
@@ -320,17 +321,17 @@ const LoggedInHome = () => {
               <div>
                 <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-2">
                   <span className="w-6 h-px bg-foreground/30" />
-                  Favoritter
+                  {t("home.favoritesEyebrow")}
                 </span>
                 <h2 className="text-2xl md:text-4xl font-semibold tracking-tight text-foreground">
-                  Boliger du har gemt.
+                  {t("home.savedHomes")}
                 </h2>
               </div>
               <button
                 onClick={() => navigate("/explore?favorites=true")}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
               >
-                Se alle
+                {t("home.seeAll")}
                 <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>

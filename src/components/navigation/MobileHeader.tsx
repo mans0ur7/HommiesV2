@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Mail, Info, FileText, Search, BookOpen, Shield, User, Bell, LogOut } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
@@ -8,12 +9,14 @@ import { usePendingContracts } from "@/hooks/usePendingContracts";
 import { useNotifications } from "@/hooks/useNotifications";
 
 import NotificationPopover from "./NotificationPopover";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const MobileHeader = () => {
   const { profile } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { unreadSearchAgentCount } = useSearchAgentNotifications();
   const { pendingCount } = usePendingContracts();
@@ -120,7 +123,7 @@ const MobileHeader = () => {
         >
           {/* Menu Header */}
           <div className="safe-area-top flex items-center justify-between h-14 px-4 border-b border-border">
-            <span className="font-semibold text-foreground">Menu</span>
+            <span className="font-semibold text-foreground">{t("menu.title")}</span>
             <button
               onClick={closeMenu}
               className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-muted transition-colors"
@@ -134,7 +137,7 @@ const MobileHeader = () => {
             {/* Værktøjer Section */}
             <div className="px-3 py-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                Værktøjer
+                {t("menu.tools")}
                 {toolsBadgeCount > 0 && (
                   <span className="min-w-[16px] h-[16px] flex items-center justify-center bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1">
                     {toolsBadgeCount > 99 ? "99+" : toolsBadgeCount}
@@ -150,7 +153,7 @@ const MobileHeader = () => {
                 className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors"
               >
                 <Search className="w-5 h-5 text-secondary" />
-                <span className="font-medium text-foreground">Søgeagenter</span>
+                <span className="font-medium text-foreground">{t("menu.searchAgents")}</span>
                 {unreadSearchAgentCount > 0 && (
                   <span className="ml-auto min-w-[20px] h-[20px] flex items-center justify-center bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-1.5">
                     {unreadSearchAgentCount > 99 ? "99+" : unreadSearchAgentCount}
@@ -165,7 +168,7 @@ const MobileHeader = () => {
               className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors"
             >
               <FileText className="w-5 h-5 text-secondary" />
-              <span className="font-medium text-foreground">Dokumenter</span>
+              <span className="font-medium text-foreground">{t("menu.documents")}</span>
               {pendingCount > 0 && (
                 <span className="ml-auto min-w-[20px] h-[20px] flex items-center justify-center bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-1.5">
                   {pendingCount > 99 ? "99+" : pendingCount}
@@ -180,7 +183,7 @@ const MobileHeader = () => {
                 className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors"
               >
                 <FileText className="w-5 h-5 text-secondary" />
-                <span className="font-medium text-foreground">Mine annoncer</span>
+                <span className="font-medium text-foreground">{t("menu.myListings")}</span>
               </Link>
             )}
 
@@ -190,7 +193,7 @@ const MobileHeader = () => {
             {/* Info Section */}
             <div className="px-3 py-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Information
+                {t("menu.information")}
               </p>
             </div>
 
@@ -200,7 +203,7 @@ const MobileHeader = () => {
               className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors"
             >
               <Info className="w-5 h-5 text-muted-foreground" />
-              <span className="font-medium text-foreground">Om os</span>
+              <span className="font-medium text-foreground">{t("menu.about")}</span>
             </Link>
 
             <Link
@@ -209,7 +212,7 @@ const MobileHeader = () => {
               className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors"
             >
               <BookOpen className="w-5 h-5 text-muted-foreground" />
-              <span className="font-medium text-foreground">Vores historie</span>
+              <span className="font-medium text-foreground">{t("menu.story")}</span>
             </Link>
 
             <Link
@@ -218,7 +221,7 @@ const MobileHeader = () => {
               className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors"
             >
               <Mail className="w-5 h-5 text-muted-foreground" />
-              <span className="font-medium text-foreground">Kontakt os</span>
+              <span className="font-medium text-foreground">{t("menu.contact")}</span>
             </Link>
 
             <Link
@@ -227,7 +230,7 @@ const MobileHeader = () => {
               className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted transition-colors"
             >
               <Shield className="w-5 h-5 text-muted-foreground" />
-              <span className="font-medium text-foreground">Privatlivspolitik</span>
+              <span className="font-medium text-foreground">{t("menu.privacy")}</span>
             </Link>
 
             {/* Divider */}
@@ -245,8 +248,19 @@ const MobileHeader = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <span className="font-medium text-foreground">Indstillinger</span>
+              <span className="font-medium text-foreground">{t("menu.settings")}</span>
             </Link>
+
+            {/* Language switcher */}
+            <div className="px-3 py-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                {t("settings.language")}
+              </p>
+              <LanguageSwitcher />
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-border my-3 mx-3" />
 
             {/* Log ud */}
             <button
@@ -254,7 +268,7 @@ const MobileHeader = () => {
               className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-destructive/10 transition-colors w-full text-left"
             >
               <LogOut className="w-5 h-5 text-destructive" />
-              <span className="font-medium text-destructive">Log ud</span>
+              <span className="font-medium text-destructive">{t("menu.logout")}</span>
             </button>
           </div>
         </div>
