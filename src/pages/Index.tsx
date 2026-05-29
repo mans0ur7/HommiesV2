@@ -1,4 +1,5 @@
 import { useNavigate, Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { isNativeApp } from "@/lib/native";
 import Onboarding, { ONBOARDING_SEEN_KEY } from "@/components/onboarding/Onboarding";
@@ -18,11 +19,12 @@ import PartnerBanner from "@/components/landing/PartnerBanner";
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Indlæser...</div>
+        <div className="animate-pulse text-muted-foreground">{t("inbox.loading")}</div>
       </div>
     );
   }
