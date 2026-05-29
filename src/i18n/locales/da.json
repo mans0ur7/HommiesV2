@@ -479,5 +479,11 @@
     "somethingWrong": "Noget gik galt",
     "groupCreated": "Gruppe oprettet!",
     "groupCreateFailed": "Kunne ikke oprette gruppe"
+  },
+  "navbar": {
+    "profile": "Profil",
+    "myProfile": "Min profil",
+    "more": "Mere",
+    "contactShort": "Kontakt"
   }
 }

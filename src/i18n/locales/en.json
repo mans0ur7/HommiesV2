@@ -479,5 +479,11 @@
     "somethingWrong": "Something went wrong",
     "groupCreated": "Group created!",
     "groupCreateFailed": "Could not create group"
+  },
+  "navbar": {
+    "profile": "Profile",
+    "myProfile": "My profile",
+    "more": "More",
+    "contactShort": "Contact"
   }
 }
