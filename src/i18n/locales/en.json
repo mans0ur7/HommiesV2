@@ -796,6 +796,30 @@
     "groupCreated": "Group created!",
     "groupCreateFailed": "Could not create group"
   },
+  "documents": {
+    "back": "Back",
+    "eyebrow": "Tools",
+    "title": "Documents.",
+    "subtitleLandlord": "Manage your house rules and roomie agreements.",
+    "subtitleTenant": "View your house rules and roomie agreements.",
+    "noneYet": "No documents yet",
+    "noneLandlord": "You haven't created any house rules yet. Start one from an accepted request.",
+    "noneTenant": "There are no house rules available for you yet.",
+    "noAddress": "Address not filled in",
+    "authorWorking": "The author is filling in the house rules",
+    "willBeReadable": "You'll be able to read the house rules once the author has finished them.",
+    "tenantPrefix": "Tenant:",
+    "authorPrefix": "Author:",
+    "notFilled": "Not filled in",
+    "updated": "Updated: {{date}}",
+    "statusDraft": "Draft",
+    "statusReady": "Awaiting signature",
+    "statusSigned": "Signed"
+  },
+  "notFound": {
+    "title": "Oops! Page not found",
+    "back": "Back to home"
+  },
   "navbar": {
     "profile": "Profile",
     "myProfile": "My profile",

@@ -796,6 +796,30 @@
     "groupCreated": "Gruppe oprettet!",
     "groupCreateFailed": "Kunne ikke oprette gruppe"
   },
+  "documents": {
+    "back": "Tilbage",
+    "eyebrow": "Værktøjer",
+    "title": "Dokumenter.",
+    "subtitleLandlord": "Administrer dine husordener og samboaftaler.",
+    "subtitleTenant": "Se dine husordener og samboaftaler.",
+    "noneYet": "Ingen dokumenter endnu",
+    "noneLandlord": "Du har ikke oprettet nogen husordener endnu. Start en husorden fra en accepteret anmodning.",
+    "noneTenant": "Der er ingen husordener tilgængelige for dig endnu.",
+    "noAddress": "Adresse ikke udfyldt",
+    "authorWorking": "Ophavsmanden er ved at udfylde husordenen",
+    "willBeReadable": "Du vil kunne læse husordenen, når ophavsmanden har færdiggjort den.",
+    "tenantPrefix": "Beboer:",
+    "authorPrefix": "Ophavsmand:",
+    "notFilled": "Ikke udfyldt",
+    "updated": "Opdateret: {{date}}",
+    "statusDraft": "Kladde",
+    "statusReady": "Afventer underskrift",
+    "statusSigned": "Underskrevet"
+  },
+  "notFound": {
+    "title": "Ups! Siden blev ikke fundet",
+    "back": "Tilbage til forsiden"
+  },
   "navbar": {
     "profile": "Profil",
     "myProfile": "Min profil",

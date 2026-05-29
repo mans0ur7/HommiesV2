@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { FileText, Clock, CheckCircle, ArrowLeft } from "lucide-react";
@@ -23,16 +24,17 @@ interface Contract {
   tenant_name: string | null;
 }
 
-const statusConfig: Record<string, { label: string; icon: React.ElementType; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  draft:  { label: "Kladde",               icon: Clock,         variant: "secondary" },
-  ready:  { label: "Afventer underskrift", icon: FileText,       variant: "default"   },
-  signed: { label: "Underskrevet",          icon: CheckCircle,   variant: "default"   },
+const statusConfig: Record<string, { labelKey: string; icon: React.ElementType; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  draft:  { labelKey: "documents.statusDraft",  icon: Clock,       variant: "secondary" },
+  ready:  { labelKey: "documents.statusReady",  icon: FileText,     variant: "default"   },
+  signed: { labelKey: "documents.statusSigned", icon: CheckCircle, variant: "default"   },
 };
 
 export default function Documents() {
   const isMobile = useIsMobile();
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -108,21 +110,19 @@ export default function Documents() {
           className="gap-1.5 text-foreground/60 hover:text-foreground -ml-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Tilbage
+          {t("documents.back")}
         </Button>
 
         <div>
           <div className="flex items-center gap-3 mb-3">
             <div className="h-px w-8 bg-foreground/40" />
-            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Værktøjer</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("documents.eyebrow")}</span>
           </div>
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
-            Dokumenter.
+            {t("documents.title")}
           </h1>
           <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
-            {isLandlord
-              ? "Administrer dine husordener og samboaftaler."
-              : "Se dine husordener og samboaftaler."}
+            {isLandlord ? t("documents.subtitleLandlord") : t("documents.subtitleTenant")}
           </p>
         </div>
 
@@ -131,12 +131,10 @@ export default function Documents() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <FileText className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                Ingen dokumenter endnu
+                {t("documents.noneYet")}
               </h3>
               <p className="text-muted-foreground text-center max-w-sm">
-                {isLandlord
-                  ? "Du har ikke oprettet nogen husordener endnu. Start en husorden fra en accepteret anmodning."
-                  : "Der er ingen husordener tilgængelige for dig endnu."}
+                {isLandlord ? t("documents.noneLandlord") : t("documents.noneTenant")}
               </p>
             </CardContent>
           </Card>
@@ -156,22 +154,22 @@ export default function Documents() {
                       <div className="flex items-start justify-between">
                         <div>
                           <CardTitle className="text-lg">
-                            {contract.property_address || "Adresse ikke udfyldt"}
+                            {contract.property_address || t("documents.noAddress")}
                             {contract.property_city && `, ${contract.property_city}`}
                           </CardTitle>
                           <CardDescription>
-                            Ophavsmanden er ved at udfylde husordenen
+                            {t("documents.authorWorking")}
                           </CardDescription>
                         </div>
                         <Badge variant={statusInfo.variant} className="flex items-center gap-1">
                           <StatusIcon className="h-3 w-3" />
-                          {statusInfo.label}
+                          {t(statusInfo.labelKey)}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground">
-                        Du vil kunne læse husordenen, når ophavsmanden har færdiggjort den.
+                        {t("documents.willBeReadable")}
                       </p>
                     </CardContent>
                   </Card>
@@ -181,8 +179,8 @@ export default function Documents() {
               if (!canView) return null;
 
               return (
-                <Card 
-                  key={contract.id} 
+                <Card
+                  key={contract.id}
                   className="cursor-pointer hover:border-primary/50 transition-colors"
                   onClick={() => navigate(`/documents/${contract.id}`)}
                 >
@@ -190,25 +188,25 @@ export default function Documents() {
                     <div className="flex items-start justify-between">
                       <div>
                         <CardTitle className="text-lg">
-                          {contract.property_address || "Adresse ikke udfyldt"}
+                          {contract.property_address || t("documents.noAddress")}
                           {contract.property_city && `, ${contract.property_city}`}
                         </CardTitle>
                         <CardDescription>
                           {isUserLandlord
-                            ? `Beboer: ${contract.tenant_name || "Ikke udfyldt"}`
-                            : `Ophavsmand: ${contract.landlord_name || "Ikke udfyldt"}`}
+                            ? `${t("documents.tenantPrefix")} ${contract.tenant_name || t("documents.notFilled")}`
+                            : `${t("documents.authorPrefix")} ${contract.landlord_name || t("documents.notFilled")}`}
                         </CardDescription>
                       </div>
                       <Badge variant={statusInfo.variant} className="flex items-center gap-1">
                         <StatusIcon className="h-3 w-3" />
-                        {statusInfo.label}
+                        {t(statusInfo.labelKey)}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
                       <span>
-                        Opdateret: {new Date(contract.updated_at).toLocaleDateString("da-DK")}
+                        {t("documents.updated", { date: new Date(contract.updated_at).toLocaleDateString("da-DK") })}
                       </span>
                     </div>
                   </CardContent>
