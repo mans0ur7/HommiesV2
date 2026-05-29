@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowUpRight, MapPin, Home as HomeIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,6 +16,7 @@ interface FeaturedProperty {
 
 const FeaturedRoomsSection = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: properties = [], isLoading } = useQuery({
     queryKey: ["landing-featured-rooms"],
     staleTime: 1000 * 60 * 5,
@@ -42,17 +44,17 @@ const FeaturedRoomsSection = () => {
         <div className="flex items-end justify-between mb-8 sm:mb-10 gap-4">
           <div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
-              Håndplukkede værelser
+              {t("landing.featuredTitle")}
             </h2>
             <p className="mt-2 text-muted-foreground text-sm sm:text-base">
-              Et udvalg fra vores aktive annoncer i hele landet.
+              {t("landing.featuredSubtitle")}
             </p>
           </div>
           <button
             onClick={() => navigate("/explore")}
             className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
-            Se alle værelser
+            {t("landing.seeAllRooms")}
             <ArrowUpRight className="w-4 h-4" />
           </button>
         </div>
@@ -92,7 +94,7 @@ const FeaturedRoomsSection = () => {
           onClick={() => navigate("/explore")}
           className="sm:hidden mt-6 w-full inline-flex items-center justify-center gap-1 text-sm font-medium text-foreground border border-border rounded-xl py-3"
         >
-          Se alle værelser
+          {t("landing.seeAllRooms")}
           <ArrowUpRight className="w-4 h-4" />
         </button>
       </div>

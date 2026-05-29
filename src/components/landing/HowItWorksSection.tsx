@@ -1,18 +1,20 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { UserCircle2, Sparkles, MessageSquare, ArrowRight, Check } from "lucide-react";
 
 const HowItWorksSection = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <section className="bg-background py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="max-w-2xl mb-10 sm:mb-12">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
-            Sådan virker Hommies
+            {t("landing.howTitle")}
           </h2>
           <p className="mt-3 text-muted-foreground text-base sm:text-lg">
-            Tre trin fra profil til indflytning. Helt gratis at komme i gang.
+            {t("landing.howSubtitle")}
           </p>
         </div>
 
@@ -26,10 +28,10 @@ const HowItWorksSection = () => {
             </div>
             <div className="mt-6 mb-8">
               <h3 className="text-xl sm:text-2xl font-semibold text-foreground">
-                Opret en profil — på 2 minutter
+                {t("landing.howStep1Title")}
               </h3>
               <p className="mt-2 text-sm text-muted-foreground max-w-md">
-                Fortæl lidt om dig selv, dine interesser og hvad du leder efter. Det hjælper med at finde de rigtige matches.
+                {t("landing.howStep1Body")}
               </p>
             </div>
             {/* Mock profile card */}
@@ -39,11 +41,11 @@ const HowItWorksSection = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-foreground">Mia, 24</div>
-                <div className="text-xs text-muted-foreground">Studerende · København</div>
+                <div className="text-xs text-muted-foreground">{t("landing.howStep1User")}</div>
               </div>
               <div className="flex items-center gap-1 text-xs text-emerald-600">
                 <Check className="w-3.5 h-3.5" />
-                Verificeret
+                {t("landing.howVerified")}
               </div>
             </div>
           </div>
@@ -56,10 +58,10 @@ const HowItWorksSection = () => {
             </div>
             <div className="mt-4">
               <h3 className="text-xl sm:text-2xl font-semibold">
-                Match med roomies eller værelser
+                {t("landing.howStep2Title")}
               </h3>
               <p className="mt-2 text-sm text-primary-foreground/70 max-w-md">
-                Swipe, like og find folk og boliger der passer dig. Vi viser kun det relevante.
+                {t("landing.howStep2Body")}
               </p>
             </div>
             <div className="mt-5 flex -space-x-2">
@@ -85,17 +87,17 @@ const HowItWorksSection = () => {
             </div>
             <div className="mt-4">
               <h3 className="text-xl sm:text-2xl font-semibold text-foreground">
-                Skriv & flyt ind
+                {t("landing.howStep3Title")}
               </h3>
               <p className="mt-2 text-sm text-muted-foreground max-w-md">
-                Tag kontakt direkte i appen, aftal visning og få styr på kontrakten. Helt trygt.
+                {t("landing.howStep3Body")}
               </p>
             </div>
 
             <div className="mt-5 bg-card border border-border rounded-2xl p-3 flex items-center gap-3 shadow-sm">
               <MessageSquare className="w-4 h-4 text-primary shrink-0" />
               <div className="flex-1 text-xs text-muted-foreground truncate">
-                "Hej! Værelset er stadig ledigt — kan vi se det på lørdag?"
+                {t("landing.howStep3Chat")}
               </div>
             </div>
 
@@ -103,7 +105,7 @@ const HowItWorksSection = () => {
               onClick={() => navigate("/auth?mode=signup")}
               className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors w-fit"
             >
-              Kom i gang gratis
+              {t("landing.howStartFree")}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

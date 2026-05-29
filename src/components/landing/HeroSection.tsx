@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Search, ArrowRight, MapPin, MapPinned } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +9,7 @@ import { useShowcaseImages } from "@/hooks/useShowcaseImages";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [city, setCity] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -47,7 +49,7 @@ const HeroSection = () => {
     goToExplore(city);
   };
 
-  const placeholder = "By, kvarter eller adresse";
+  const placeholder = t("landing.heroSearchPlaceholder");
 
   const fallbackImages = useShowcaseImages(6);
   const big = bentoImages?.[0];
@@ -64,12 +66,12 @@ const HeroSection = () => {
           {/* LEFT — copy + search */}
           <div>
             <h1 className="font-semibold tracking-[-0.03em] text-foreground leading-[1.02] text-[clamp(2.4rem,5.5vw,4.25rem)]">
-              Find dit næste hjem.
+              {t("landing.heroLine1")}
               <br />
-              <span className="text-foreground/50">Find dine næste roomies.</span>
+              <span className="text-foreground/50">{t("landing.heroLine2")}</span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed">
-              Værelser, roomies og bofællesskaber over hele Danmark – samlet på én platform.
+              {t("landing.heroSubtitle")}
             </p>
 
             {/* Search panel */}
@@ -91,7 +93,7 @@ const HeroSection = () => {
                     type="submit"
                     className="bg-primary text-primary-foreground rounded-xl px-5 sm:px-7 py-3 font-medium text-sm sm:text-base inline-flex items-center gap-2 hover:bg-primary/90 transition-colors"
                   >
-                    Søg
+                    {t("landing.heroSearch")}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </form>
@@ -128,7 +130,7 @@ const HeroSection = () => {
                     </ul>
                   ) : (
                     <div className="py-6 px-4 text-center">
-                      <p className="text-sm text-muted-foreground">{dawaLoading ? "Søger…" : `Ingen resultater for "${city}"`}</p>
+                      <p className="text-sm text-muted-foreground">{dawaLoading ? t("landing.heroSearching") : t("landing.heroNoResults", { query: city })}</p>
                     </div>
                   )}
                 </div>
@@ -137,7 +139,7 @@ const HeroSection = () => {
 
             {/* Quick shortcuts */}
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-              <span>Populært:</span>
+              <span>{t("landing.heroPopular")}</span>
               {["København", "Aarhus", "Odense", "Aalborg"].map((c) => (
                 <button
                   key={c}
@@ -207,29 +209,32 @@ interface BentoCardProps {
   onClick?: () => void;
 }
 
-const BentoCard = ({ className = "", image, title, price, onClick }: BentoCardProps) => (
-  <button
-    onClick={onClick}
-    className={`group relative overflow-hidden rounded-2xl bg-muted ${className}`}
-  >
-    {image ? (
-      <img
-        src={image}
-        alt={title ?? "Værelse"}
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        loading="lazy"
-      />
-    ) : (
-      <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted/60" />
-    )}
-    {price && (
-      <div className="absolute bottom-3 left-3 bg-card/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm">
-        <span className="text-xs font-semibold text-foreground">
-          fra {price.toLocaleString("da-DK")} kr
-        </span>
-      </div>
-    )}
-  </button>
-);
+const BentoCard = ({ className = "", image, title, price, onClick }: BentoCardProps) => {
+  const { t } = useTranslation();
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative overflow-hidden rounded-2xl bg-muted ${className}`}
+    >
+      {image ? (
+        <img
+          src={image}
+          alt={title ?? t("landing.heroRoomAlt")}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          loading="lazy"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted/60" />
+      )}
+      {price && (
+        <div className="absolute bottom-3 left-3 bg-card/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm">
+          <span className="text-xs font-semibold text-foreground">
+            {t("landing.heroPriceFrom", { price: price.toLocaleString("da-DK") })}
+          </span>
+        </div>
+      )}
+    </button>
+  );
+};
 
 export default HeroSection;

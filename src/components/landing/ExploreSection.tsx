@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import copenhagenImg from "@/assets/cities/copenhagen.jpg";
 import aarhusImg from "@/assets/cities/aarhus.jpg";
@@ -18,6 +19,7 @@ const CITIES = [
 
 const ExploreSection = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const go = (city: string) =>
     navigate(`/explore?city=${encodeURIComponent(city)}`);
 
@@ -53,10 +55,10 @@ const ExploreSection = () => {
         <div className="flex items-end justify-between mb-8 sm:mb-10 gap-4">
           <div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
-              Udforsk danske byer
+              {t("landing.exploreTitle")}
             </h2>
             <p className="mt-2 text-muted-foreground text-sm sm:text-base">
-              Vælg din by og se hvad der er ledigt lige nu.
+              {t("landing.exploreSubtitle")}
             </p>
           </div>
         </div>
@@ -81,25 +83,32 @@ const CityTile = ({
   city: { name: string; image: string; count: number };
   className?: string;
   onClick: (n: string) => void;
-}) => (
-  <button
-    onClick={() => onClick(city.name)}
-    className={`group relative overflow-hidden rounded-2xl bg-muted text-left ${className}`}
-  >
-    <img
-      src={city.image}
-      alt={city.name}
-      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-      loading="lazy"
-    />
-    <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
-    <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2 text-background">
-      <h3 className="text-xl sm:text-2xl font-semibold tracking-tight">{city.name}</h3>
-      <span className="text-xs opacity-80 mb-1">
-        {city.count > 0 ? `${city.count} ${city.count === 1 ? "bolig" : "boliger"}` : "Ingen boliger"}
-      </span>
-    </div>
-  </button>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <button
+      onClick={() => onClick(city.name)}
+      className={`group relative overflow-hidden rounded-2xl bg-muted text-left ${className}`}
+    >
+      <img
+        src={city.image}
+        alt={city.name}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        loading="lazy"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
+      <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2 text-background">
+        <h3 className="text-xl sm:text-2xl font-semibold tracking-tight">{city.name}</h3>
+        <span className="text-xs opacity-80 mb-1">
+          {city.count > 0
+            ? city.count === 1
+              ? t("landing.exploreOne", { count: city.count })
+              : t("landing.exploreMany", { count: city.count })
+            : t("landing.exploreNone")}
+        </span>
+      </div>
+    </button>
+  );
+};
 
 export default ExploreSection;

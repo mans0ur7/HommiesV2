@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 
 const StatsBar = () => {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["landing-stats"],
     staleTime: 1000 * 60 * 5,
@@ -32,10 +34,10 @@ const StatsBar = () => {
   if (!data || (data.properties ?? 0) < 50) return null;
 
   const stats = [
-    { value: data.properties, label: "Aktive værelser", suffix: "+" },
-    { value: data.cities, label: "Byer dækket", suffix: "" },
-    { value: data.users, label: "Brugere på platformen", suffix: "+" },
-    { value: 24, label: "Timers gennemsnitlig svartid", prefix: "~", suffix: "t" },
+    { value: data.properties, label: t("landing.statsRooms"), suffix: "+" },
+    { value: data.cities, label: t("landing.statsCities"), suffix: "" },
+    { value: data.users, label: t("landing.statsUsers"), suffix: "+" },
+    { value: 24, label: t("landing.statsResponse"), prefix: "~", suffix: "t" },
   ];
 
   return (

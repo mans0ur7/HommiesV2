@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowRight } from "lucide-react";
 
 const CTASection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const handleListNow = () => {
     if (user) navigate("/my-listings");
@@ -21,21 +23,21 @@ const CTASection = () => {
           <div className="relative grid lg:grid-cols-[1.4fr_1fr] gap-10 items-center">
             <div>
               <div className="text-xs uppercase tracking-[0.2em] text-primary-foreground/60 mb-4">
-                For udlejere
+                {t("landing.ctaEyebrow")}
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.05]">
-                Udlej din bolig.
+                {t("landing.ctaLine1")}
                 <br />
-                <span className="text-primary-foreground/60">Vi finder de rigtige.</span>
+                <span className="text-primary-foreground/60">{t("landing.ctaLine2")}</span>
               </h2>
               <p className="mt-5 text-primary-foreground/70 text-base sm:text-lg max-w-lg">
-                Opret en annonce på få minutter, modtag forespørgsler fra verificerede brugere og lej ud i ro og mag.
+                {t("landing.ctaBody")}
               </p>
               <button
                 onClick={handleListNow}
                 className="mt-8 inline-flex items-center gap-2 bg-secondary text-primary rounded-xl px-6 py-3.5 font-semibold hover:bg-secondary/90 transition-colors"
               >
-                Opret annonce
+                {t("landing.ctaCreate")}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -46,7 +48,7 @@ const CTASection = () => {
                 <div className="aspect-[4/3] rounded-xl bg-muted mb-4 overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/40 to-muted" />
                   <div className="absolute top-3 left-3 text-[10px] font-medium bg-card/95 px-2 py-1 rounded-md">
-                    UDKAST
+                    {t("landing.ctaDraft")}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -54,11 +56,11 @@ const CTASection = () => {
                   <div className="h-2.5 bg-muted/60 rounded w-1/2" />
                 </div>
                 <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Pris/md</span>
+                  <span className="text-muted-foreground">{t("landing.ctaPricePerMonth")}</span>
                   <span className="font-semibold">5.400 kr</span>
                 </div>
                 <div className="mt-3 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
-                  Udgiv annonce
+                  {t("landing.ctaPublish")}
                 </div>
               </div>
             </div>

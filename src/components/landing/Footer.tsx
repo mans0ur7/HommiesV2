@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Instagram } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
 
@@ -7,6 +8,7 @@ interface FooterProps {}
 
 const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleScrollToSection = (path: string, sectionId: string) => {
     navigate(path);
@@ -16,10 +18,10 @@ const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
   };
 
   const links = [
-    { label: "Om os", action: () => handleScrollToSection("/about", "about") },
-    { label: "Kontakt", to: "/contact" },
-    { label: "Flytteservice", to: "/flytteservice" },
-    { label: "Privatliv", to: "/privacy" },
+    { label: t("landing.footerAbout"), action: () => handleScrollToSection("/about", "about") },
+    { label: t("landing.footerContact"), to: "/contact" },
+    { label: t("landing.footerMoving"), to: "/flytteservice" },
+    { label: t("landing.footerPrivacy"), to: "/privacy" },
   ];
 
   return (
@@ -59,7 +61,7 @@ const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
         {/* Right: copyright + socials */}
         <div className="flex items-center gap-4 shrink-0">
           <span className="hidden lg:inline text-xs text-primary-foreground/50">
-            © 2025 Hommies
+            {t("landing.footerCopyright")}
           </span>
           <div className="flex items-center gap-3">
             <a

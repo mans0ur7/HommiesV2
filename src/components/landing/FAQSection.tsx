@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Accordion,
   AccordionContent,
@@ -5,40 +6,16 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqs = [
-  {
-    question: "Hvordan virker det?",
-    answer:
-      "Opret en gratis profil, gennemse ledige værelser eller find roomies, og kom i kontakt med potentielle matches. Du kan sende anmodninger og starte samtaler direkte på platformen.",
-  },
-  {
-    question: "Er Hommies gratis at bruge?",
-    answer:
-      "Ja. Det er gratis at oprette profil, gennemse annoncer, kontakte udlejere og finde roomies. Vi forbinder dig med de rette mennesker uden skjulte gebyrer.",
-  },
-  {
-    question: "Hvordan finder jeg en roomie?",
-    answer:
-      "Gå til Matches og vælg 'Roomies' for at se profiler. Send en anmodning, og hvis de accepterer, kan I starte en samtale.",
-  },
-  {
-    question: "Hvordan kontakter jeg en udlejer?",
-    answer:
-      "Når du finder et værelse du kan lide, kan du sende en anmodning. Hvis udlejer accepterer, åbnes en chat hvor I kan aftale visning og detaljer.",
-  },
-  {
-    question: "Hvordan opretter jeg en værelsesannonce?",
-    answer:
-      "Klik på 'Opret annonce' i menuen og følg de enkle trin. Upload billeder, tilføj detaljer og pris. Din annonce bliver synlig med det samme.",
-  },
-  {
-    question: "Er brugerne på Hommies verificerede?",
-    answer:
-      "Ja, vi gennemgår alle brugere før de kan kontakte andre, så du kan bruge platformen i tryghed.",
-  },
-];
-
 const FAQSection = () => {
+  const { t } = useTranslation();
+  const faqs = [
+    { question: t("landing.faqQ1"), answer: t("landing.faqA1") },
+    { question: t("landing.faqQ2"), answer: t("landing.faqA2") },
+    { question: t("landing.faqQ3"), answer: t("landing.faqA3") },
+    { question: t("landing.faqQ4"), answer: t("landing.faqA4") },
+    { question: t("landing.faqQ5"), answer: t("landing.faqA5") },
+    { question: t("landing.faqQ6"), answer: t("landing.faqA6") },
+  ];
   const left = faqs.slice(0, Math.ceil(faqs.length / 2));
   const right = faqs.slice(Math.ceil(faqs.length / 2));
 
@@ -48,12 +25,10 @@ const FAQSection = () => {
         <div className="grid lg:grid-cols-[1fr_1.6fr] gap-10 lg:gap-16">
           <div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
-              Ofte stillede
-              <br />
-              spørgsmål
+              {t("landing.faqHeader")}
             </h2>
             <p className="mt-3 text-muted-foreground text-base">
-              Mangler du svar? Skriv til os på{" "}
+              {t("landing.faqBody")}{" "}
               <a href="mailto:hej@hommies.dk" className="underline underline-offset-4 text-foreground hover:text-primary">
                 hej@hommies.dk
               </a>
