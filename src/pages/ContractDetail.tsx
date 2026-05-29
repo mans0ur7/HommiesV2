@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -71,10 +72,10 @@ interface Contract {
   updated_at: string;
 }
 
-const statusConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
-  draft:   { label: "Kladde",              icon: Clock,        color: "bg-yellow-500" },
-  ready:   { label: "Afventer underskrift", icon: FileText,     color: "bg-blue-500"   },
-  signed:  { label: "Underskrevet",         icon: CheckCircle,  color: "bg-green-600"  },
+const statusConfig: Record<string, { labelKey: string; icon: React.ElementType; color: string }> = {
+  draft:   { labelKey: "contract.statusDraft",  icon: Clock,       color: "bg-yellow-500" },
+  ready:   { labelKey: "contract.statusReady",  icon: FileText,    color: "bg-blue-500"   },
+  signed:  { labelKey: "contract.statusSigned", icon: CheckCircle, color: "bg-green-600"  },
 };
 
 export default function ContractDetail() {
@@ -82,6 +83,7 @@ export default function ContractDetail() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [contract, setContract] = useState<Contract | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,12 +112,12 @@ export default function ContractDetail() {
 
       if (data.tenant_id === user?.id && data.status === "draft") {
         navigate("/documents");
-        toast({ title: "Husordenen er ikke klar endnu", variant: "destructive" });
+        toast({ title: t("contract.notReady"), variant: "destructive" });
         return;
       }
       setContract(data);
     } catch {
-      toast({ title: "Kunne ikke hente husorden", variant: "destructive" });
+      toast({ title: t("contract.fetchFailed"), variant: "destructive" });
       navigate("/documents");
     } finally {
       setLoading(false);
@@ -134,10 +136,10 @@ export default function ContractDetail() {
         })
         .eq("id", contract.id);
       if (error) throw error;
-      toast({ title: "Husorden underskrevet", description: "Begge parter har nu underskrevet" });
+      toast({ title: t("contract.signedToast"), description: t("contract.signedToastBody") });
       fetchContract();
     } catch (err: any) {
-      toast({ title: "Kunne ikke underskrive", description: err.message, variant: "destructive" });
+      toast({ title: t("contract.signFailed"), description: err.message, variant: "destructive" });
     } finally {
       setSigning(false);
     }
@@ -151,10 +153,10 @@ export default function ContractDetail() {
         .update({ status: "draft", ready_at: null })
         .eq("id", contract.id);
       if (error) throw error;
-      toast({ title: "Husorden åbnet som kladde" });
+      toast({ title: t("contract.openedDraft") });
       navigate(`/documents/edit/${contract.id}`);
     } catch (err: any) {
-      toast({ title: "Kunne ikke åbne kladde", description: err.message, variant: "destructive" });
+      toast({ title: t("contract.openDraftFailed"), description: err.message, variant: "destructive" });
     }
   };
 
@@ -186,7 +188,7 @@ export default function ContractDetail() {
       },
       `husorden-${contract.property_address?.replace(/\s+/g, "-") || contract.id}.pdf`
     );
-    toast({ title: "PDF downloadet" });
+    toast({ title: t("contract.pdfDownloaded") });
   };
 
   if (authLoading || loading) {
@@ -218,7 +220,7 @@ export default function ContractDetail() {
               </Button>
               <div>
                 <h1 className="text-xl font-semibold text-foreground leading-tight">
-                  Husorden og Samboaftale
+                  {t("contract.title")}
                 </h1>
                 <p className="text-sm text-muted-foreground">
                   {contract.property_address}, {contract.property_city}
@@ -227,7 +229,7 @@ export default function ContractDetail() {
             </div>
             <Badge className={`${statusInfo.color} text-white shrink-0`}>
               <StatusIcon className="h-3 w-3 mr-1" />
-              {statusInfo.label}
+              {t(statusInfo.labelKey)}
             </Badge>
           </div>
 
@@ -236,14 +238,14 @@ export default function ContractDetail() {
             {isCreator && contract.status === "draft" && (
               <Button size="sm" onClick={() => navigate(`/documents/edit/${contract.id}`)}>
                 <Edit className="h-4 w-4 mr-2" />
-                Fortsæt redigering
+                {t("contract.continueEditing")}
               </Button>
             )}
 
             {isCreator && contract.status === "ready" && (
               <Button variant="outline" size="sm" onClick={handleRevertToDraft}>
                 <Edit className="h-4 w-4 mr-2" />
-                Rediger kladde
+                {t("contract.editDraft")}
               </Button>
             )}
 
@@ -254,25 +256,23 @@ export default function ContractDetail() {
                     {signing
                       ? <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       : <PenLine className="h-4 w-4 mr-2" />}
-                    Underskriv digitalt
+                    {t("contract.signDigitally")}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Underskriv husordenen</AlertDialogTitle>
+                    <AlertDialogTitle>{t("contract.signTitle")}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Ved at underskrive bekræfter du, at du har læst og accepteret husordenen og
-                      samboaftalen. Din digitale underskrift er juridisk bindende under dansk
-                      aftaleloven (§ 1).
+                      {t("contract.signBody")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Annuller</AlertDialogCancel>
+                    <AlertDialogCancel>{t("contract.cancel")}</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-green-600 hover:bg-green-700"
                       onClick={handleSign}
                     >
-                      Underskriv
+                      {t("contract.sign")}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -281,19 +281,19 @@ export default function ContractDetail() {
 
             <Button variant="outline" size="sm" onClick={handleDownload}>
               <Download className="h-4 w-4 mr-2" />
-              Download PDF
+              {t("contract.downloadPdf")}
             </Button>
           </div>
 
           {/* Signing status */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Underskrifter</CardTitle>
+              <CardTitle className="text-base">{t("contract.signatures")}</CardTitle>
             </CardHeader>
             <CardContent className="grid sm:grid-cols-2 gap-4">
               <div className="rounded-lg border p-3 space-y-1">
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                  Ophavsmand
+                  {t("contract.author")}
                 </p>
                 <p className="font-medium text-sm">{contract.landlord_name || "—"}</p>
                 {contract.ready_at ? (
@@ -302,12 +302,12 @@ export default function ContractDetail() {
                     {format(new Date(contract.ready_at), "d. MMM yyyy · HH:mm", { locale: da })}
                   </p>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Ikke underskrevet endnu</p>
+                  <p className="text-xs text-muted-foreground">{t("contract.notSignedYet")}</p>
                 )}
               </div>
               <div className="rounded-lg border p-3 space-y-1">
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                  Beboer
+                  {t("contract.tenant")}
                 </p>
                 <p className="font-medium text-sm">{contract.tenant_name || "—"}</p>
                 {contract.tenant_confirmed_at ? (
@@ -317,7 +317,7 @@ export default function ContractDetail() {
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    {contract.status === "ready" ? "Afventer underskrift" : "Ikke underskrevet endnu"}
+                    {contract.status === "ready" ? t("contract.awaitingSignature") : t("contract.notSignedYet")}
                   </p>
                 )}
               </div>
@@ -327,12 +327,12 @@ export default function ContractDetail() {
           {/* § 1 Parter */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">§ 1  Parter og bolig</CardTitle>
+              <CardTitle className="text-base">{t("contract.section1")}</CardTitle>
             </CardHeader>
             <CardContent className="grid sm:grid-cols-2 gap-6">
               <div>
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
-                  Ophavsmand
+                  {t("contract.author")}
                 </p>
                 <div className="text-sm space-y-0.5">
                   <p className="font-medium">{contract.landlord_name || "—"}</p>
@@ -342,7 +342,7 @@ export default function ContractDetail() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
-                  Beboer
+                  {t("contract.tenant")}
                 </p>
                 <div className="text-sm space-y-0.5">
                   <p className="font-medium">{contract.tenant_name || "—"}</p>
@@ -351,13 +351,13 @@ export default function ContractDetail() {
                 </div>
               </div>
               <div className="sm:col-span-2">
-                <p className="text-xs text-muted-foreground mb-1">Adresse</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("contract.address")}</p>
                 <p className="text-sm font-medium">
                   {contract.property_address}, {contract.property_postal_code} {contract.property_city}
                 </p>
                 {contract.effective_date && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Gyldig fra:{" "}
+                    {t("contract.validFrom")}{" "}
                     <span className="font-medium text-foreground">
                       {format(new Date(contract.effective_date), "d. MMMM yyyy", { locale: da })}
                     </span>
@@ -371,18 +371,18 @@ export default function ContractDetail() {
           {(contract.quiet_hours || contract.noise_policy) && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">§ 2  Stilletid og støj</CardTitle>
+                <CardTitle className="text-base">{t("contract.section2")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {contract.quiet_hours && (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Stilletid</p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t("contract.quietHours")}</p>
                     <p className="whitespace-pre-wrap">{contract.quiet_hours}</p>
                   </div>
                 )}
                 {contract.noise_policy && (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Støjregler</p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t("contract.noisePolicy")}</p>
                     <p className="whitespace-pre-wrap">{contract.noise_policy}</p>
                   </div>
                 )}
@@ -394,18 +394,18 @@ export default function ContractDetail() {
           {(contract.maintenance_responsibility || contract.kitchen_rules) && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">§ 3  Rengøring og køkken</CardTitle>
+                <CardTitle className="text-base">{t("contract.section3")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {contract.maintenance_responsibility && (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Rengøringsansvar</p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t("contract.cleaningResponsibility")}</p>
                     <p className="whitespace-pre-wrap">{contract.maintenance_responsibility}</p>
                   </div>
                 )}
                 {contract.kitchen_rules && (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Køkkenregler</p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t("contract.kitchenRules")}</p>
                     <p className="whitespace-pre-wrap">{contract.kitchen_rules}</p>
                   </div>
                 )}
@@ -416,7 +416,7 @@ export default function ContractDetail() {
           {/* § 4 Gæster, husdyr, rygning */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">§ 4  Gæster, husdyr og rygning</CardTitle>
+              <CardTitle className="text-base">{t("contract.section4")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <div className="flex flex-wrap gap-3">
@@ -426,7 +426,7 @@ export default function ContractDetail() {
                     : "bg-red-50 text-red-700 border border-red-200"
                 }`}>
                   <Dog className="h-3.5 w-3.5" />
-                  Husdyr: {contract.pets_allowed ? "Tilladt" : "Ikke tilladt"}
+                  {t("contract.petsLabel")} {contract.pets_allowed ? t("contract.allowed") : t("contract.notAllowed")}
                 </div>
                 <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
                   contract.smoking_allowed
@@ -434,12 +434,12 @@ export default function ContractDetail() {
                     : "bg-red-50 text-red-700 border border-red-200"
                 }`}>
                   <Cigarette className="h-3.5 w-3.5" />
-                  Rygning: {contract.smoking_allowed ? "Tilladt" : "Ikke tilladt"}
+                  {t("contract.smokingLabel")} {contract.smoking_allowed ? t("contract.allowed") : t("contract.notAllowed")}
                 </div>
               </div>
               {contract.pets_allowed && contract.pets_description && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">Husdyrbeskrivelse</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">{t("contract.petsDescription")}</p>
                   <p>{contract.pets_description}</p>
                 </div>
               )}
@@ -447,7 +447,7 @@ export default function ContractDetail() {
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1">
                     <Users className="h-3 w-3" />
-                    Gæstepolitik
+                    {t("contract.guestPolicy")}
                   </p>
                   <p className="whitespace-pre-wrap">{contract.guest_policy}</p>
                 </div>
@@ -459,7 +459,7 @@ export default function ContractDetail() {
           {contract.house_rules?.trim() && (
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">§ 5  Yderligere regler</CardTitle>
+                <CardTitle className="text-base">{t("contract.section5")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm whitespace-pre-wrap">{contract.house_rules}</p>
@@ -469,8 +469,7 @@ export default function ContractDetail() {
 
           {/* Legal note */}
           <p className="text-xs text-muted-foreground text-center pb-4">
-            Denne husorden er juridisk bindende under dansk aftaleloven (§ 1). Digital accept med
-            tidsstempel udgør gyldig underskrift.
+            {t("contract.legalNote")}
           </p>
         </div>
       </div>

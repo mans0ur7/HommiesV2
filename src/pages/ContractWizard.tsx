@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -67,12 +68,12 @@ const empty: Omit<ContractData, "landlord_id" | "tenant_id" | "property_id"> = {
   house_rules: "",
 };
 
-const STEPS = [
-  { id: 1, label: "Parter",     desc: "Hvem bor der?" },
-  { id: 2, label: "Støj",       desc: "Stilletid og støj" },
-  { id: 3, label: "Rengøring",  desc: "Køkken og rengøring" },
-  { id: 4, label: "Gæster",     desc: "Gæster og husdyr" },
-  { id: 5, label: "Ekstra",     desc: "Yderligere regler" },
+const STEP_KEYS = [
+  { id: 1, key: "contract.stepParties" },
+  { id: 2, key: "contract.stepNoise" },
+  { id: 3, key: "contract.stepCleaning" },
+  { id: 4, key: "contract.stepGuests" },
+  { id: 5, key: "contract.stepExtra" },
 ];
 
 export default function ContractWizard() {
@@ -85,6 +86,7 @@ export default function ContractWizard() {
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -101,7 +103,7 @@ export default function ContractWizard() {
     if (!user) { navigate("/auth"); return; }
     if (profile?.user_type !== "landlord") {
       navigate("/documents");
-      toast({ title: "Kun udlejere kan oprette husordener", variant: "destructive" });
+      toast({ title: t("contract.wizardOnlyLandlords"), variant: "destructive" });
       return;
     }
     if (isEditing)           fetchContract();
@@ -116,7 +118,7 @@ export default function ContractWizard() {
       if (error) throw error;
       if (row.landlord_id !== user!.id) {
         navigate("/documents");
-        toast({ title: "Ingen adgang", variant: "destructive" });
+        toast({ title: t("contract.wizardNoAccess"), variant: "destructive" });
         return;
       }
       setData({
@@ -128,7 +130,7 @@ export default function ContractWizard() {
         guest_policy:   row.guest_policy   ?? "",
       });
     } catch {
-      toast({ title: "Kunne ikke hente husorden", variant: "destructive" });
+      toast({ title: t("contract.fetchFailed"), variant: "destructive" });
       navigate("/documents");
     } finally { setLoading(false); }
   };
@@ -160,7 +162,7 @@ export default function ContractWizard() {
         property_city:        property?.city        || "",
       });
     } catch {
-      toast({ title: "Kunne ikke oprette husorden", variant: "destructive" });
+      toast({ title: t("contract.wizardCreateFailed"), variant: "destructive" });
       navigate("/documents");
     } finally { setLoading(false); }
   };
@@ -207,13 +209,13 @@ export default function ContractWizard() {
       }
 
       toast({
-        title: ready ? "Husorden sendt til underskrift" : "Gemt som kladde",
-        description: ready ? "Beboeren kan nu læse og underskrive" : "Dine ændringer er gemt",
+        title: ready ? t("contract.wizardSentToSign") : t("contract.wizardSavedDraft"),
+        description: ready ? t("contract.wizardSentBody") : t("contract.wizardSavedBody"),
       });
 
       if (ready) navigate("/documents");
     } catch (err: any) {
-      toast({ title: "Kunne ikke gemme", description: err.message, variant: "destructive" });
+      toast({ title: t("contract.wizardSaveFailed"), description: err.message, variant: "destructive" });
     } finally { setSaving(false); }
   };
 
@@ -247,20 +249,20 @@ export default function ContractWizard() {
               onClick={() => navigate("/documents")}
               className="inline-flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground mb-6 transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" /> Dokumenter
+              <ArrowLeft className="w-4 h-4" /> {t("contract.wizardDocuments")}
             </button>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-px w-8 bg-foreground/40" />
-              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Ny husorden</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("contract.wizardEyebrowNew")}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-medium tracking-tight text-foreground">
-              Husorden og Samboaftale
+              {t("contract.wizardTitle")}
             </h1>
           </div>
 
           {/* Step indicator */}
           <div className="flex items-center gap-1 mb-8 overflow-x-auto pb-1">
-            {STEPS.map((s, i) => (
+            {STEP_KEYS.map((s, i) => (
               <div key={s.id} className="flex items-center gap-1 flex-shrink-0">
                 <div className={cn(
                   "flex flex-col items-center",
@@ -274,9 +276,9 @@ export default function ContractWizard() {
                   )}>
                     {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.id}
                   </div>
-                  <span className="text-[10px] mt-1 text-muted-foreground hidden sm:block">{s.label}</span>
+                  <span className="text-[10px] mt-1 text-muted-foreground hidden sm:block">{t(s.key)}</span>
                 </div>
-                {i < STEPS.length - 1 && (
+                {i < STEP_KEYS.length - 1 && (
                   <div className={cn("h-px w-6 md:w-10 flex-shrink-0", step > s.id ? "bg-foreground" : "bg-border")} />
                 )}
               </div>
@@ -290,78 +292,78 @@ export default function ContractWizard() {
               {step === 1 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">Parterne</h2>
-                    <p className="text-sm text-muted-foreground">Hvem bor der, og hvad er adressen?</p>
+                    <h2 className="text-lg font-semibold mb-1">{t("contract.step1Heading")}</h2>
+                    <p className="text-sm text-muted-foreground">{t("contract.step1Sub")}</p>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Bolig</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t("contract.step1Home")}</h3>
                     <div>
-                      <Label>Adresse *</Label>
+                      <Label>{t("contract.step1AddressLabel")}</Label>
                       <Input className="mt-1" value={data.property_address}
                         onChange={e => set("property_address", e.target.value)}
-                        placeholder="Vestergade 12, 2. tv" />
+                        placeholder={t("contract.step1AddressPh")} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label>Postnummer</Label>
+                        <Label>{t("contract.step1Postal")}</Label>
                         <Input className="mt-1" value={data.property_postal_code}
                           onChange={e => set("property_postal_code", e.target.value)}
                           placeholder="2100" maxLength={4} />
                       </div>
                       <div>
-                        <Label>By</Label>
+                        <Label>{t("contract.step1City")}</Label>
                         <Input className="mt-1" value={data.property_city}
                           onChange={e => set("property_city", e.target.value)}
-                          placeholder="København Ø" />
+                          placeholder={t("contract.step1CityPh")} />
                       </div>
                     </div>
                     <div>
-                      <Label>Gyldig fra</Label>
+                      <Label>{t("contract.step1Valid")}</Label>
                       <Input type="date" className="mt-1" value={data.effective_date}
                         onChange={e => set("effective_date", e.target.value)} />
                     </div>
                   </div>
 
                   <div className="border-t border-border pt-5 space-y-4">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Beboer (modtager husorden)</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t("contract.step1Tenant")}</h3>
                     <div>
-                      <Label>Navn *</Label>
+                      <Label>{t("contract.step1NameStar")}</Label>
                       <Input className="mt-1" value={data.tenant_name}
                         onChange={e => set("tenant_name", e.target.value)}
-                        placeholder="Fulde navn" />
+                        placeholder={t("contract.step1FullName")} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label>E-mail</Label>
+                        <Label>{t("contract.step1Email")}</Label>
                         <Input type="email" className="mt-1" value={data.tenant_email}
                           onChange={e => set("tenant_email", e.target.value)}
-                          placeholder="navn@email.dk" />
+                          placeholder={t("contract.step1EmailPh")} />
                       </div>
                       <div>
-                        <Label>Telefon</Label>
+                        <Label>{t("contract.step1Phone")}</Label>
                         <Input type="tel" className="mt-1" value={data.tenant_phone}
                           onChange={e => set("tenant_phone", e.target.value)}
-                          placeholder="+45 12 34 56 78" />
+                          placeholder={t("contract.step1PhonePh")} />
                       </div>
                     </div>
                   </div>
 
                   <div className="border-t border-border pt-5 space-y-4">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Ophavsmand (dig)</h3>
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t("contract.step1Author")}</h3>
                     <div>
-                      <Label>Navn</Label>
+                      <Label>{t("contract.step1Name")}</Label>
                       <Input className="mt-1" value={data.landlord_name}
                         onChange={e => set("landlord_name", e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label>E-mail</Label>
+                        <Label>{t("contract.step1Email")}</Label>
                         <Input type="email" className="mt-1" value={data.landlord_email}
                           onChange={e => set("landlord_email", e.target.value)} />
                       </div>
                       <div>
-                        <Label>Telefon</Label>
+                        <Label>{t("contract.step1Phone")}</Label>
                         <Input type="tel" className="mt-1" value={data.landlord_phone}
                           onChange={e => set("landlord_phone", e.target.value)} />
                       </div>
@@ -374,20 +376,20 @@ export default function ContractWizard() {
               {step === 2 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">Stilletid og støj</h2>
-                    <p className="text-sm text-muted-foreground">Hvornår skal der være ro, og hvad er reglerne for musik og støj?</p>
+                    <h2 className="text-lg font-semibold mb-1">{t("contract.step2Heading")}</h2>
+                    <p className="text-sm text-muted-foreground">{t("contract.step2Sub")}</p>
                   </div>
                   <div>
-                    <Label>Stilletider</Label>
+                    <Label>{t("contract.step2QuietLabel")}</Label>
                     <Textarea className="mt-1" rows={3} value={data.quiet_hours}
                       onChange={e => set("quiet_hours", e.target.value)}
-                      placeholder="F.eks. 22:00–08:00 på hverdage, 23:00–09:00 i weekender og helligdage." />
+                      placeholder={t("contract.step2QuietPh")} />
                   </div>
                   <div>
-                    <Label>Støjregler (musik, fester, TV m.m.)</Label>
+                    <Label>{t("contract.step2NoiseLabel")}</Label>
                     <Textarea className="mt-1" rows={4} value={data.noise_policy}
                       onChange={e => set("noise_policy", e.target.value)}
-                      placeholder="F.eks. Musik og TV holdes på et niveau der ikke generer naboer. Fester aftales på forhånd med de øvrige beboere." />
+                      placeholder={t("contract.step2NoisePh")} />
                   </div>
                 </div>
               )}
@@ -396,20 +398,20 @@ export default function ContractWizard() {
               {step === 3 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">Rengøring og køkken</h2>
-                    <p className="text-sm text-muted-foreground">Fordeling af rengøringsansvar og regler for fælles køkken.</p>
+                    <h2 className="text-lg font-semibold mb-1">{t("contract.step3Heading")}</h2>
+                    <p className="text-sm text-muted-foreground">{t("contract.step3Sub")}</p>
                   </div>
                   <div>
-                    <Label>Rengøringsansvar</Label>
+                    <Label>{t("contract.step3CleanLabel")}</Label>
                     <Textarea className="mt-1" rows={5} value={data.maintenance_responsibility}
                       onChange={e => set("maintenance_responsibility", e.target.value)}
-                      placeholder="F.eks. Fælles arealer rengøres på skift hver uge. Eget værelse er den enkeltes ansvar. Badeværelse rengøres mindst én gang om ugen." />
+                      placeholder={t("contract.step3CleanPh")} />
                   </div>
                   <div>
-                    <Label>Køkken- og badeværelsesregler</Label>
+                    <Label>{t("contract.step3KitchenLabel")}</Label>
                     <Textarea className="mt-1" rows={4} value={data.kitchen_rules}
                       onChange={e => set("kitchen_rules", e.target.value)}
-                      placeholder="F.eks. Opvask tages med det samme. Mad i køleskabet mærkes med navn og dato. Badeværelset efterlades rent." />
+                      placeholder={t("contract.step3KitchenPh")} />
                   </div>
                 </div>
               )}
@@ -418,37 +420,37 @@ export default function ContractWizard() {
               {step === 4 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">Gæster, husdyr og rygning</h2>
-                    <p className="text-sm text-muted-foreground">Regler for overnatningsgæster, kæledyr og rygning.</p>
+                    <h2 className="text-lg font-semibold mb-1">{t("contract.step4Heading")}</h2>
+                    <p className="text-sm text-muted-foreground">{t("contract.step4Sub")}</p>
                   </div>
                   <div>
-                    <Label>Gæstepolitik</Label>
+                    <Label>{t("contract.step4GuestLabel")}</Label>
                     <Textarea className="mt-1" rows={4} value={data.guest_policy}
                       onChange={e => set("guest_policy", e.target.value)}
-                      placeholder="F.eks. Overnatningsgæster er velkomne i op til 7 nætter pr. måned. Længere ophold aftales med de øvrige beboere. Gæster følger husordenens regler." />
+                      placeholder={t("contract.step4GuestPh")} />
                   </div>
                   <div className="border-t border-border pt-4 space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-sm">Husdyr tilladt</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Kæledyr i lejemålet</p>
+                        <p className="font-medium text-sm">{t("contract.step4PetsTitle")}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t("contract.step4PetsSub")}</p>
                       </div>
                       <Switch checked={data.pets_allowed} onCheckedChange={v => set("pets_allowed", v)} />
                     </div>
                     {data.pets_allowed && (
                       <div>
-                        <Label>Hvilke husdyr / betingelser</Label>
+                        <Label>{t("contract.step4PetsLabel")}</Label>
                         <Textarea className="mt-1" rows={2} value={data.pets_description}
                           onChange={e => set("pets_description", e.target.value)}
-                          placeholder="F.eks. Mindre hunde og katte er tilladt. Aftales med øvrige beboere på forhånd." />
+                          placeholder={t("contract.step4PetsPh")} />
                       </div>
                     )}
                   </div>
                   <div className="border-t border-border pt-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-sm">Rygning tilladt indendørs</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Inkl. e-cigaretter og vandpibe</p>
+                        <p className="font-medium text-sm">{t("contract.step4SmokeTitle")}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t("contract.step4SmokeSub")}</p>
                       </div>
                       <Switch checked={data.smoking_allowed} onCheckedChange={v => set("smoking_allowed", v)} />
                     </div>
@@ -460,29 +462,29 @@ export default function ContractWizard() {
               {step === 5 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">Yderligere regler</h2>
-                    <p className="text-sm text-muted-foreground">Tilføj eventuelle andre aftaler eller regler der ikke er dækket ovenfor.</p>
+                    <h2 className="text-lg font-semibold mb-1">{t("contract.step5Heading")}</h2>
+                    <p className="text-sm text-muted-foreground">{t("contract.step5Sub")}</p>
                   </div>
                   <div>
                     <Textarea rows={8} value={data.house_rules}
                       onChange={e => set("house_rules", e.target.value)}
-                      placeholder="F.eks. Cykling i opgangen er ikke tilladt. Affald sorteres og sættes ud onsdag aften. Beboere giver hinanden 1 måneds varsel ved fraflytning." />
+                      placeholder={t("contract.step5Ph")} />
                   </div>
 
                   {/* Summary */}
                   <div className="rounded-xl bg-muted/40 border border-border p-5 space-y-2 text-sm">
-                    <p className="font-semibold text-foreground mb-3">Opsummering</p>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Adresse</span><span className="font-medium">{data.property_address || "–"}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Beboer</span><span className="font-medium">{data.tenant_name || "–"}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Gyldig fra</span><span className="font-medium">{data.effective_date ? format(new Date(data.effective_date), "d. MMM yyyy", { locale: da }) : "–"}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Husdyr</span><span className="font-medium">{data.pets_allowed ? "Tilladt" : "Ikke tilladt"}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Rygning</span><span className="font-medium">{data.smoking_allowed ? "Tilladt" : "Ikke tilladt"}</span></div>
+                    <p className="font-semibold text-foreground mb-3">{t("contract.summary")}</p>
+                    <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summaryAddress")}</span><span className="font-medium">{data.property_address || "–"}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summaryTenant")}</span><span className="font-medium">{data.tenant_name || "–"}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summaryValidFrom")}</span><span className="font-medium">{data.effective_date ? format(new Date(data.effective_date), "d. MMM yyyy", { locale: da }) : "–"}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summaryPets")}</span><span className="font-medium">{data.pets_allowed ? t("contract.allowed") : t("contract.notAllowed")}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summarySmoking")}</span><span className="font-medium">{data.smoking_allowed ? t("contract.allowed") : t("contract.notAllowed")}</span></div>
                   </div>
 
-                  <p className="text-xs text-muted-foreground">
-                    Når du klikker <strong>Send til underskrift</strong>, kan beboeren åbne dokumentet i appen og underskrive digitalt.
-                    Aftalen er juridisk bindende under dansk aftaleloven.
-                  </p>
+                  <p
+                    className="text-xs text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: t("contract.legalShort") }}
+                  />
                 </div>
               )}
 
@@ -494,23 +496,23 @@ export default function ContractWizard() {
             <Button variant="outline" onClick={() => step > 1 ? setStep(s => s - 1) : navigate("/documents")}
               className="gap-2">
               <ChevronLeft className="w-4 h-4" />
-              {step > 1 ? "Tilbage" : "Annuller"}
+              {step > 1 ? t("contract.navBack") : t("contract.navCancel")}
             </Button>
 
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={() => save(false)} disabled={saving}>
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                <span className="ml-1.5 hidden sm:inline">Gem kladde</span>
+                <span className="ml-1.5 hidden sm:inline">{t("contract.saveDraft")}</span>
               </Button>
 
-              {step < STEPS.length ? (
+              {step < STEP_KEYS.length ? (
                 <Button onClick={() => setStep(s => s + 1)} disabled={!canNext()} className="gap-2">
-                  Næste <ChevronRight className="w-4 h-4" />
+                  {t("contract.next")} <ChevronRight className="w-4 h-4" />
                 </Button>
               ) : (
                 <Button onClick={handleFinish} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  Send til underskrift
+                  {t("contract.sendForSig")}
                 </Button>
               )}
             </div>
