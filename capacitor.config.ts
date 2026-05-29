@@ -4,6 +4,10 @@ const config: CapacitorConfig = {
   appId: 'dk.hommies.app',
   appName: 'Hommies',
   webDir: 'dist',
+  server: {
+    androidScheme: "https",
+    allowNavigation: ["hommies.dk", "www.hommies.dk"],
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1200,

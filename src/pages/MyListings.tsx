@@ -36,6 +36,7 @@ import {
 import GenderCompositionSelector from "@/components/listings/GenderCompositionSelector";
 import { compressImage } from "@/lib/compressImage";
 import { isNativeApp } from "@/lib/native";
+import { useListingDraft } from "@/hooks/useListingDraft";
 
 const AddressMap = lazy(() => import("@/components/listings/AddressMap"));
 
@@ -206,6 +207,7 @@ const MyListings = () => {
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>(initialFormData);
+  const { clearDraft } = useListingDraft(formData, setFormData, !!editingProperty);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [propertyToDelete, setPropertyToDelete] = useState<string | null>(null);
   const [selectedListingPeriod, setSelectedListingPeriod] = useState<number>(14);
@@ -443,6 +445,7 @@ const MyListings = () => {
         });
       }
 
+      clearDraft();
       closeForm();
       fetchProperties();
     } catch (error) {

@@ -84,6 +84,8 @@ const PropertyDetail = () => {
   const [requestSent, setRequestSent] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxZoom, setLightboxZoom] = useState(1);
+  useEffect(() => { setLightboxZoom(1); }, [lightboxIndex, lightboxOpen]);
   // NOTE: We allow non-logged-in users to view property details
   // They will only be redirected when clicking "Kontakt udlejer"
 
@@ -356,15 +358,18 @@ const PropertyDetail = () => {
               </button>
             )}
             
-            {/* Image */}
-            <div 
-              className="max-w-[90vw] max-h-[85vh] flex items-center justify-center"
+            {/* Image — double-tap / double-click toggles 1x ↔ 2x */}
+            <div
+              className="max-w-[90vw] max-h-[85vh] flex items-center justify-center overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <img 
-                src={images[lightboxIndex]} 
+              <img
+                src={images[lightboxIndex]}
                 alt={`${property.title} - billede ${lightboxIndex + 1}`}
-                className="max-w-full max-h-[85vh] object-contain rounded-lg"
+                onDoubleClick={() => setLightboxZoom((z) => (z === 1 ? 2 : 1))}
+                className="max-w-full max-h-[85vh] object-contain rounded-lg transition-transform duration-200 select-none cursor-zoom-in"
+                style={{ transform: `scale(${lightboxZoom})` }}
+                draggable={false}
               />
             </div>
             
