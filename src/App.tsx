@@ -21,6 +21,7 @@ const MyListings = lazy(() => import("./pages/MyListings"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Payment = lazy(() => import("./pages/Payment"));
 const Inbox = lazy(() => import("./pages/Inbox"));
@@ -95,6 +96,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/delete-account" element={<DeleteAccount />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
