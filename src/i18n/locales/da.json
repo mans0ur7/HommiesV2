@@ -330,5 +330,30 @@
     "errorTitle": "Noget gik galt",
     "errorBody": "Betalingen kunne ikke bekræftes. Kontakt support hvis du er trukket i penge.",
     "tryAgain": "Prøv igen"
+  },
+  "moving": {
+    "eyebrow": "Flytteservice",
+    "title": "Flyt nemt og billigt med Hommies",
+    "subtitle": "Vi hjælper dig med at bære dine ting, så du kan fokusere på det vigtige - dit nye hjem.",
+    "contactQuote": "Kontakt os for tilbud",
+    "howWorks": "Sådan fungerer det",
+    "step1Title": "1. Pak dine ting",
+    "step1Body": "Du pakker dine ejendele i kasser og fortæller os hvilke møbler der skal flyttes.",
+    "step2Title": "2. Angiv destination",
+    "step2Body": "Fortæl os hvor du flytter fra og til, så giver vi dig en fast pris.",
+    "step3Title": "3. Vi klarer resten",
+    "step3Body": "Vores team kommer og bærer alt for dig - sikkert og hurtigt.",
+    "whyTitle": "Hvorfor vælge Hommies Flytteservice?",
+    "safeTitle": "Sikker håndtering",
+    "safeBody": "Dine ejendele er forsikret under hele flytningen.",
+    "flexibleTitle": "Fleksible tider",
+    "flexibleBody": "Vi tilpasser os din tidsplan - også i weekender.",
+    "carryTitle": "Alt bærearbejde",
+    "carryBody": "Vi tager os af alle tunge løft, så du slipper.",
+    "fixedPriceTitle": "Fast pris",
+    "fixedPriceBody": "Ingen overraskelser - du kender prisen på forhånd.",
+    "readyTitle": "Klar til at flytte?",
+    "readyBody": "Kontakt os i dag og få et uforpligtende tilbud på din flytning.",
+    "getQuote": "Få et tilbud"
   }
 }
