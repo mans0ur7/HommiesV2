@@ -22,6 +22,7 @@ const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
     { label: t("landing.footerContact"), to: "/contact" },
     { label: t("landing.footerMoving"), to: "/flytteservice" },
     { label: t("landing.footerPrivacy"), to: "/privacy" },
+    { label: t("landing.footerDeleteAccount"), to: "/delete-account" },
   ];
 
   return (
