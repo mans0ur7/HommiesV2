@@ -310,5 +310,25 @@
     "step1": "Opret en søgeagent med dit ønskede område og filtre.",
     "step2": "Når en ny bolig matcher dine kriterier, får du en notifikation.",
     "step3": "Slå e-mail til for at få besked med det samme."
+  },
+  "paymentSuccess": {
+    "boost1day": "Boost — 24 timer",
+    "boost3day": "Boost — 3 dage",
+    "boost7day": "Boost — 7 dage",
+    "listing7day": "Annonce — 7 dage",
+    "listing14day": "Annonce — 14 dage",
+    "listing30day": "Annonce — 30 dage",
+    "searchAgent": "Ekstra søgeagent-plads",
+    "confirming": "Bekræfter betaling...",
+    "waitMoment": "Vent et øjeblik",
+    "completed": "Betaling gennemført!",
+    "activated": "{{product}} er aktiveret.",
+    "receiptEmail": "Du modtager en kvittering på din e-mail.",
+    "createAgent": "Opret søgeagent nu",
+    "viewListings": "Se mine annoncer",
+    "goToHome": "Gå til forsiden",
+    "errorTitle": "Noget gik galt",
+    "errorBody": "Betalingen kunne ikke bekræftes. Kontakt support hvis du er trukket i penge.",
+    "tryAgain": "Prøv igen"
   }
 }

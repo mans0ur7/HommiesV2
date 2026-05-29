@@ -310,5 +310,25 @@
     "step1": "Create a search agent with your desired area and filters.",
     "step2": "When a new home matches your criteria, you get a notification.",
     "step3": "Turn on email to get notified right away."
+  },
+  "paymentSuccess": {
+    "boost1day": "Boost — 24 hours",
+    "boost3day": "Boost — 3 days",
+    "boost7day": "Boost — 7 days",
+    "listing7day": "Listing — 7 days",
+    "listing14day": "Listing — 14 days",
+    "listing30day": "Listing — 30 days",
+    "searchAgent": "Extra search agent slot",
+    "confirming": "Confirming payment...",
+    "waitMoment": "Please wait a moment",
+    "completed": "Payment complete!",
+    "activated": "{{product}} has been activated.",
+    "receiptEmail": "You'll receive a receipt by email.",
+    "createAgent": "Create search agent now",
+    "viewListings": "See my listings",
+    "goToHome": "Go to home",
+    "errorTitle": "Something went wrong",
+    "errorBody": "The payment couldn't be confirmed. Contact support if you were charged.",
+    "tryAgain": "Try again"
   }
 }
