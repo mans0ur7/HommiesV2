@@ -990,6 +990,16 @@
     "phone": "Phone: +45 31 21 74 17",
     "policyLink": "Read the full privacy policy"
   },
+  "block": {
+    "trigger": "Block user",
+    "confirmTitle": "Block {{name}}?",
+    "confirmBody": "You will no longer see each other in Match, Inbox or requests. You can unblock from Settings.",
+    "confirmAction": "Yes, block",
+    "cancel": "Cancel",
+    "blocking": "Blocking...",
+    "blocked": "{{name}} has been blocked",
+    "failed": "Could not block user"
+  },
   "report": {
     "title": "Report user",
     "body": "Help us keep Hommies safe. We review every report.",

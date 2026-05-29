@@ -1,17 +1,31 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { X, ChevronLeft, ChevronRight, Sparkles, Calendar, Wallet, Globe, ArrowRight, Flag } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Sparkles, Calendar, Wallet, Globe, ArrowRight, Flag, Ban } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { MoreVertical } from "lucide-react";
 import ReportUserModal from "@/components/ReportUserModal";
 
@@ -93,8 +107,31 @@ const lifestyleColors: Record<string, string> = {
 const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgnore }: MatchProfileModalProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
+  const [blockConfirmOpen, setBlockConfirmOpen] = useState(false);
+  const [isBlocking, setIsBlocking] = useState(false);
+
+  const handleBlock = async () => {
+    if (!profile || !user) return;
+    setIsBlocking(true);
+    try {
+      const { error } = await supabase
+        .from("blocked_users")
+        .insert({ user_id: user.id, blocked_user_id: profile.user_id });
+      if (error && !error.message?.includes("duplicate")) throw error;
+      toast.success(t("block.blocked", { name: profile.name }));
+      setBlockConfirmOpen(false);
+      onIgnore();
+      onClose();
+    } catch (err) {
+      console.error("Block failed:", err);
+      toast.error(t("block.failed"));
+    } finally {
+      setIsBlocking(false);
+    }
+  };
 
   const handlePrevImage = () => {
     const images = profile?.images || property?.images || [];
@@ -151,6 +188,14 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setBlockConfirmOpen(true)}
+                    className="cursor-pointer text-orange-600 focus:text-orange-600"
+                  >
+                    <Ban className="w-4 h-4 mr-2" />
+                    {t("block.trigger")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setReportOpen(true)} className="text-destructive cursor-pointer">
                     <Flag className="w-4 h-4 mr-2" />
                     {t("report.reportTrigger")}
@@ -332,6 +377,14 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => setBlockConfirmOpen(true)}
+                    className="cursor-pointer text-orange-600 focus:text-orange-600"
+                  >
+                    <Ban className="w-4 h-4 mr-2" />
+                    {t("block.trigger")}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setReportOpen(true)} className="text-destructive cursor-pointer">
                     <Flag className="w-4 h-4 mr-2" />
                     {t("report.reportTrigger")}
@@ -496,6 +549,24 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
           reportedUserName={profile.name}
           onReported={handleClose}
         />
+        <AlertDialog open={blockConfirmOpen} onOpenChange={(o) => !isBlocking && setBlockConfirmOpen(o)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("block.confirmTitle", { name: profile.name })}</AlertDialogTitle>
+              <AlertDialogDescription>{t("block.confirmBody")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isBlocking}>{t("block.cancel")}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleBlock}
+                disabled={isBlocking}
+                className="bg-orange-600 text-white hover:bg-orange-700"
+              >
+                {isBlocking ? t("block.blocking") : t("block.confirmAction")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </Dialog>
     );
   }

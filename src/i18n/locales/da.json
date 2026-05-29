@@ -990,6 +990,16 @@
     "phone": "Telefon: +45 31 21 74 17",
     "policyLink": "Læs også hele privatlivspolitikken"
   },
+  "block": {
+    "trigger": "Blokér bruger",
+    "confirmTitle": "Blokér {{name}}?",
+    "confirmBody": "I vil ikke længere kunne se hinanden i Match, Inbox eller anmodninger. Du kan ophæve blokeringen i Indstillinger.",
+    "confirmAction": "Ja, blokér",
+    "cancel": "Annullér",
+    "blocking": "Blokerer...",
+    "blocked": "{{name}} er blevet blokeret",
+    "failed": "Kunne ikke blokere bruger"
+  },
   "report": {
     "title": "Rapportér bruger",
     "body": "Hjælp os med at holde Hommies trygt. Vi gennemgår alle rapporter.",
