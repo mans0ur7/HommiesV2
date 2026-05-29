@@ -151,5 +151,19 @@
     "male": "Mand",
     "female": "Kvinde",
     "other": "Andet"
+  },
+  "inbox": {
+    "eyebrow": "Beskeder",
+    "title": "Indbakke.",
+    "subtitle": "Dine samtaler og anmodninger samlet ét sted.",
+    "tabLandlord": "Udlejer",
+    "tabRoomies": "Roomies",
+    "loading": "Indlæser...",
+    "groupChat": "Gruppechat",
+    "unknown": "Ukendt",
+    "acceptFailed": "Kunne ikke acceptere anmodning",
+    "chatCreateFailed": "Kunne ikke oprette chat",
+    "groupRequestAccepted": "Gruppe-anmodning accepteret!",
+    "groupRequestRejected": "Gruppe-anmodning afvist"
   }
 }

@@ -151,5 +151,19 @@
     "male": "Male",
     "female": "Female",
     "other": "Other"
+  },
+  "inbox": {
+    "eyebrow": "Messages",
+    "title": "Inbox.",
+    "subtitle": "Your conversations and requests in one place.",
+    "tabLandlord": "Landlord",
+    "tabRoomies": "Roomies",
+    "loading": "Loading...",
+    "groupChat": "Group chat",
+    "unknown": "Unknown",
+    "acceptFailed": "Could not accept request",
+    "chatCreateFailed": "Could not create chat",
+    "groupRequestAccepted": "Group request accepted!",
+    "groupRequestRejected": "Group request rejected"
   }
 }

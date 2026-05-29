@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Home, User } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +20,7 @@ type TabType = "landlord" | "roomie";
 const Inbox = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const isLandlord = profile?.user_type === "landlord";
   
@@ -168,7 +170,7 @@ const Inbox = () => {
 
             groupInfo = {
               id: groupData?.id || conv.group_id,
-              name: groupData?.name || "Gruppechat",
+              name: groupData?.name || t("inbox.groupChat"),
               memberCount: (participants?.length || 0) + 1,
               memberAvatars: memberAvatars.slice(0, 3),
             };
@@ -229,7 +231,7 @@ const Inbox = () => {
             groupInfo,
             otherUser: {
               id: otherProfile?.user_id || otherUserId || "",
-              name: groupInfo?.name || otherProfile?.name || "Ukendt",
+              name: groupInfo?.name || otherProfile?.name || t("inbox.unknown"),
               avatar_url: otherProfile?.avatar_url,
               age: otherProfile?.age,
               study: otherProfile?.study,
@@ -296,7 +298,7 @@ const Inbox = () => {
           type: senderType as "landlord" | "roomie",
           sender: {
             id: senderProfile?.user_id || req.sender_id,
-            name: senderProfile?.name || "Ukendt",
+            name: senderProfile?.name || t("inbox.unknown"),
             avatar_url: senderProfile?.avatar_url,
             age: senderProfile?.age,
             study: senderProfile?.study,
@@ -325,7 +327,7 @@ const Inbox = () => {
 
     if (updateError) {
       console.error("Error updating match request:", updateError);
-      toast.error("Kunne ikke acceptere anmodning");
+      toast.error(t("inbox.acceptFailed"));
       return;
     }
 
@@ -339,7 +341,7 @@ const Inbox = () => {
 
     if (error) {
       console.error("Error creating conversation:", error);
-      toast.error("Kunne ikke oprette chat");
+      toast.error(t("inbox.chatCreateFailed"));
       return;
     }
 
@@ -425,7 +427,7 @@ const Inbox = () => {
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Indlæser...</div>
+        <div className="animate-pulse text-muted-foreground">{t("inbox.loading")}</div>
       </div>
     );
   }
@@ -451,13 +453,13 @@ const Inbox = () => {
             <div className={`mb-5 md:mb-8 ${showMobileChat ? "hidden md:block" : "block"}`}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-px w-8 bg-foreground/40" />
-                <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Beskeder</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("inbox.eyebrow")}</span>
               </div>
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-medium tracking-tight text-foreground leading-[1.05]">
-                Indbakke.
+                {t("inbox.title")}
               </h1>
               <p className="mt-2 text-sm text-foreground/60 hidden sm:block">
-                Dine samtaler og anmodninger samlet ét sted.
+                {t("inbox.subtitle")}
               </p>
             </div>
 
@@ -472,7 +474,7 @@ const Inbox = () => {
                 onAcceptGroup={async (requestId) => {
                   const result = await handleGroupResponse(requestId, true);
                   if (result.success) {
-                    toast.success("Gruppe-anmodning accepteret!");
+                    toast.success(t("inbox.groupRequestAccepted"));
                     await fetchData();
 
                     if (result.conversationId) {
@@ -486,7 +488,7 @@ const Inbox = () => {
                 onRejectGroup={async (requestId) => {
                   const result = await handleGroupResponse(requestId, false);
                   if (result.success) {
-                    toast.success("Gruppe-anmodning afvist");
+                    toast.success(t("inbox.groupRequestRejected"));
                   }
                 }}
                 isLandlord={isLandlord}
@@ -509,7 +511,7 @@ const Inbox = () => {
                       }`}
                     >
                       <Home className="w-3.5 h-3.5" />
-                      <span>Udlejer</span>
+                      <span>{t("inbox.tabLandlord")}</span>
                     </button>
                     <button
                       onClick={() => setActiveTab("roomie")}
@@ -520,7 +522,7 @@ const Inbox = () => {
                       }`}
                     >
                       <User className="w-3.5 h-3.5" />
-                      <span>Roomies</span>
+                      <span>{t("inbox.tabRoomies")}</span>
                     </button>
                   </div>
                 </div>
