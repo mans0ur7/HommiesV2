@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { Eye, EyeOff, Home, Users, ArrowLeft, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Home, Users, ArrowRight } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
 import { useShowcaseImages } from "@/hooks/useShowcaseImages";
 import { supabase } from "@/integrations/supabase/client";
@@ -121,16 +121,9 @@ const Auth = () => {
         className="flex flex-col px-4 sm:px-8 lg:px-12 pb-6 lg:pb-8 min-h-screen lg:min-h-0"
         style={{ paddingTop: "calc(var(--safe-top) + 1.5rem)" }}
       >
-        {/* Top bar */}
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-foreground/60 hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Tilbage</span>
-          </button>
-          <img src={hommiesLogo} alt="Hommies" className="h-7" />
+        {/* Top bar — centered logo (no back button, this is the entry screen) */}
+        <div className="flex items-center justify-center">
+          <img src={hommiesLogo} alt="Hommies" className="h-8" />
         </div>
 
         {/* Form area */}
