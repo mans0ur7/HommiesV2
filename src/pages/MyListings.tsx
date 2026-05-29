@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, lazy, Suspense, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -165,13 +166,13 @@ const amenityOptions = [
 const metroOptions = ["M1", "M2", "M3", "M4"];
 const sTrainOptions = ["A", "B", "Bx", "C", "E", "F", "H"];
 
-const steps = [
-  { id: 1, title: "Grundinfo", description: "Titel og type" },
-  { id: 2, title: "Beliggenhed", description: "Adresse og transport" },
-  { id: 3, title: "Detaljer", description: "Værelser og faciliteter" },
-  { id: 4, title: "Pris", description: "Leje og periode" },
-  { id: 5, title: "Billeder", description: "Upload fotos" },
-  { id: 6, title: "Betaling", description: "Vælg periode" },
+const stepKeys = [
+  { id: 1, titleKey: "step1Title", descKey: "step1Desc" },
+  { id: 2, titleKey: "step2Title", descKey: "step2Desc" },
+  { id: 3, titleKey: "step3Title", descKey: "step3Desc" },
+  { id: 4, titleKey: "step4Title", descKey: "step4Desc" },
+  { id: 5, titleKey: "step5Title", descKey: "step5Desc" },
+  { id: 6, titleKey: "step6Title", descKey: "step6Desc" },
 ];
 
 const listingPeriods = [
@@ -196,6 +197,7 @@ const FREE_TRIAL_DAYS = 60;
 const MyListings = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const native = isNativeApp();
   const [properties, setProperties] = useState<Property[]>([]);
@@ -259,8 +261,8 @@ const MyListings = () => {
     } else if (!loading && profile?.user_type !== "landlord") {
       navigate("/");
       toast({
-        title: "Ingen adgang",
-        description: "Kun udlejere kan se denne side",
+        title: t("myListings.noAccess"),
+        description: t("myListings.noAccessBody"),
         variant: "destructive",
       });
     }
@@ -287,8 +289,8 @@ const MyListings = () => {
     } catch (error) {
       console.error("Error fetching properties:", error);
       toast({
-        title: "Fejl",
-        description: "Kunne ikke hente dine annoncer",
+        title: t("myListings.error"),
+        description: t("myListings.fetchFailed"),
         variant: "destructive",
       });
     } finally {
@@ -361,8 +363,8 @@ const MyListings = () => {
     fetchProperties();
 
     toast({
-      title: "Annonce skjult",
-      description: "Din annonce er nu skjult mens du redigerer",
+      title: t("myListings.hiddenWhileEditing"),
+      description: t("myListings.hiddenWhileEditingBody"),
     });
   };
 
@@ -427,8 +429,8 @@ const MyListings = () => {
         if (error) throw error;
 
         toast({
-          title: "Annonce opdateret!",
-          description: "Din annonce er blevet gemt",
+          title: t("myListings.updated"),
+          description: t("myListings.updatedBody"),
         });
       } else {
         const { error } = await supabase.from("properties").insert(propertyData);
@@ -436,8 +438,8 @@ const MyListings = () => {
         if (error) throw error;
 
         toast({
-          title: "Annonce oprettet!",
-          description: "Din annonce er blevet oprettet",
+          title: t("myListings.created"),
+          description: t("myListings.createdBody"),
         });
       }
 
@@ -446,8 +448,8 @@ const MyListings = () => {
     } catch (error) {
       console.error("Error saving property:", error);
       toast({
-        title: "Fejl",
-        description: "Kunne ikke gemme annonce",
+        title: t("myListings.error"),
+        description: t("myListings.saveFailed"),
         variant: "destructive",
       });
     }
@@ -484,20 +486,20 @@ const MyListings = () => {
       if (error) throw error;
 
       toast({
-        title: currentStatus ? "Annonce skjult" : "Annonce publiceret",
+        title: currentStatus ? t("myListings.hiddenToast") : t("myListings.publishedToast"),
         description: currentStatus
-          ? "Din annonce er nu skjult for andre"
+          ? t("myListings.hiddenBody")
           : freeTrialInfo.active
-            ? "Din annonce er nu synlig i 30 dage (gratis periode)"
-            : "Din annonce er nu synlig for alle",
+            ? t("myListings.publishedBodyTrial")
+            : t("myListings.publishedBody"),
       });
 
       fetchProperties();
     } catch (error) {
       console.error("Error toggling publish:", error);
       toast({
-        title: "Fejl",
-        description: "Kunne ikke ændre status",
+        title: t("myListings.error"),
+        description: t("myListings.statusFailed"),
         variant: "destructive",
       });
     }
@@ -520,16 +522,16 @@ const MyListings = () => {
       if (error) throw error;
 
       toast({
-        title: "Annonce slettet",
-        description: "Din annonce er blevet fjernet",
+        title: t("myListings.deletedToast"),
+        description: t("myListings.deletedBody"),
       });
 
       fetchProperties();
     } catch (error) {
       console.error("Error deleting property:", error);
       toast({
-        title: "Fejl",
-        description: "Kunne ikke slette annonce",
+        title: t("myListings.error"),
+        description: t("myListings.deleteFailed"),
         variant: "destructive",
       });
     } finally {
@@ -583,8 +585,8 @@ const nextStep = () => {
     if (error) {
       console.error("Error saving images to property:", error);
       toast({
-        title: "Fejl",
-        description: "Kunne ikke gemme billeder til annoncen",
+        title: t("myListings.error"),
+        description: t("myListings.savingImagesFailed"),
         variant: "destructive",
       });
     }
@@ -632,15 +634,15 @@ const nextStep = () => {
         await persistImagesToProperty(legacy);
       } else {
         toast({
-          title: "Ingen billeder fundet",
-          description: "Jeg kunne ikke finde tidligere uploads til denne bruger.",
+          title: t("myListings.noImagesFound"),
+          description: t("myListings.noImagesBody"),
         });
       }
     } catch (e) {
       console.error("Error syncing existing images:", e);
       toast({
-        title: "Fejl",
-        description: "Kunne ikke hente eksisterende uploads",
+        title: t("myListings.error"),
+        description: t("myListings.loadUploadsFailed"),
         variant: "destructive",
       });
     } finally {
@@ -654,8 +656,8 @@ const nextStep = () => {
 
     if (!user?.id) {
       toast({
-        title: "Fejl",
-        description: "Du skal være logget ind for at uploade billeder",
+        title: t("myListings.error"),
+        description: t("myListings.loginToUpload"),
         variant: "destructive",
       });
       return;
@@ -691,14 +693,14 @@ const nextStep = () => {
       });
 
       toast({
-        title: "Billeder uploadet",
-        description: `${files.length} billede${files.length > 1 ? "r" : ""} tilføjet`,
+        title: t("myListings.imagesUploaded"),
+        description: files.length === 1 ? t("myListings.imagesAddedOne") : t("myListings.imagesAddedMany", { count: files.length }),
       });
     } catch (error) {
       console.error("Error uploading images:", error);
       toast({
-        title: "Fejl ved upload",
-        description: "Kunne ikke uploade billeder. Prøv igen.",
+        title: t("myListings.uploadFailed"),
+        description: t("myListings.uploadFailedBody"),
         variant: "destructive",
       });
     } finally {
@@ -720,8 +722,8 @@ const nextStep = () => {
 
     if (!user?.id) {
       toast({
-        title: "Fejl",
-        description: "Du skal være logget ind for at uploade plantegning",
+        title: t("myListings.error"),
+        description: t("myListings.loginToUploadPlan"),
         variant: "destructive",
       });
       return;
@@ -755,14 +757,14 @@ const nextStep = () => {
       }
 
       toast({
-        title: "Plantegning uploadet",
-        description: "Plantegningen er tilføjet til din annonce",
+        title: t("myListings.floorPlanUploaded"),
+        description: t("myListings.floorPlanAdded"),
       });
     } catch (error) {
       console.error("Error uploading floor plan:", error);
       toast({
-        title: "Fejl ved upload",
-        description: "Kunne ikke uploade plantegning. Prøv igen.",
+        title: t("myListings.uploadFailed"),
+        description: t("myListings.floorPlanUploadFailed"),
         variant: "destructive",
       });
     } finally {
@@ -779,8 +781,8 @@ const nextStep = () => {
         .eq("id", editingProperty.id);
     }
     toast({
-      title: "Plantegning fjernet",
-      description: "Plantegningen er fjernet fra din annonce",
+      title: t("myListings.floorPlanRemoved"),
+      description: t("myListings.floorPlanRemovedBody"),
     });
   };
 
@@ -812,7 +814,7 @@ const nextStep = () => {
   const handleRenewListing = async () => {
     if (!renewDialog) return;
     if (native) {
-      toast({ title: "Kun på hommies.dk", description: "Fornyelse af annoncer foregår på hjemmesiden." });
+      toast({ title: t("myListings.webOnly"), description: t("myListings.renewWebOnly") });
       return;
     }
     setRenewPurchasing(true);
@@ -821,10 +823,10 @@ const nextStep = () => {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { product_type: productType, product_id: renewDialog.id },
       });
-      if (error || !data?.url) throw new Error(error?.message ?? "Ukendt fejl");
+      if (error || !data?.url) throw new Error(error?.message ?? t("myListings.unknownError"));
       window.location.href = data.url;
     } catch (err: any) {
-      toast({ title: "Fejl", description: err.message ?? "Kunne ikke starte betaling", variant: "destructive" });
+      toast({ title: t("myListings.error"), description: err.message ?? t("myListings.paymentStartFailed"), variant: "destructive" });
       setRenewPurchasing(false);
     }
   };
@@ -832,7 +834,7 @@ const nextStep = () => {
   const handleBoostListing = async () => {
     if (!boostDialog) return;
     if (native) {
-      toast({ title: "Kun på hommies.dk", description: "Boost af annoncer foregår på hjemmesiden." });
+      toast({ title: t("myListings.webOnly"), description: t("myListings.boostWebOnly") });
       return;
     }
     setBoostPurchasing(true);
@@ -841,10 +843,10 @@ const nextStep = () => {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { product_type: productType, product_id: boostDialog.id },
       });
-      if (error || !data?.url) throw new Error(error?.message ?? "Ukendt fejl");
+      if (error || !data?.url) throw new Error(error?.message ?? t("myListings.unknownError"));
       window.location.href = data.url;
     } catch (err: any) {
-      toast({ title: "Fejl", description: err.message ?? "Kunne ikke starte betaling", variant: "destructive" });
+      toast({ title: t("myListings.error"), description: err.message ?? t("myListings.paymentStartFailed"), variant: "destructive" });
       setBoostPurchasing(false);
     }
   };
@@ -868,14 +870,14 @@ const nextStep = () => {
     const property = properties.find(p => p.id === propertyId);
     if (property && (property as any).boost_expires_at) {
       const daysLeft = differenceInDays(new Date((property as any).boost_expires_at), new Date());
-      if (daysLeft <= 0) return "< 1 dag";
-      return daysLeft === 1 ? "1 dag" : `${daysLeft} dage`;
+      if (daysLeft <= 0) return t("myListings.lessThanDay");
+      return daysLeft === 1 ? t("myListings.oneDay") : t("myListings.manyDays", { count: daysLeft });
     }
     const boostExpiry = boostedProperties[propertyId];
     if (!boostExpiry) return null;
     const daysLeft = differenceInDays(boostExpiry, new Date());
-    if (daysLeft <= 0) return "< 1 dag";
-    return daysLeft === 1 ? "1 dag" : `${daysLeft} dage`;
+    if (daysLeft <= 0) return t("myListings.lessThanDay");
+    return daysLeft === 1 ? t("myListings.oneDay") : t("myListings.manyDays", { count: daysLeft });
   };
 
   const getStatusBadge = (property: Property) => {
@@ -885,21 +887,21 @@ const nextStep = () => {
     if (status === "active" && expiresAt) {
       const daysLeft = differenceInDays(new Date(expiresAt), new Date());
       if (daysLeft <= 0) {
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground shadow-md backdrop-blur-sm">Udløbet</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground shadow-md backdrop-blur-sm">{t("myListings.expired")}</span>;
       }
       if (daysLeft <= 3) {
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-md backdrop-blur-sm">Udløber snart ({daysLeft} dage)</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-md backdrop-blur-sm">{t("myListings.expiringSoon", { days: daysLeft })}</span>;
       }
-      return <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-600 text-white shadow-md backdrop-blur-sm">Aktiv ({daysLeft} dage)</span>;
+      return <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-600 text-white shadow-md backdrop-blur-sm">{t("myListings.active", { days: daysLeft })}</span>;
     }
 
     switch (status) {
       case "draft":
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground shadow-md backdrop-blur-sm">Kladde</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground shadow-md backdrop-blur-sm">{t("myListings.draft")}</span>;
       case "pending_payment":
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-md backdrop-blur-sm">Afventer betaling</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-md backdrop-blur-sm">{t("myListings.pendingPayment")}</span>;
       case "expired":
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground shadow-md backdrop-blur-sm">Udløbet</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground shadow-md backdrop-blur-sm">{t("myListings.expired")}</span>;
       default:
         return null;
     }
@@ -910,7 +912,7 @@ const nextStep = () => {
       const isFreeTrialListing = freeTrialInfo.active && !editingProperty;
 
       const period = isFreeTrialListing
-        ? { days: 30, price: 0, label: "30 dage" }
+        ? { days: 30, price: 0, label: t("myListings.manyDays", { count: 30 }) }
         : listingPeriods.find(p => p.days === selectedListingPeriod);
       if (!period) return;
 
@@ -966,8 +968,8 @@ const nextStep = () => {
         if (error) throw error;
 
         toast({
-          title: "Annonce opdateret og aktiveret!",
-          description: `Din annonce er nu aktiv i ${selectedListingPeriod} dage.`,
+          title: t("myListings.updatedAndActivated"),
+          description: t("myListings.activeForDays", { days: selectedListingPeriod }),
         });
         closeForm();
         fetchProperties();
@@ -980,8 +982,8 @@ const nextStep = () => {
 
         setHasExistingListings(true);
         toast({
-          title: "Annonce oprettet!",
-          description: "Din annonce er gratis aktiv i 30 dage (gratis periode)",
+          title: t("myListings.created"),
+          description: t("myListings.createdFreeBody"),
         });
         closeForm();
         fetchProperties();
@@ -991,7 +993,7 @@ const nextStep = () => {
       // Paid new listing — web only (Google Play requires its own billing for
       // digital goods, so Stripe purchases are disabled in the native app).
       if (native) {
-        toast({ title: "Kun på hommies.dk", description: "Køb af annonceperiode foregår på hjemmesiden. Du kan stadig oprette annoncer gratis i din gratis-periode." });
+        toast({ title: t("myListings.webOnly"), description: t("myListings.purchaseWebOnly") });
         return;
       }
 
@@ -1002,7 +1004,7 @@ const nextStep = () => {
         .insert({ ...propertyData, status: "pending_payment", is_published: false, expires_at: null })
         .select("id")
         .single();
-      if (insertErr || !inserted) throw insertErr ?? new Error("Kunne ikke oprette annonce");
+      if (insertErr || !inserted) throw insertErr ?? new Error(t("myListings.createListingFailed"));
 
       const productType = `listing_${selectedListingPeriod}day`;
       const { data: checkout, error: checkoutErr } = await supabase.functions.invoke(
@@ -1010,14 +1012,14 @@ const nextStep = () => {
         { body: { product_type: productType, product_id: inserted.id } }
       );
       if (checkoutErr || !checkout?.url) {
-        throw new Error(checkoutErr?.message ?? "Kunne ikke starte betaling");
+        throw new Error(checkoutErr?.message ?? t("myListings.paymentStartFailed"));
       }
       window.location.href = checkout.url;
     } catch (error) {
       console.error("Error saving property:", error);
       toast({
-        title: "Fejl",
-        description: "Kunne ikke gemme annonce",
+        title: t("myListings.error"),
+        description: t("myListings.saveFailed"),
         variant: "destructive",
       });
     }
@@ -1041,13 +1043,13 @@ const nextStep = () => {
           <div>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-px w-8 bg-foreground/40" />
-              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Værktøjer</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("myListings.eyebrow")}</span>
             </div>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
-              Mine annoncer.
+              {t("myListings.title")}
             </h1>
             <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
-              Administrer dine værelsesannoncer ét sted.
+              {t("myListings.subtitle")}
             </p>
           </div>
           {!showForm && (
@@ -1056,7 +1058,7 @@ const nextStep = () => {
               className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Opret annonce
+              {t("myListings.create")}
             </Button>
           )}
         </div>
@@ -1068,9 +1070,9 @@ const nextStep = () => {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">🎉 Launch-tilbud: 50% på din første annonce!</p>
+              <p className="font-semibold text-foreground">{t("myListings.launchOfferTitle")}</p>
               <p className="text-sm text-muted-foreground">
-                Som ny udlejer får du automatisk 50% rabat på din allerførste annonce. Rabatten trækkes fra ved betaling.
+                {t("myListings.launchOfferBody")}
               </p>
             </div>
           </div>
@@ -1086,11 +1088,11 @@ const nextStep = () => {
                   <div className="flex items-center gap-3 mb-2">
                     <div className="h-px w-6 bg-foreground/40" />
                     <span className="text-[10px] uppercase tracking-[0.2em] text-foreground/60">
-                      Trin {currentStep} af {steps.length}
+                      {t("myListings.stepXofY", { current: currentStep, total: stepKeys.length })}
                     </span>
                   </div>
                   <h2 className="text-xl md:text-3xl font-medium tracking-tight text-foreground">
-                    {editingProperty ? "Rediger annonce." : "Opret ny annonce."}
+                    {editingProperty ? t("myListings.editTitle") : t("myListings.createTitle")}
                   </h2>
                 </div>
                 <Button
@@ -1105,7 +1107,7 @@ const nextStep = () => {
 
               {/* Step Indicators */}
               <div className="flex items-center justify-between w-full overflow-hidden">
-                {steps.map((step, index) => (
+                {stepKeys.map((step, index) => (
                   <div key={step.id} className="flex items-center flex-1 last:flex-none">
                     <div className="flex flex-col items-center flex-shrink-0">
                       <div className={`w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center text-xs md:text-sm font-medium transition-colors border ${
@@ -1120,10 +1122,10 @@ const nextStep = () => {
                       <span className={`text-[8px] md:text-xs mt-1.5 md:mt-2 font-medium truncate max-w-[45px] md:max-w-none text-center ${
                         currentStep >= step.id ? 'text-foreground' : 'text-foreground/50'
                       }`}>
-                        {step.title}
+                        {t(`myListings.${step.titleKey}`)}
                       </span>
                     </div>
-                    {index < steps.length - 1 && (
+                    {index < stepKeys.length - 1 && (
                       <div className={`flex-1 h-px mx-1 md:mx-2 min-w-[4px] mb-5 ${
                         currentStep > step.id ? 'bg-foreground' : 'bg-border'
                       }`} />
@@ -1858,11 +1860,11 @@ const nextStep = () => {
                 <div className="space-y-6 animate-fade-in">
                   <div className="text-center mb-6">
                     <CreditCard className="w-12 h-12 mx-auto text-secondary mb-4" />
-                    <h3 className="text-xl font-semibold text-primary mb-2">Vælg annonceperiode</h3>
+                    <h3 className="text-xl font-semibold text-primary mb-2">{t("myListings.choosePeriod")}</h3>
                     <p className="text-muted-foreground">
                       {freeTrialInfo.active && !editingProperty
-                        ? "Du er i din gratis periode — offentliggør din annonce uden betaling."
-                        : "For at offentliggøre din annonce skal du vælge en periode. Du betaler kun for den tid, annoncen er aktiv."}
+                        ? t("myListings.freeTrialPublish")
+                        : t("myListings.choosePeriodBody")}
                     </p>
                   </div>
 
@@ -1874,9 +1876,9 @@ const nextStep = () => {
                           <Gift className="w-5 h-5 text-green-600" />
                         </div>
                         <div>
-                          <p className="font-semibold text-foreground">Gratis periode — {freeTrialInfo.daysLeft} dage tilbage</p>
+                          <p className="font-semibold text-foreground">{t("myListings.freeTrialBanner", { days: freeTrialInfo.daysLeft })}</p>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Din annonce offentliggøres gratis i 30 dage. Du har brugt {freeTrialInfo.daysUsed} af {FREE_TRIAL_DAYS} gratis dage.
+                            {t("myListings.freeTrialBannerBody", { used: freeTrialInfo.daysUsed, total: FREE_TRIAL_DAYS })}
                           </p>
                           <div className="mt-3 w-full bg-muted rounded-full h-1.5">
                             <div
@@ -1889,10 +1891,10 @@ const nextStep = () => {
 
                       <div className="flex items-center justify-between p-6 rounded-xl border-2 border-green-500 bg-green-500/5">
                         <div>
-                          <p className="font-semibold text-lg text-foreground">30 dage</p>
-                          <p className="text-sm text-muted-foreground">Din annonce er synlig for alle roomies</p>
+                          <p className="font-semibold text-lg text-foreground">{t("myListings.manyDays", { count: 30 })}</p>
+                          <p className="text-sm text-muted-foreground">{t("myListings.thirtyDaysVisible")}</p>
                         </div>
-                        <p className="text-2xl font-bold text-green-600">Gratis</p>
+                        <p className="text-2xl font-bold text-green-600">{t("myListings.free")}</p>
                       </div>
                     </>
                   ) : (
@@ -1904,8 +1906,8 @@ const nextStep = () => {
                             <Sparkles className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <p className="font-semibold text-foreground">Launch-tilbud: 50% på din første annonce!</p>
-                            <p className="text-sm text-muted-foreground">Kun tilgængeligt for din allerførste annonce. Gælder kun annonceprisen.</p>
+                            <p className="font-semibold text-foreground">{t("myListings.launchOfferShort")}</p>
+                            <p className="text-sm text-muted-foreground">{t("myListings.launchOfferShortBody")}</p>
                           </div>
                         </div>
                       )}
@@ -1928,17 +1930,17 @@ const nextStep = () => {
                             >
                               {period.popular && (
                                 <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-secondary text-secondary-foreground rounded-full">
-                                  Mest populær
+                                  {t("myListings.mostPopular")}
                                 </span>
                               )}
                               {period.bestValue && (
                                 <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-green-500 text-white rounded-full">
-                                  Bedste værdi
+                                  {t("myListings.bestValue")}
                                 </span>
                               )}
                               <div className="text-left">
-                                <p className="font-semibold text-lg text-foreground">{period.label}</p>
-                                <p className="text-sm text-muted-foreground">Din annonce er synlig for alle roomies</p>
+                                <p className="font-semibold text-lg text-foreground">{t("myListings.manyDays", { count: period.days })}</p>
+                                <p className="text-sm text-muted-foreground">{t("myListings.thirtyDaysVisible")}</p>
                               </div>
                               <div className="text-right">
                                 {showDiscount ? (
@@ -1959,28 +1961,28 @@ const nextStep = () => {
 
                   {/* Summary */}
                   <div className="bg-muted/50 rounded-xl p-6 mt-6">
-                    <h4 className="font-medium text-primary mb-4">Oversigt</h4>
+                    <h4 className="font-medium text-primary mb-4">{t("myListings.summary")}</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Annonce:</span>
-                        <span className="font-medium text-foreground">{formData.title || "Ny annonce"}</span>
+                        <span className="text-muted-foreground">{t("myListings.summaryListing")}</span>
+                        <span className="font-medium text-foreground">{formData.title || t("myListings.newListing")}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Beliggenhed:</span>
+                        <span className="text-muted-foreground">{t("myListings.summaryLocation")}</span>
                         <span className="font-medium text-foreground">{formData.city || "-"}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Månedlig leje:</span>
+                        <span className="text-muted-foreground">{t("myListings.summaryRent")}</span>
                         <span className="font-medium text-foreground">{parseInt(formData.monthly_rent || "0").toLocaleString()} kr</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Billeder:</span>
-                        <span className="font-medium text-foreground">{uploadedImages.length} billede{uploadedImages.length !== 1 ? 'r' : ''}</span>
+                        <span className="text-muted-foreground">{t("myListings.summaryImages")}</span>
+                        <span className="font-medium text-foreground">{uploadedImages.length === 1 ? t("myListings.imagesOne") : t("myListings.imagesMany", { count: uploadedImages.length })}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Annonceperiode:</span>
+                        <span className="text-muted-foreground">{t("myListings.summaryPeriod")}</span>
                         <span className="font-medium text-foreground">
-                          {freeTrialInfo.active && !editingProperty ? "30 dage" : listingPeriods.find(p => p.days === selectedListingPeriod)?.label}
+                          {freeTrialInfo.active && !editingProperty ? t("myListings.manyDays", { count: 30 }) : t("myListings.manyDays", { count: selectedListingPeriod })}
                         </span>
                       </div>
 
@@ -1988,13 +1990,13 @@ const nextStep = () => {
                       {isLaunchOfferEligible && !freeTrialInfo.active && (
                         <>
                           <div className="flex justify-between text-muted-foreground">
-                            <span>Normalpris:</span>
+                            <span>{t("myListings.summaryNormalPrice")}</span>
                             <span className="line-through">{listingPeriods.find(p => p.days === selectedListingPeriod)?.price} kr</span>
                           </div>
                           <div className="flex justify-between text-green-600">
                             <span className="flex items-center gap-1">
                               <Sparkles className="w-3 h-3" />
-                              Launch-rabat (50%)
+                              {t("myListings.summaryDiscount")}
                             </span>
                             <span>-{Math.floor((listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0) * LAUNCH_OFFER_DISCOUNT)} kr</span>
                           </div>
@@ -2003,10 +2005,10 @@ const nextStep = () => {
 
                       <div className="border-t border-border pt-2 mt-2">
                         <div className="flex justify-between text-base">
-                          <span className="font-medium text-primary">Total at betale:</span>
+                          <span className="font-medium text-primary">{t("myListings.summaryTotal")}</span>
                           <span className={`font-bold ${freeTrialInfo.active && !editingProperty ? 'text-green-600' : isLaunchOfferEligible ? 'text-green-600' : 'text-secondary'}`}>
                             {freeTrialInfo.active && !editingProperty
-                              ? "0 kr (gratis)"
+                              ? t("myListings.summaryFree")
                               : `${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr`}
                           </span>
                         </div>
@@ -2026,7 +2028,7 @@ const nextStep = () => {
                   className={`${currentStep === 1 ? 'invisible' : ''} w-full sm:w-auto order-2 sm:order-1`}
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
-                  Tilbage
+                  {t("myListings.navBack")}
                 </Button>
 
                 {currentStep < 6 ? (
@@ -2036,7 +2038,7 @@ const nextStep = () => {
                     disabled={!canProceed()}
                     className="bg-secondary text-secondary-foreground hover:bg-secondary/90 w-full sm:w-auto order-1 sm:order-2"
                   >
-                    Næste
+                    {t("myListings.navNext")}
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 ) : (
@@ -2051,12 +2053,12 @@ const nextStep = () => {
                       : <CreditCard className="w-4 h-4 mr-2 flex-shrink-0" />}
                     <span className="whitespace-nowrap">
                       {freeTrialInfo.active && !editingProperty
-                        ? "Offentliggør gratis"
+                        ? t("myListings.publishFree")
                         : editingProperty
-                          ? "Gem og publicer"
+                          ? t("myListings.saveAndPublish")
                           : native
-                            ? "Køb på hommies.dk"
-                            : `Betal ${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr og publicer`
+                            ? t("myListings.buyOnWeb")
+                            : t("myListings.payAndPublish", { price: getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true) })
                       }
                     </span>
                   </Button>
@@ -2073,23 +2075,23 @@ const nextStep = () => {
               <Card className="border-dashed border-2 border-border">
                 <CardContent className="p-12 text-center">
                   <Home className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold text-primary mb-2">Ingen annoncer endnu</h3>
-                  <p className="text-muted-foreground mb-4">Opret din første værelsesannonce og find den perfekte roomie</p>
-                  
+                  <h3 className="text-xl font-semibold text-primary mb-2">{t("myListings.noneYet")}</h3>
+                  <p className="text-muted-foreground mb-4">{t("myListings.noneYetBody")}</p>
+
                   {/* Launch offer promotion */}
                   {isLaunchPeriodActive() && (
                     <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4 mb-6 inline-flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-amber-500" />
-                      <span className="font-medium text-foreground">Launch-tilbud: 50% på din første annonce!</span>
+                      <span className="font-medium text-foreground">{t("myListings.launchOfferShort")}</span>
                     </div>
                   )}
-                  
-                  <Button 
+
+                  <Button
                     onClick={openCreateForm}
                     className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Opret din første annonce
+                    {t("myListings.createFirst")}
                   </Button>
                 </CardContent>
               </Card>
@@ -2113,7 +2115,7 @@ const nextStep = () => {
                         {isPropertyBoosted(property.id) && (
                           <span className="px-1.5 py-0.5 md:px-3 md:py-1 rounded-full text-[9px] md:text-xs font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white flex items-center gap-0.5 md:gap-1 shadow-md">
                             <Sparkles className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                            <span className="hidden md:inline">Boosted</span>
+                            <span className="hidden md:inline">{t("myListings.boostedLabel")}</span>
                             {getBoostDaysLeft(property.id) && (
                               <span className="opacity-90">({getBoostDaysLeft(property.id)})</span>
                             )}
@@ -2133,14 +2135,14 @@ const nextStep = () => {
                       {(property as any).expires_at && (
                         <div className="hidden md:flex items-center gap-1 text-xs text-muted-foreground mb-3">
                           <Clock className="w-3 h-3" />
-                          Udløber: {format(new Date((property as any).expires_at), "d. MMM yyyy", { locale: da })}
+                          {t("myListings.expiresOn", { date: format(new Date((property as any).expires_at), "d. MMM yyyy", { locale: da }) })}
                         </div>
                       )}
                       
                       <div className="flex items-center justify-between mb-2 md:mb-4">
                         <span className="text-sm md:text-xl font-bold text-secondary">{property.monthly_rent.toLocaleString()} kr</span>
                         <span className="text-[10px] md:text-sm text-muted-foreground">
-                          {property.room_count} vær.
+                          {property.room_count} {t("myListings.rooms")}
                         </span>
                       </div>
                       
@@ -2157,7 +2159,7 @@ const nextStep = () => {
                           className="flex-1 h-7 md:h-9 text-[10px] md:text-sm px-1.5 md:px-3"
                         >
                           <RefreshCw className="w-3 h-3 md:w-4 md:h-4 md:mr-1" />
-                          <span className="hidden md:inline">{(property as any).status === "active" ? "Forlæng" : "Forny"}</span>
+                          <span className="hidden md:inline">{(property as any).status === "active" ? t("myListings.extend") : t("myListings.renew")}</span>
                         </Button>
                         <Button
                           size="sm"
@@ -2169,7 +2171,7 @@ const nextStep = () => {
                           className="flex-1 h-7 md:h-9 text-[10px] md:text-sm px-1.5 md:px-3"
                         >
                           <Sparkles className="w-3 h-3 md:w-4 md:h-4 md:mr-1" />
-                          <span className="hidden md:inline">Boost</span>
+                          <span className="hidden md:inline">{t("myListings.boost")}</span>
                         </Button>
                       </div>
                       )}
@@ -2182,9 +2184,9 @@ const nextStep = () => {
                           className="flex-1 h-7 md:h-9 text-[10px] md:text-sm px-1 md:px-3"
                         >
                           {property.is_published ? (
-                            <><EyeOff className="w-3 h-3 md:w-4 md:h-4 md:mr-1" /><span className="hidden md:inline">Skjul</span></>
+                            <><EyeOff className="w-3 h-3 md:w-4 md:h-4 md:mr-1" /><span className="hidden md:inline">{t("myListings.hide")}</span></>
                           ) : (
-                            <><Eye className="w-3 h-3 md:w-4 md:h-4 md:mr-1" /><span className="hidden md:inline">Publicer</span></>
+                            <><Eye className="w-3 h-3 md:w-4 md:h-4 md:mr-1" /><span className="hidden md:inline">{t("myListings.publish")}</span></>
                           )}
                         </Button>
                         <Button 
@@ -2219,18 +2221,18 @@ const nextStep = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Er du sikker?</AlertDialogTitle>
+            <AlertDialogTitle>{t("myListings.deleteSure")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Denne handling kan ikke fortrydes. Din annonce vil blive permanent slettet.
+              {t("myListings.deleteSureBody")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuller</AlertDialogCancel>
+            <AlertDialogCancel>{t("myListings.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={deleteProperty}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Slet annonce
+              {t("myListings.deleteListing")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -2240,9 +2242,9 @@ const nextStep = () => {
       <Dialog open={!!renewDialog} onOpenChange={() => setRenewDialog(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Forny annonce</DialogTitle>
+            <DialogTitle>{t("myListings.renewTitle")}</DialogTitle>
             <DialogDescription>
-              Vælg hvor længe din annonce skal være aktiv
+              {t("myListings.renewBody")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -2258,7 +2260,7 @@ const nextStep = () => {
                       : "border-border hover:border-secondary/50"
                   }`}
                 >
-                  <span className="font-medium">{period.label}</span>
+                  <span className="font-medium">{t("myListings.manyDays", { count: period.days })}</span>
                   <span className="font-bold text-secondary">{period.price} kr</span>
                 </button>
               ))}
@@ -2269,7 +2271,7 @@ const nextStep = () => {
               className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
             >
               {renewPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Betal {listingPeriods.find(p => p.days === selectedPeriod)?.price} kr og aktiver
+              {t("myListings.payAndActivate", { price: listingPeriods.find(p => p.days === selectedPeriod)?.price })}
             </Button>
           </div>
         </DialogContent>
@@ -2279,9 +2281,9 @@ const nextStep = () => {
       <Dialog open={!!boostDialog} onOpenChange={() => setBoostDialog(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Boost annonce</DialogTitle>
+            <DialogTitle>{t("myListings.boostTitle")}</DialogTitle>
             <DialogDescription>
-              Din annonce kommer øverst i søgeresultaterne
+              {t("myListings.boostBody")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -2297,7 +2299,7 @@ const nextStep = () => {
                       : "border-border hover:border-secondary/50"
                   }`}
                 >
-                  <span className="font-medium">{boost.label}</span>
+                  <span className="font-medium">{boost.days === 1 ? "24h" : t("myListings.manyDays", { count: boost.days })}</span>
                   <span className="font-bold text-secondary">{boost.price} kr</span>
                 </button>
               ))}
@@ -2308,7 +2310,7 @@ const nextStep = () => {
               className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
             >
               {boostPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Betal {boostOptions.find(b => b.days === selectedBoost)?.price} kr og boost
+              {t("myListings.payAndBoost", { price: boostOptions.find(b => b.days === selectedBoost)?.price })}
             </Button>
           </div>
         </DialogContent>
