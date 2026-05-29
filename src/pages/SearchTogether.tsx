@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/landing/Navbar";
@@ -29,6 +30,7 @@ interface ConnectedRoomie {
 const SearchTogether = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
 
   const {
@@ -102,19 +104,19 @@ const SearchTogether = () => {
     for (const userId of userIds) {
       const success = await inviteMember(groupId, userId);
       if (!success) {
-        toast.error("Kunne ikke invitere alle medlemmer");
+        toast.error(t("searchTogether.inviteFailed"));
         return;
       }
     }
-    toast.success(`${userIds.length} invitation${userIds.length > 1 ? "er" : ""} sendt!`);
+    toast.success(userIds.length === 1 ? t("searchTogether.invitationsSentOne") : t("searchTogether.invitationsSentMany", { count: userIds.length }));
   };
 
   const handleRespondToInvitation = async (memberId: string, accept: boolean) => {
     const success = await respondToInvitation(memberId, accept);
     if (success) {
-      toast.success(accept ? "Du er nu medlem af gruppen!" : "Invitation afvist");
+      toast.success(accept ? t("searchTogether.invitationAccepted") : t("searchTogether.invitationRejected"));
     } else {
-      toast.error("Noget gik galt");
+      toast.error(t("searchTogether.somethingWrong"));
     }
     return success;
   };
@@ -154,13 +156,13 @@ const SearchTogether = () => {
           <div className="mb-8 md:mb-12">
             <div className="flex items-center gap-3 mb-3">
               <div className="h-px w-8 bg-foreground/40" />
-              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Sammen</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("searchTogether.eyebrow")}</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
-              Focus.
+              {t("searchTogether.title")}
             </h1>
             <p className="mt-3 text-foreground/60 max-w-2xl">
-              Saml jeres gruppe, hold styr på liket personer og boliger, og søg sammen.
+              {t("searchTogether.subtitle")}
             </p>
           </div>
         )}
@@ -215,9 +217,9 @@ const SearchTogether = () => {
         onCreate={async (data) => {
           const result = await createGroup(data);
           if (result) {
-            toast.success("Gruppe oprettet!");
+            toast.success(t("searchTogether.groupCreated"));
           } else {
-            toast.error("Kunne ikke oprette gruppe");
+            toast.error(t("searchTogether.groupCreateFailed"));
           }
           return result;
         }}

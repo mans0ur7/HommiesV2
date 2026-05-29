@@ -466,5 +466,18 @@
     "s9Body": "We may update this privacy policy from time to time. Material changes will be communicated by email or a prominent notice on the platform. We encourage you to review this policy regularly.",
     "s10Title": "10. Contact",
     "s10Body": "If you have questions about this privacy policy or our handling of your data, you are welcome to contact us:"
+  },
+  "searchTogether": {
+    "eyebrow": "Together",
+    "title": "Focus.",
+    "subtitle": "Gather your group, keep track of liked people and homes, and search together.",
+    "inviteFailed": "Could not invite all members",
+    "invitationsSentOne": "1 invitation sent!",
+    "invitationsSentMany": "{{count}} invitations sent!",
+    "invitationAccepted": "You are now a member of the group!",
+    "invitationRejected": "Invitation declined",
+    "somethingWrong": "Something went wrong",
+    "groupCreated": "Group created!",
+    "groupCreateFailed": "Could not create group"
   }
 }

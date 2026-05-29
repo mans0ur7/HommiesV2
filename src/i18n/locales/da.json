@@ -466,5 +466,18 @@
     "s9Body": "Vi kan opdatere denne privatlivspolitik fra tid til anden. Væsentlige ændringer vil blive kommunikeret via email eller en fremtrædende meddelelse på platformen. Vi opfordrer dig til at gennemgå denne politik regelmæssigt.",
     "s10Title": "10. Kontakt",
     "s10Body": "Har du spørgsmål til denne privatlivspolitik eller vores behandling af dine data, er du velkommen til at kontakte os:"
+  },
+  "searchTogether": {
+    "eyebrow": "Sammen",
+    "title": "Focus.",
+    "subtitle": "Saml jeres gruppe, hold styr på likede personer og boliger, og søg sammen.",
+    "inviteFailed": "Kunne ikke invitere alle medlemmer",
+    "invitationsSentOne": "1 invitation sendt!",
+    "invitationsSentMany": "{{count}} invitationer sendt!",
+    "invitationAccepted": "Du er nu medlem af gruppen!",
+    "invitationRejected": "Invitation afvist",
+    "somethingWrong": "Noget gik galt",
+    "groupCreated": "Gruppe oprettet!",
+    "groupCreateFailed": "Kunne ikke oprette gruppe"
   }
 }
