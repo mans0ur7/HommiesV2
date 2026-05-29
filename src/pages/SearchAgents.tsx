@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Plus, Bell, BellOff, Trash2, Edit2, MapPin, Mail, Search, Home, ChevronRight, CheckCheck, X } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -23,6 +24,7 @@ const PRICE_PER_SLOT = 29;
 
 const SearchAgents = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const { user, profile, loading } = useAuth();
   const { searchAgents, isLoading, createAgent, updateAgent, deleteAgent, toggleAgent } = useSearchAgents();
@@ -51,9 +53,9 @@ const SearchAgents = () => {
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center h-full py-20">
             <Search className="w-16 h-16 text-muted-foreground mb-4" />
-            <h1 className="text-2xl font-bold text-primary mb-2">Søgeagenter er kun for lejere</h1>
+            <h1 className="text-2xl font-bold text-primary mb-2">{t("searchAgents.onlyRoomies")}</h1>
             <p className="text-muted-foreground text-center max-w-md">
-              Som udlejer har du ikke adgang til søgeagenter. Denne funktion er designet til at hjælpe lejere med at finde boliger.
+              {t("searchAgents.onlyRoomiesBody")}
             </p>
           </div>
         </main>
@@ -73,7 +75,7 @@ const SearchAgents = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Er du sikker på, at du vil slette denne søgeagent?")) {
+    if (confirm(t("searchAgents.confirmDelete"))) {
       deleteAgent.mutate(id);
     }
   };
@@ -119,18 +121,18 @@ const SearchAgents = () => {
           <div>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-px w-8 bg-foreground/40" />
-              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Værktøjer</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("searchAgents.eyebrow")}</span>
             </div>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
-              Søgeagenter.
+              {t("searchAgents.title")}
             </h1>
             <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
-              Få besked når nye boliger matcher dine kriterier.
+              {t("searchAgents.subtitle")}
             </p>
             <p className="mt-2 text-sm text-foreground/50">
-              {usedSlots} af {availableSlots} pladser brugt
+              {t("searchAgents.slotsUsed", { used: usedSlots, total: availableSlots })}
               {usedSlots >= availableSlots && availableSlots > 0 && (
-                <span className="text-amber-500 ml-2">— køb ekstra plads for 29 kr</span>
+                <span className="text-amber-500 ml-2">{t("searchAgents.buyExtra")}</span>
               )}
             </p>
           </div>
@@ -139,7 +141,7 @@ const SearchAgents = () => {
             className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Opret søgeagent
+            {t("searchAgents.createAgent")}
           </Button>
         </div>
 
@@ -148,7 +150,7 @@ const SearchAgents = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold text-primary">Nye boliger der matcher</h2>
+                <h2 className="text-lg font-semibold text-primary">{t("searchAgents.newMatching")}</h2>
                 {unreadPropertyCount > 0 && (
                   <Badge variant="destructive" className="rounded-full px-2 py-0.5 text-xs">
                     {unreadPropertyCount}
@@ -163,7 +165,7 @@ const SearchAgents = () => {
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <CheckCheck className="w-4 h-4 mr-1.5" />
-                  Markér alle som læst
+                  {t("searchAgents.markAllRead")}
                 </Button>
               )}
             </div>
@@ -206,7 +208,7 @@ const SearchAgents = () => {
                                 }
                               }}
                             >
-                              Se bolig
+                              {t("searchAgents.seeProperty")}
                               <ChevronRight className="w-4 h-4 ml-1" />
                             </Button>
                           </Link>
@@ -226,7 +228,7 @@ const SearchAgents = () => {
               ))}
               {propertyNotifications.length > 5 && (
                 <p className="text-sm text-muted-foreground text-center py-2">
-                  +{propertyNotifications.length - 5} flere notifikationer
+                  {t("searchAgents.moreNotifications", { count: propertyNotifications.length - 5 })}
                 </p>
               )}
             </div>
@@ -237,7 +239,7 @@ const SearchAgents = () => {
         <div className="flex items-center justify-between mb-4 mt-4">
           <div className="flex items-center gap-3">
             <div className="h-px w-6 bg-foreground/40" />
-            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Mine søgeagenter</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("searchAgents.mySection")}</span>
           </div>
         </div>
         
@@ -246,16 +248,16 @@ const SearchAgents = () => {
             <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
               <Search className="w-6 h-6 text-foreground/60" />
             </div>
-            <h3 className="text-xl md:text-2xl font-medium tracking-tight mb-2">Ingen søgeagenter endnu.</h3>
+            <h3 className="text-xl md:text-2xl font-medium tracking-tight mb-2">{t("searchAgents.noAgents")}</h3>
             <p className="text-foreground/60 max-w-sm mb-6 text-sm">
-              Opret en søgeagent for at få besked, når nye boliger matcher dine ønsker.
+              {t("searchAgents.noAgentsBody")}
             </p>
             <Button
               onClick={() => setShowCreateModal(true)}
               className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Opret din første søgeagent
+              {t("searchAgents.createFirst")}
             </Button>
           </div>
         ) : (
@@ -271,7 +273,7 @@ const SearchAgents = () => {
                     <p className="flex items-center gap-1 mt-1 text-sm text-foreground/60">
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">
-                        {agent.area ? `${agent.area}, ${agent.city}` : agent.city || "Hele Danmark"}
+                        {agent.area ? `${agent.area}, ${agent.city}` : agent.city || t("searchAgents.allDenmark")}
                       </span>
                     </p>
                   </div>
@@ -290,7 +292,7 @@ const SearchAgents = () => {
                   ))}
                   {formatFilters(agent).length === 0 && (
                     <span className="text-xs px-2.5 py-1 rounded-full border border-border/60 text-foreground/60">
-                      Alle boliger
+                      {t("searchAgents.allProperties")}
                     </span>
                   )}
                 </div>
@@ -299,12 +301,12 @@ const SearchAgents = () => {
                 <div className="flex items-center gap-4 text-xs text-foreground/60 mb-4 pt-4 border-t border-border/60">
                   <span className="flex items-center gap-1.5">
                     {agent.is_active ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
-                    {agent.notification_frequency === 'instant' ? 'Øjeblikkeligt' :
-                     agent.notification_frequency === 'daily' ? 'Dagligt' : 'Ugentligt'}
+                    {agent.notification_frequency === 'instant' ? t("searchAgents.instant") :
+                     agent.notification_frequency === 'daily' ? t("searchAgents.daily") : t("searchAgents.weekly")}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5" />
-                    {agent.email_notifications ? 'E-mail til' : 'E-mail fra'}
+                    {agent.email_notifications ? t("searchAgents.emailOn") : t("searchAgents.emailOff")}
                   </span>
                 </div>
 
@@ -317,7 +319,7 @@ const SearchAgents = () => {
                     onClick={() => setEditingAgent(agent)}
                   >
                     <Edit2 className="w-4 h-4 mr-1.5" />
-                    Redigér
+                    {t("searchAgents.edit")}
                   </Button>
                   <Button
                     variant="outline"
@@ -337,20 +339,20 @@ const SearchAgents = () => {
         <div className="mt-12 p-6 rounded-2xl bg-muted/40 border border-border/60">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-px w-6 bg-foreground/40" />
-            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Sådan virker det</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("searchAgents.howWorks")}</span>
           </div>
           <ul className="space-y-2.5 text-sm text-foreground/70">
             <li className="flex items-start gap-3">
               <span className="text-foreground font-medium">01</span>
-              Opret en søgeagent med dit ønskede område og filtre.
+              {t("searchAgents.step1")}
             </li>
             <li className="flex items-start gap-3">
               <span className="text-foreground font-medium">02</span>
-              Når en ny bolig matcher dine kriterier, får du en notifikation.
+              {t("searchAgents.step2")}
             </li>
             <li className="flex items-start gap-3">
               <span className="text-foreground font-medium">03</span>
-              Slå e-mail til for at få besked med det samme.
+              {t("searchAgents.step3")}
             </li>
           </ul>
         </div>
