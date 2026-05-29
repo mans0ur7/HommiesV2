@@ -382,5 +382,30 @@
     "story4": "And we're only just getting started.",
     "ctaTitle": "Ready to find your next home?",
     "ctaBody": "Create a free profile and experience an easier way to find a home."
+  },
+  "contact": {
+    "messageSent": "Message sent!",
+    "messageSentBody": "We'll get back to you as soon as possible.",
+    "eyebrow": "Contact",
+    "title": "Let's talk.",
+    "subtitle": "Questions, feedback or just an idea? Write to us — we read everything and usually reply within 24 hours on weekdays.",
+    "sendMessage": "Send us a message",
+    "name": "Name",
+    "namePlaceholder": "Your full name",
+    "email": "Email",
+    "subject": "Subject",
+    "subjectPlaceholder": "What's your message about?",
+    "message": "Message",
+    "messagePlaceholder": "Write your message here…",
+    "sending": "Sending…",
+    "sendButton": "Send message",
+    "channelEmail": "Email",
+    "channelEmailMeta": "Reply within 24 hours",
+    "channelPhone": "Phone",
+    "channelPhoneMeta": "Mon–Fri · 09:00 – 17:00",
+    "channelAddress": "Address",
+    "quickAnswer": "Quick answer?",
+    "faqLine": "Check our FAQ — we probably have the answer.",
+    "seeFaq": "See FAQ"
   }
 }

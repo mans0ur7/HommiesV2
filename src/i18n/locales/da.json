@@ -382,5 +382,30 @@
     "story4": "Og vi er kun lige begyndt.",
     "ctaTitle": "Klar til at finde dit næste hjem?",
     "ctaBody": "Opret en gratis profil, og oplev en nemmere måde at finde bolig på."
+  },
+  "contact": {
+    "messageSent": "Besked sendt!",
+    "messageSentBody": "Vi vender tilbage til dig hurtigst muligt.",
+    "eyebrow": "Kontakt",
+    "title": "Lad os snakke.",
+    "subtitle": "Spørgsmål, feedback eller bare en idé? Skriv til os — vi læser alt og svarer typisk inden for 24 timer på hverdage.",
+    "sendMessage": "Send os en besked",
+    "name": "Navn",
+    "namePlaceholder": "Dit fulde navn",
+    "email": "Email",
+    "subject": "Emne",
+    "subjectPlaceholder": "Hvad handler din henvendelse om?",
+    "message": "Besked",
+    "messagePlaceholder": "Skriv din besked her…",
+    "sending": "Sender…",
+    "sendButton": "Send besked",
+    "channelEmail": "Email",
+    "channelEmailMeta": "Svar inden for 24 timer",
+    "channelPhone": "Telefon",
+    "channelPhoneMeta": "Man–fre · 09:00 – 17:00",
+    "channelAddress": "Adresse",
+    "quickAnswer": "Hurtigt svar?",
+    "faqLine": "Tjek vores FAQ — vi har sikkert svaret.",
+    "seeFaq": "Se FAQ"
   }
 }

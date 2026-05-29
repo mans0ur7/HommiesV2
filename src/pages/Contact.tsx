@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Mail, Phone, MapPin, Send, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import Footer from "@/components/landing/Footer";
 const Contact = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -25,8 +27,8 @@ const Contact = () => {
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 1000));
     toast({
-      title: "Besked sendt!",
-      description: "Vi vender tilbage til dig hurtigst muligt.",
+      title: t("contact.messageSent"),
+      description: t("contact.messageSentBody"),
     });
     setFormData({ name: "", email: "", subject: "", message: "" });
     setIsSubmitting(false);
@@ -35,21 +37,21 @@ const Contact = () => {
   const channels = [
     {
       icon: Mail,
-      title: "Email",
+      title: t("contact.channelEmail"),
       value: "Info@hommies.dk",
-      meta: "Svar inden for 24 timer",
+      meta: t("contact.channelEmailMeta"),
       href: "mailto:Info@hommies.dk",
     },
     {
       icon: Phone,
-      title: "Telefon",
+      title: t("contact.channelPhone"),
       value: "+45 42 31 82 06",
-      meta: "Man–fre · 09:00 – 17:00",
+      meta: t("contact.channelPhoneMeta"),
       href: "tel:+4542318206",
     },
     {
       icon: MapPin,
-      title: "Adresse",
+      title: t("contact.channelAddress"),
       value: "Vestergade 42, 3.",
       meta: "1456 København K",
     },
@@ -65,14 +67,13 @@ const Contact = () => {
           <div className="max-w-3xl mb-12 md:mb-16">
             <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-6">
               <span className="w-6 h-px bg-foreground/30" />
-              Kontakt
+              {t("contact.eyebrow")}
             </span>
             <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05] mb-5">
-              Lad os snakke.
+              {t("contact.title")}
             </h1>
             <p className="text-base md:text-lg text-foreground/60 leading-relaxed max-w-xl">
-              Spørgsmål, feedback eller bare en idé? Skriv til os — vi læser alt og svarer typisk
-              inden for 24 timer på hverdage.
+              {t("contact.subtitle")}
             </p>
           </div>
 
@@ -81,15 +82,15 @@ const Contact = () => {
             {/* Form card */}
             <div className="lg:col-span-7 rounded-3xl border border-border/60 bg-background p-6 md:p-10">
               <h2 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight mb-6">
-                Send os en besked
+                {t("contact.sendMessage")}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-xs text-foreground/60">Navn</Label>
+                    <Label htmlFor="name" className="text-xs text-foreground/60">{t("contact.name")}</Label>
                     <Input
                       id="name"
-                      placeholder="Dit fulde navn"
+                      placeholder={t("contact.namePlaceholder")}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
@@ -97,7 +98,7 @@ const Contact = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-xs text-foreground/60">Email</Label>
+                    <Label htmlFor="email" className="text-xs text-foreground/60">{t("contact.email")}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -110,10 +111,10 @@ const Contact = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="subject" className="text-xs text-foreground/60">Emne</Label>
+                  <Label htmlFor="subject" className="text-xs text-foreground/60">{t("contact.subject")}</Label>
                   <Input
                     id="subject"
-                    placeholder="Hvad handler din henvendelse om?"
+                    placeholder={t("contact.subjectPlaceholder")}
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     required
@@ -121,10 +122,10 @@ const Contact = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="message" className="text-xs text-foreground/60">Besked</Label>
+                  <Label htmlFor="message" className="text-xs text-foreground/60">{t("contact.message")}</Label>
                   <Textarea
                     id="message"
-                    placeholder="Skriv din besked her…"
+                    placeholder={t("contact.messagePlaceholder")}
                     rows={6}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -138,11 +139,11 @@ const Contact = () => {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    "Sender…"
+                    t("contact.sending")
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Send besked
+                      {t("contact.sendButton")}
                     </>
                   )}
                 </Button>
@@ -190,12 +191,12 @@ const Contact = () => {
                 }}
                 className="group relative rounded-3xl bg-foreground text-background p-5 md:p-6 text-left hover:bg-foreground/90 transition-colors"
               >
-                <p className="text-xs text-background/60 mb-2">Hurtigt svar?</p>
+                <p className="text-xs text-background/60 mb-2">{t("contact.quickAnswer")}</p>
                 <h3 className="text-lg font-semibold mb-3 leading-snug">
-                  Tjek vores FAQ — vi har sikkert svaret.
+                  {t("contact.faqLine")}
                 </h3>
                 <span className="inline-flex items-center gap-1.5 text-sm text-background/80 group-hover:text-background">
-                  Se FAQ <ArrowUpRight className="w-4 h-4" />
+                  {t("contact.seeFaq")} <ArrowUpRight className="w-4 h-4" />
                 </span>
               </button>
             </div>
