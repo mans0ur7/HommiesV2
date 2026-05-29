@@ -38,6 +38,11 @@ const Privacy = () => {
                 <li><strong className="text-foreground">{t("privacy.s2Item3Label")}</strong> {t("privacy.s2Item3Body")}</li>
                 <li><strong className="text-foreground">{t("privacy.s2Item4Label")}</strong> {t("privacy.s2Item4Body")}</li>
                 <li><strong className="text-foreground">{t("privacy.s2Item5Label")}</strong> {t("privacy.s2Item5Body")}</li>
+                <li><strong className="text-foreground">{t("privacy.s2Item6Label")}</strong> {t("privacy.s2Item6Body")}</li>
+                <li><strong className="text-foreground">{t("privacy.s2Item7Label")}</strong> {t("privacy.s2Item7Body")}</li>
+                <li><strong className="text-foreground">{t("privacy.s2Item8Label")}</strong> {t("privacy.s2Item8Body")}</li>
+                <li><strong className="text-foreground">{t("privacy.s2Item9Label")}</strong> {t("privacy.s2Item9Body")}</li>
+                <li><strong className="text-foreground">{t("privacy.s2Item10Label")}</strong> {t("privacy.s2Item10Body")}</li>
               </ul>
             </section>
 
@@ -98,15 +103,21 @@ const Privacy = () => {
               <p className="text-muted-foreground leading-relaxed">{t("privacy.s9Body")}</p>
             </section>
 
-            <section>
+            <section className="mb-12">
               <h2 className="text-2xl font-bold text-foreground mb-4">{t("privacy.s10Title")}</h2>
               <p className="text-muted-foreground leading-relaxed">{t("privacy.s10Body")}</p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t("privacy.s11Title")}</h2>
+              <p className="text-muted-foreground leading-relaxed">{t("privacy.s11Body")}</p>
               <div className="bg-accent rounded-xl p-6 mt-4">
-                <p className="text-foreground font-medium">Hommies ApS</p>
-                <p className="text-muted-foreground">Vestergade 42, 3. sal</p>
-                <p className="text-muted-foreground">1456 København K</p>
-                <p className="text-muted-foreground mt-2">Email: kontakt@hommies.dk</p>
-                <p className="text-muted-foreground">Telefon: +45 12 34 56 78</p>
+                <p className="text-foreground font-medium">Hommies (CVR 43244590)</p>
+                <p className="text-muted-foreground">C/O Human Davari</p>
+                <p className="text-muted-foreground">Randbølvej 73, 3. th</p>
+                <p className="text-muted-foreground">2720 Vanløse</p>
+                <p className="text-muted-foreground mt-2">Email: info@hommies.dk</p>
+                <p className="text-muted-foreground">Telefon: +45 31 21 74 17</p>
               </div>
             </section>
           </div>
