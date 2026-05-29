@@ -112,7 +112,7 @@ const SearchAgentWizard = ({
   const handleSubmit = async () => {
     if (requiresPayment) {
       if (native) {
-        toast.error("Ekstra søgeagenter kan tilføjes på hommies.dk");
+        toast.error("Du har nået det maksimale antal søgeagenter. Slet en eksisterende for at oprette en ny.");
         return;
       }
       setPurchasingSlot(true);
@@ -484,9 +484,9 @@ const SearchAgentWizard = ({
               {requiresPayment ? (
                 native ? (
                   <div className="p-4 rounded-xl border border-border bg-muted/30">
-                    <p className="font-semibold text-foreground mb-1">Ekstra søgeagenter</p>
+                    <p className="font-semibold text-foreground mb-1">Maks. antal nået</p>
                     <p className="text-sm text-muted-foreground">
-                      Du har allerede {existingAgentsCount} søgeagent{existingAgentsCount > 1 ? 'er' : ''}. Ekstra pladser kan tilføjes på hommies.dk.
+                      Du har allerede {existingAgentsCount} søgeagent{existingAgentsCount > 1 ? 'er' : ''}. Slet en eksisterende for at oprette en ny.
                     </p>
                   </div>
                 ) : (
@@ -554,7 +554,7 @@ const SearchAgentWizard = ({
               className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
             >
               {(isLoading || purchasingSlot) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              {purchasingSlot ? "Sender til betaling..." : isLoading ? "Opretter..." : requiresPayment ? (native ? "Tilføj på hommies.dk" : `Betal ${pricePerSlot} kr og opret`) : "Opret søgeagent"}
+              {purchasingSlot ? "Sender til betaling..." : isLoading ? "Opretter..." : requiresPayment ? (native ? "Maks. antal nået" : `Betal ${pricePerSlot} kr og opret`) : "Opret søgeagent"}
             </Button>
           )}
         </div>

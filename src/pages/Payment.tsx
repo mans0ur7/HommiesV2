@@ -115,11 +115,10 @@ const Payment = () => {
               <div className="w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center mx-auto mb-5">
                 <ShieldCheck className="w-6 h-6 text-secondary" />
               </div>
-              <h1 className="text-2xl font-semibold text-foreground mb-2">Opgraderinger på hommies.dk</h1>
+              <h1 className="text-2xl font-semibold text-foreground mb-2">Premium-opgraderinger ikke tilgængelige</h1>
               <p className="text-sm text-foreground/60 leading-relaxed">
-                Boost, annonceperioder og ekstra søgeagenter administreres på vores hjemmeside
-                <span className="text-foreground font-medium"> hommies.dk</span> i din browser.
                 Du kan stadig oprette din første søgeagent og bruge gratis-perioden direkte i appen.
+                Kontakt info@hommies.dk hvis du har spørgsmål.
               </p>
             </div>
           </div>
