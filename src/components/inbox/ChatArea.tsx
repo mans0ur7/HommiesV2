@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, MoreHorizontal, User, Ban, Trash2, Star, Home, FileSignature, ChevronLeft, UsersRound, Check, CheckCheck, MessageCircle } from "lucide-react";
+import { Send, MoreHorizontal, User, Ban, Trash2, Star, Home, FileSignature, ChevronLeft, UsersRound, Check, CheckCheck, MessageCircle, Copy, Flag } from "lucide-react";
+import { useLongPress } from "@/hooks/useLongPress";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,62 @@ import { usePresence } from "@/hooks/usePresence";
 import RatingPrompt from "@/components/ratings/RatingPrompt";
 import TypingIndicator from "./TypingIndicator";
 import type { Conversation } from "@/types/inbox";
+import { submitReport } from "@/lib/bugReport";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+// Renders a single chat bubble with a long-press / right-click context menu
+// (copy + optional report). Kept inline so we don't have to re-thread all the
+// message state through props.
+const MessageBubble = ({
+  isOwn,
+  content,
+  onCopy,
+  onReport,
+}: {
+  isOwn: boolean;
+  content: string;
+  onCopy: () => void;
+  onReport?: () => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const longPress = useLongPress(() => setOpen(true));
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div
+          {...longPress}
+          className={`rounded-2xl px-4 py-2.5 shadow-sm select-none cursor-default ${
+            isOwn
+              ? "bg-primary text-primary-foreground rounded-br-md"
+              : "bg-background border border-border/50 text-foreground rounded-bl-md"
+          }`}
+        >
+          <p className="text-sm whitespace-pre-wrap leading-relaxed">{content}</p>
+        </div>
+      </PopoverTrigger>
+      <PopoverContent align="center" side="top" className="w-44 p-1">
+        <button
+          onClick={() => { onCopy(); setOpen(false); }}
+          className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted flex items-center gap-2"
+        >
+          <Copy className="w-4 h-4" /> Kopiér
+        </button>
+        {onReport && (
+          <button
+            onClick={() => { onReport(); setOpen(false); }}
+            className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted text-destructive flex items-center gap-2"
+          >
+            <Flag className="w-4 h-4" /> Rapportér besked
+          </button>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 interface Message {
   id: string;
@@ -55,6 +112,31 @@ const ChatArea = ({
   const navigate = useNavigate();
   const [isBlocking, setIsBlocking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [reportingMessageId, setReportingMessageId] = useState<string | null>(null);
+  const [reportingSent, setReportingSent] = useState(false);
+
+  // When a user long-presses a message and chooses "Report", send it to support
+  // tagged with the message ID + the offender. Reuses the existing bug-report
+  // edge function so we don't need new infra.
+  useEffect(() => {
+    if (!reportingMessageId || reportingSent) return;
+    const msg = messages.find((m) => m.id === reportingMessageId);
+    if (!msg) return;
+    setReportingSent(true);
+    const description =
+      `[MESSAGE REPORT]\n` +
+      `Reported message id: ${msg.id}\n` +
+      `Conversation: ${conversation.id}\n` +
+      `Sender: ${conversation.otherUser.name ?? conversation.otherUser.id} (${msg.sender_id})\n\n` +
+      `Content:\n${msg.content}`;
+    submitReport(description, "problem", undefined)
+      .then(() => toast.success("Beskeden er rapporteret. Tak."))
+      .catch(() => toast.error("Kunne ikke sende rapport"))
+      .finally(() => {
+        setReportingMessageId(null);
+        setReportingSent(false);
+      });
+  }, [reportingMessageId, reportingSent, messages, conversation]);
   const { profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -562,15 +644,17 @@ const ChatArea = ({
               {!isOwn && !showAvatar && <div className="w-7" />}
               
               <div className={`max-w-[75%] group ${isOwn ? "items-end" : "items-start"}`}>
-                <div
-                  className={`rounded-2xl px-4 py-2.5 shadow-sm ${
-                    isOwn
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-background border border-border/50 text-foreground rounded-bl-md"
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
-                </div>
+                <MessageBubble
+                  isOwn={isOwn}
+                  content={message.content}
+                  onCopy={() => {
+                    navigator.clipboard.writeText(message.content);
+                    toast.success("Besked kopieret");
+                  }}
+                  onReport={!isOwn ? () => {
+                    setReportingMessageId(message.id);
+                  } : undefined}
+                />
                 <div className={`flex items-center gap-1 mt-1 ${isOwn ? "justify-end" : "justify-start"}`}>
                   <span className={`text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity`}>
                     {formatMessageTime(message.created_at)}

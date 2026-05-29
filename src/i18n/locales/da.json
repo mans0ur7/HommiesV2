@@ -67,7 +67,10 @@
     "noConversations": "Du har ingen aktive samtaler endnu.",
     "findRoomies": "Find roomies",
     "favoritesEyebrow": "Favoritter",
-    "savedHomes": "Boliger du har gemt."
+    "savedHomes": "Boliger du har gemt.",
+    "profileMeterEyebrow": "Profilstyrke",
+    "profileMeterTitle": "Din profil er {{percent}}% færdig",
+    "profileMeterNext": "Næste:"
   },
   "settings": {
     "title": "Indstillinger.",

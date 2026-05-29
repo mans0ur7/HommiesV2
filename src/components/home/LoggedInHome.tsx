@@ -21,6 +21,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 import LocationCard from "./LocationCard";
 import PropertyCard from "./PropertyCard";
 import ExperienceRatingPrompt from "./ExperienceRatingPrompt";
+import ProfileCompletenessCard from "./ProfileCompletenessCard";
 import PartnerBanner from "@/components/landing/PartnerBanner";
 
 import { useConversationPartners } from "@/hooks/useConversationPartners";
@@ -229,6 +230,13 @@ const LoggedInHome = () => {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ───────── PROFILE NUDGE ───────── */}
+        <section className="px-4 md:px-6 lg:px-12 pb-2">
+          <div className="container mx-auto max-w-7xl">
+            <ProfileCompletenessCard />
           </div>
         </section>
 

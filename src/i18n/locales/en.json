@@ -67,7 +67,10 @@
     "noConversations": "You don't have any active conversations yet.",
     "findRoomies": "Find roomies",
     "favoritesEyebrow": "Favorites",
-    "savedHomes": "Homes you've saved."
+    "savedHomes": "Homes you've saved.",
+    "profileMeterEyebrow": "Profile strength",
+    "profileMeterTitle": "Your profile is {{percent}}% complete",
+    "profileMeterNext": "Next:"
   },
   "settings": {
     "title": "Settings.",
