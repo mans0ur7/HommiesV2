@@ -114,6 +114,15 @@ const ChatArea = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [reportingMessageId, setReportingMessageId] = useState<string | null>(null);
   const [reportingSent, setReportingSent] = useState(false);
+  const { profile } = useAuth();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
+  const [manualRatingTriggered, setManualRatingTriggered] = useState(false);
 
   // When a user long-presses a message and chooses "Report", send it to support
   // tagged with the message ID + the offender. Reuses the existing bug-report
@@ -137,16 +146,7 @@ const ChatArea = ({
         setReportingSent(false);
       });
   }, [reportingMessageId, reportingSent, messages, conversation]);
-  const { profile } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [sending, setSending] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
-  const [manualRatingTriggered, setManualRatingTriggered] = useState(false);
-  
+
   // For group contract selection
   const [showContractMemberSelect, setShowContractMemberSelect] = useState(false);
   const [groupMembers, setGroupMembers] = useState<{ id: string; name: string; avatar_url: string | null }[]>([]);
