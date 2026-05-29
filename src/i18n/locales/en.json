@@ -355,5 +355,32 @@
     "readyTitle": "Ready to move?",
     "readyBody": "Contact us today for a no-obligation moving quote.",
     "getQuote": "Get a quote"
+  },
+  "about": {
+    "eyebrow": "About Hommies",
+    "title": "We connect people with the right home.",
+    "subtitle": "Hommies is about more than just a home. It's about the people you come home to — and the community you become part of.",
+    "cta1Logged": "Find your next home",
+    "cta1Out": "Join the community",
+    "cta2Out": "Create a free profile",
+    "foundedLabel": "Founded in Denmark",
+    "missionEyebrow": "Our mission",
+    "missionBody": "To build Denmark's best platform for housing search and roomie matching — a safe space where you find exactly what you're looking for.",
+    "values": "What we stand for",
+    "cornerstones": "3 cornerstones",
+    "value1Title": "Community",
+    "value1Body": "The best homes are built on real connections between people — not square meters.",
+    "value2Title": "Safety",
+    "value2Body": "Verified profiles, encrypted messages and digital contracts that protect everyone.",
+    "value3Title": "Simplicity",
+    "value3Body": "Find roomies or homes in minutes. We make the complex simple — without cutting quality.",
+    "storyEyebrow": "Our story",
+    "storyTitle": "Built by people who searched for a home themselves.",
+    "story1": "Hommies started in 2025 from our own experiences. We were a group of friends in the middle of the housing search and felt how draining it could be to find the right place to live — and the right person to live with. Housing platforms felt cold and impersonal, mostly about square meters and prices, not people.",
+    "story2": "We missed a solution that took more than just the home into account. A platform where personality, lifestyle and chemistry actually mattered. So we built Hommies — a platform that makes finding a home and roomies more human, safer and much more effective.",
+    "story3": "In 2026 we officially launched. The ambition is clear: we want to be Denmark's preferred platform for housing and roomie matching. A place where the right match actually makes a difference in everyday life.",
+    "story4": "And we're only just getting started.",
+    "ctaTitle": "Ready to find your next home?",
+    "ctaBody": "Create a free profile and experience an easier way to find a home."
   }
 }

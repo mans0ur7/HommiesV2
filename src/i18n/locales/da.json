@@ -355,5 +355,32 @@
     "readyTitle": "Klar til at flytte?",
     "readyBody": "Kontakt os i dag og få et uforpligtende tilbud på din flytning.",
     "getQuote": "Få et tilbud"
+  },
+  "about": {
+    "eyebrow": "Om Hommies",
+    "title": "Vi forbinder mennesker med det rette hjem.",
+    "subtitle": "Hommies handler om mere end bolig. Det handler om de mennesker, du kommer hjem til — og fællesskabet, du bliver en del af.",
+    "cta1Logged": "Find dit næste hjem",
+    "cta1Out": "Bliv en del af fællesskabet",
+    "cta2Out": "Opret gratis profil",
+    "foundedLabel": "Grundlagt i Danmark",
+    "missionEyebrow": "Vores mission",
+    "missionBody": "At skabe Danmarks bedste platform for boligsøgning og roomie-matching — et trygt rum, hvor du finder lige præcis det, du leder efter.",
+    "values": "Hvad vi står for",
+    "cornerstones": "3 grundsten",
+    "value1Title": "Fællesskab",
+    "value1Body": "De bedste hjem skabes gennem ægte forbindelser mellem mennesker — ikke kvadratmeter.",
+    "value2Title": "Tryghed",
+    "value2Body": "Verificerede profiler, krypterede beskeder og digitale kontrakter, der beskytter alle parter.",
+    "value3Title": "Enkelhed",
+    "value3Body": "Find roomies eller boliger på minutter. Vi gør det komplekse simpelt — uden at skære i kvalitet.",
+    "storyEyebrow": "Vores historie",
+    "storyTitle": "Bygget af mennesker, der selv stod i boligjagten.",
+    "story1": "Hommies begyndte i 2025 ud fra vores egne oplevelser. Vi var en gruppe venner midt i boligjagten, og vi mærkede hvor opslidende det kunne være at finde det rigtige sted at bo — og ikke mindst den rigtige person at bo sammen med. Boligplatforme føltes kolde og upersonlige, og det handlede mest om kvadratmeter og priser, ikke om mennesker.",
+    "story2": "Vi savnede en løsning, der tog højde for mere end bare boligen. En platform, hvor personlighed, livsstil og kemi faktisk betød noget. Derfor satte vi os sammen og byggede Hommies — en platform der gør bolig- og roomiesøgning mere menneskelig, mere tryg og langt mere effektiv.",
+    "story3": "I 2026 lancerede vi officielt. Ambitionen er klar: Vi vil være Danmarks foretrukne platform for bolig- og roomie-matching. Et sted, hvor det rigtige match faktisk gør en forskel i hverdagen.",
+    "story4": "Og vi er kun lige begyndt.",
+    "ctaTitle": "Klar til at finde dit næste hjem?",
+    "ctaBody": "Opret en gratis profil, og oplev en nemmere måde at finde bolig på."
   }
 }
