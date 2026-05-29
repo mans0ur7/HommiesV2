@@ -61,7 +61,7 @@ const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
         {/* Right: copyright + socials */}
         <div className="flex items-center gap-4 shrink-0">
           <span className="hidden lg:inline text-xs text-primary-foreground/50">
-            {t("landing.footerCopyright")}
+            {t("landing.footerCopyright")} · CVR 43244590
           </span>
           <div className="flex items-center gap-3">
             <a
