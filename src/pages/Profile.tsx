@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,8 @@ const rentalPeriodOptions = [
 const Profile = () => {
   const { user, profile, refreshProfile, loading } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const tt = (label: string) => t(`tags.${label}`, { defaultValue: label });
   const isMobile = useIsMobile();
   const { toast } = useToast();
   
@@ -225,8 +228,8 @@ const Profile = () => {
       if (maxItems && array.length >= maxItems) {
         toast({
           variant: "destructive",
-          title: "Maks antal nået",
-          description: `Du kan højst vælge ${maxItems} tags`,
+          title: t("profile.maxReached"),
+          description: t("profile.maxReachedBody", { max: maxItems }),
         });
         return;
       }
@@ -303,8 +306,8 @@ const Profile = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Fejl",
-          description: "Kunne ikke gemme ændringer",
+          title: t("profile.error"),
+          description: t("profile.saveFailed"),
         });
       } else {
         await refreshProfile();
@@ -312,8 +315,8 @@ const Profile = () => {
         setAvatarFile(null);
         setNewImageFiles([]);
         toast({
-          title: "Profil opdateret",
-          description: "Dine ændringer er blevet gemt",
+          title: t("profile.updated"),
+          description: t("profile.updatedBody"),
         });
       }
     } finally {
@@ -325,8 +328,8 @@ const Profile = () => {
     if (!currentPassword || !newPassword) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Udfyld både nuværende og ny adgangskode",
+        title: t("profile.error"),
+        description: t("profile.passwordFieldsRequired"),
       });
       return;
     }
@@ -340,13 +343,13 @@ const Profile = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Fejl",
+          title: t("profile.error"),
           description: error.message,
         });
       } else {
         toast({
-          title: "Adgangskode opdateret",
-          description: "Din adgangskode er blevet ændret",
+          title: t("profile.passwordChanged"),
+          description: t("profile.passwordChangedBody"),
         });
         setCurrentPassword("");
         setNewPassword("");
@@ -388,14 +391,16 @@ const Profile = () => {
   if (loading || !profile) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Indlæser...</div>
+        <div className="animate-pulse text-muted-foreground">{t("profile.loading")}</div>
       </div>
     );
   }
 
   const isRoomie = profile.user_type === "roomie";
-  const workLabel = workOptions.find(o => o.value === profile.work)?.label || profile.work;
-  const genderLabel = genderOptions.find(g => g.value === profile.gender)?.label || profile.gender;
+  const workLabelRaw = workOptions.find(o => o.value === profile.work)?.label || profile.work;
+  const workLabel = workLabelRaw ? tt(workLabelRaw) : workLabelRaw;
+  const genderLabelRaw = genderOptions.find(g => g.value === profile.gender)?.label || profile.gender;
+  const genderLabel = genderLabelRaw ? tt(genderLabelRaw) : genderLabelRaw;
 
   // Edit Mode with Tabs
   if (isEditing) {
@@ -408,20 +413,20 @@ const Profile = () => {
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-px w-8 bg-foreground/40" />
-                <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Profil</span>
+                <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("profile.eyebrow")}</span>
               </div>
               <h1 className="text-3xl md:text-5xl font-medium tracking-tight text-foreground leading-[1.05]">
-                Rediger profil.
+                {t("profile.editTitle")}
               </h1>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Button onClick={cancelEdit} variant="outline" size="sm" className="flex-1 sm:flex-none rounded-full h-10 px-5 border-border/60">
                 <X className="w-4 h-4 mr-1.5" />
-                <span className="text-sm">Annuller</span>
+                <span className="text-sm">{t("profile.cancel")}</span>
               </Button>
               <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none rounded-full bg-foreground text-background hover:bg-foreground/90 h-10 px-5">
                 <Check className="w-4 h-4 mr-1.5" />
-                <span className="text-sm">{isSaving ? "Gemmer..." : "Gem"}</span>
+                <span className="text-sm">{isSaving ? t("profile.saving") : t("profile.save")}</span>
               </Button>
             </div>
           </div>
@@ -431,11 +436,11 @@ const Profile = () => {
             <TabsList className="inline-flex h-auto bg-transparent p-0 mb-8 gap-1 border-b border-border/60 w-full justify-start rounded-none">
               <TabsTrigger value="basis" className="flex items-center gap-2 text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3 -mb-px text-foreground/60 data-[state=active]:text-foreground">
                 <UserCircle className="w-4 h-4" />
-                Basis
+                {t("profile.tabBasis")}
               </TabsTrigger>
               <TabsTrigger value="personligt" className="flex items-center gap-2 text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-3 -mb-px text-foreground/60 data-[state=active]:text-foreground">
                 <Sparkles className="w-4 h-4" />
-                Personligt
+                {t("profile.tabPersonal")}
               </TabsTrigger>
             </TabsList>
 
@@ -443,7 +448,7 @@ const Profile = () => {
             <TabsContent value="basis" className="space-y-10">
               {/* Profile Images */}
               <div className="space-y-3">
-                <Label>Profilbilleder</Label>
+                <Label>{t("profile.profilePictures")}</Label>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                   {/* Main Avatar */}
                   <div className="relative aspect-square">
@@ -459,7 +464,7 @@ const Profile = () => {
                       <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
                     </label>
                     <span className="absolute top-1 left-1 bg-secondary text-secondary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
-                      Hoved
+                      {t("profile.mainPhoto")}
                     </span>
                   </div>
 
@@ -483,47 +488,47 @@ const Profile = () => {
                   {profileImages.length < 5 && (
                     <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-secondary hover:bg-muted/50 transition-colors">
                       <Plus className="w-6 h-6 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground mt-1">Tilføj</span>
+                      <span className="text-xs text-muted-foreground mt-1">{t("profile.addPicture")}</span>
                       <input type="file" accept="image/*" multiple onChange={handleAddImages} className="hidden" />
                     </label>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">Du kan tilføje op til 5 ekstra billeder</p>
+                <p className="text-xs text-muted-foreground">{t("profile.add5more")}</p>
               </div>
 
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Navn</Label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Dit navn" />
+                  <Label>{t("profile.nameLabel")}</Label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("profile.yourName")} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Alder</Label>
-                  <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="Din alder" min="18" max="99" />
+                  <Label>{t("profile.ageLabel")}</Label>
+                  <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder={t("profile.yourAge")} min="18" max="99" />
                 </div>
                 <div className="space-y-2">
-                  <Label>Køn</Label>
+                  <Label>{t("profile.genderLabel")}</Label>
                   <Select value={gender} onValueChange={setGender}>
-                    <SelectTrigger><SelectValue placeholder="Vælg køn" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("profile.selectGender")} /></SelectTrigger>
                     <SelectContent>
                       {genderOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        <SelectItem key={option.value} value={option.value}>{tt(option.label)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Beskæftigelse</Label>
+                  <Label>{t("profile.occupation")}</Label>
                   <Select value={work} onValueChange={(value) => {
                     setWork(value);
                     // Reset detail fields when changing occupation type
                     setStudy("");
                     setWorkOther("");
                   }}>
-                    <SelectTrigger><SelectValue placeholder="Vælg beskæftigelse" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("profile.selectOccupation")} /></SelectTrigger>
                     <SelectContent>
                       {workOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        <SelectItem key={option.value} value={option.value}>{tt(option.label)}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -533,29 +538,29 @@ const Profile = () => {
               {/* Conditional detail field based on occupation type */}
               {work === "student" && (
                 <div className="space-y-2">
-                  <Label>Hvad studerer du?</Label>
-                  <Input value={study} onChange={(e) => setStudy(e.target.value)} placeholder="F.eks. Økonomi på CBS" />
+                  <Label>{t("profile.studyWhat")}</Label>
+                  <Input value={study} onChange={(e) => setStudy(e.target.value)} placeholder={t("profile.studyPlaceholder")} />
                 </div>
               )}
 
               {work === "employed" && (
                 <div className="space-y-2">
-                  <Label>Hvad arbejder du med?</Label>
-                  <Input value={workOther} onChange={(e) => setWorkOther(e.target.value)} placeholder="F.eks. Marketing hos Novo Nordisk" />
+                  <Label>{t("profile.workWhat")}</Label>
+                  <Input value={workOther} onChange={(e) => setWorkOther(e.target.value)} placeholder={t("profile.workPlaceholder")} />
                 </div>
               )}
 
               {work === "self-employed" && (
                 <div className="space-y-2">
-                  <Label>Hvad er din virksomhed/branche?</Label>
-                  <Input value={workOther} onChange={(e) => setWorkOther(e.target.value)} placeholder="F.eks. Freelance webdesigner" />
+                  <Label>{t("profile.businessWhat")}</Label>
+                  <Input value={workOther} onChange={(e) => setWorkOther(e.target.value)} placeholder={t("profile.businessPlaceholder")} />
                 </div>
               )}
 
               {work === "other" && (
                 <div className="space-y-2">
-                  <Label>Beskriv din beskæftigelse</Label>
-                  <Input value={workOther} onChange={(e) => setWorkOther(e.target.value)} placeholder="Hvad laver du?" />
+                  <Label>{t("profile.otherWhat")}</Label>
+                  <Input value={workOther} onChange={(e) => setWorkOther(e.target.value)} placeholder={t("profile.otherPlaceholder")} />
                 </div>
               )}
             </TabsContent>
@@ -564,16 +569,16 @@ const Profile = () => {
             <TabsContent value="personligt" className="space-y-8">
               {/* Bio */}
               <div className="space-y-2">
-                <Label>Om mig</Label>
-                <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Fortæl os om dig selv..." rows={4} />
+                <Label>{t("profile.aboutMe")}</Label>
+                <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder={t("profile.bioPlaceholderOwn")} rows={4} />
               </div>
 
               {/* Personality */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Personlighed</Label>
+                  <Label>{t("profile.personality")}</Label>
                   <span className={`text-xs ${personality.length >= 6 ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
-                    {personality.length}/6 valgt
+                    {t("profile.tagsSelected", { count: personality.length, max: 6 })}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -595,7 +600,7 @@ const Profile = () => {
                         }`}
                       >
                         <span className={`w-2 h-2 rounded-full ${option.color}`}></span>
-                        {option.label}
+                        {tt(option.label)}
                       </button>
                     );
                   })}
@@ -605,9 +610,9 @@ const Profile = () => {
               {/* Lifestyle */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Livsstil</Label>
+                  <Label>{t("profile.lifestyle")}</Label>
                   <span className={`text-xs ${lifestyle.length >= 6 ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
-                    {lifestyle.length}/6 valgt
+                    {t("profile.tagsSelected", { count: lifestyle.length, max: 6 })}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -629,7 +634,7 @@ const Profile = () => {
                         }`}
                       >
                         <span className={`w-2 h-2 rounded-full ${option.color}`}></span>
-                        {option.label}
+                        {tt(option.label)}
                       </button>
                     );
                   })}
@@ -638,18 +643,18 @@ const Profile = () => {
 
               {/* Languages - Searchable Dropdown */}
               <div className="space-y-3">
-                <Label>Sprog jeg taler</Label>
+                <Label>{t("profile.languagesISpeak")}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {languages.length > 0 ? `${languages.length} sprog valgt` : "Vælg sprog..."}
+                      {languages.length > 0 ? t("profile.languagesSelected", { count: languages.length }) : t("profile.selectLanguages")}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[300px] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Søg efter sprog..." />
+                      <CommandInput placeholder={t("profile.searchLanguage")} />
                       <CommandList>
-                        <CommandEmpty>Ingen sprog fundet.</CommandEmpty>
+                        <CommandEmpty>{t("profile.noLanguagesFound")}</CommandEmpty>
                         <CommandGroup className="max-h-[200px] overflow-auto">
                           {allLanguages.map((lang) => (
                             <CommandItem
@@ -688,18 +693,18 @@ const Profile = () => {
 
               {/* Nationality - Searchable Dropdown */}
               <div className="space-y-3">
-                <Label>Nationalitet</Label>
+                <Label>{t("profile.nationality")}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {nationality || "Vælg nationalitet..."}
+                      {nationality || t("profile.selectNationalityShort")}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[300px] p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Søg efter nationalitet..." />
+                      <CommandInput placeholder={t("profile.searchNationalityLong")} />
                       <CommandList>
-                        <CommandEmpty>Ingen nationalitet fundet.</CommandEmpty>
+                        <CommandEmpty>{t("profile.noNationalityFound")}</CommandEmpty>
                         <CommandGroup className="max-h-[200px] overflow-auto">
                           {allNationalities.map((nat) => (
                             <CommandItem
@@ -724,16 +729,16 @@ const Profile = () => {
               {isRoomie && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Månedligt budget (kr.)</Label>
-                    <Input type="number" value={monthlyBudget} onChange={(e) => setMonthlyBudget(e.target.value)} placeholder="f.eks. 6000" />
+                    <Label>{t("profile.monthlyBudgetKr")}</Label>
+                    <Input type="number" value={monthlyBudget} onChange={(e) => setMonthlyBudget(e.target.value)} placeholder={t("profile.budgetExample")} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Lejeperiode</Label>
+                    <Label>{t("profile.rentalPeriodLabel")}</Label>
                     <Select value={rentalPeriod} onValueChange={setRentalPeriod}>
-                      <SelectTrigger><SelectValue placeholder="Vælg periode" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("profile.selectPeriod")} /></SelectTrigger>
                       <SelectContent>
                         {rentalPeriodOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          <SelectItem key={option.value} value={option.value}>{tt(option.label)}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -764,14 +769,14 @@ const Profile = () => {
             className="inline-flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground -ml-1 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Tilbage
+            {t("profile.backShort")}
           </button>
           <Button
             onClick={() => setIsEditing(true)}
             className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-10 px-5 gap-2"
           >
             <Pencil className="w-3.5 h-3.5" />
-            Rediger profil
+            {t("profile.editProfile")}
           </Button>
         </div>
 
@@ -846,7 +851,7 @@ const Profile = () => {
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">
-                  {profile.user_type === "landlord" ? "Udlejer" : "Roomie"}
+                  {profile.user_type === "landlord" ? t("userProfile.landlord") : t("userProfile.roomie")}
                 </span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
@@ -862,22 +867,22 @@ const Profile = () => {
 
             {/* About me */}
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-3">Om mig</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.aboutMe")}</h2>
               <p className="text-muted-foreground leading-relaxed">
                 {profile.bio ? (
-                  showFullBio || profile.bio.length <= 200 
-                    ? profile.bio 
+                  showFullBio || profile.bio.length <= 200
+                    ? profile.bio
                     : `${profile.bio.substring(0, 200)}...`
                 ) : (
-                  "Ingen beskrivelse endnu"
+                  t("userProfile.noDescription")
                 )}
               </p>
               {profile.bio && profile.bio.length > 200 && (
-                <button 
+                <button
                   onClick={() => setShowFullBio(!showFullBio)}
                   className="mt-2 text-foreground font-medium flex items-center gap-1 hover:opacity-80 transition-opacity"
                 >
-                  {showFullBio ? "Vis mindre" : "Læs mere"}
+                  {showFullBio ? t("userProfile.showLess") : t("userProfile.readMore")}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               )}
@@ -886,15 +891,15 @@ const Profile = () => {
             {/* Personality */}
             {personality.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Personlighed</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.personality")}</h2>
                 <div className="flex flex-wrap gap-2">
                   {personality.map((item) => (
-                    <span 
-                      key={item} 
+                    <span
+                      key={item}
                       className="px-4 py-2 rounded-full text-sm font-medium bg-card border border-border flex items-center gap-2"
                     >
                       <span className={`w-2 h-2 rounded-full ${getPersonalityColor(item)}`}></span>
-                      {item}
+                      {tt(item)}
                     </span>
                   ))}
                 </div>
@@ -904,15 +909,15 @@ const Profile = () => {
             {/* Lifestyle */}
             {lifestyle.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Livsstil</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.lifestyle")}</h2>
                 <div className="flex flex-wrap gap-2">
                   {lifestyle.map((item) => (
-                    <span 
-                      key={item} 
+                    <span
+                      key={item}
                       className="px-4 py-2 rounded-full text-sm font-medium bg-card border border-border flex items-center gap-2"
                     >
                       <span className={`w-2 h-2 rounded-full ${getLifestyleColor(item)}`}></span>
-                      {item}
+                      {tt(item)}
                     </span>
                   ))}
                 </div>
@@ -922,7 +927,7 @@ const Profile = () => {
             {/* Languages */}
             {languages.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Sprog jeg taler</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.languages")}</h2>
                 <p className="text-muted-foreground">{languages.join(", ")}</p>
               </div>
             )}
@@ -930,7 +935,7 @@ const Profile = () => {
             {/* Nationality */}
             {profile.nationality && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Nationalitet</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.nationality")}</h2>
                 <p className="text-muted-foreground">{profile.nationality}</p>
               </div>
             )}
@@ -938,17 +943,17 @@ const Profile = () => {
             {/* Rent Preferences */}
             {isRoomie && (profile.monthly_budget || profile.rental_period) && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Lejepræferencer</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.rentalPreferences")}</h2>
                 <div className="space-y-1">
                   {profile.monthly_budget && (
                     <p className="text-muted-foreground">
-                      Månedligt budget <span className="font-semibold text-foreground">{profile.monthly_budget.toLocaleString()} kr.</span>
+                      {t("userProfile.monthlyBudget")} <span className="font-semibold text-foreground">{profile.monthly_budget.toLocaleString()} kr.</span>
                     </p>
                   )}
                   {profile.rental_period && (
                     <p className="text-muted-foreground">
-                      Lejeperiode <span className="font-semibold text-foreground">
-                        {rentalPeriodOptions.find(o => o.value === profile.rental_period)?.label || profile.rental_period}
+                      {t("userProfile.rentalPeriod")} <span className="font-semibold text-foreground">
+                        {tt(rentalPeriodOptions.find(o => o.value === profile.rental_period)?.label || profile.rental_period)}
                       </span>
                     </p>
                   )}
@@ -959,7 +964,7 @@ const Profile = () => {
             {/* Landlord Listings - Right column */}
             {!isRoomie && landlordProperties.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-4">Annoncer</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-4">{t("userProfile.listings")}</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {landlordProperties.map((property) => (
                     <div 
@@ -976,7 +981,7 @@ const Profile = () => {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <span className="text-muted-foreground text-sm">Intet billede</span>
+                            <span className="text-muted-foreground text-sm">{t("userProfile.noImage")}</span>
                           </div>
                         )}
                         <button 
@@ -1014,7 +1019,7 @@ const Profile = () => {
                             <Star className="w-3 h-3 fill-current text-foreground" />
                             <span className="text-foreground">4.5 (63)</span>
                             <span className="mx-0.5">•</span>
-                            <span>{property.is_furnished ? "Møbleret" : "Ikke møbleret"}</span>
+                            <span>{property.is_furnished ? t("userProfile.furnished") : t("userProfile.unfurnished")}</span>
                           </div>
                         </div>
                         <div className="text-right">

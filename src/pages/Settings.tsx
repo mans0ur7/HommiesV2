@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitReport } from "@/lib/bugReport";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +39,7 @@ type SettingsSection = 'payment' | 'notifications' | 'visibility' | 'email' | 'p
 const PaymentSection = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const native = isNativeApp();
   const [loadingPortal, setLoadingPortal] = useState(false);
 
@@ -45,10 +47,10 @@ const PaymentSection = () => {
     setLoadingPortal(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-portal-session");
-      if (error || !data?.url) throw new Error(error?.message ?? "Ukendt fejl");
+      if (error || !data?.url) throw new Error(error?.message ?? t("settings.unknownError"));
       window.location.href = data.url;
     } catch (err: any) {
-      toast({ title: "Fejl", description: err.message, variant: "destructive" });
+      toast({ title: t("settings.error"), description: err.message, variant: "destructive" });
       setLoadingPortal(false);
     }
   };
@@ -59,16 +61,16 @@ const PaymentSection = () => {
     return (
       <div className="space-y-6 animate-fade-in">
         <div>
-          <h2 className="text-xl font-semibold text-foreground mb-1">Betaling og priser</h2>
-          <p className="text-muted-foreground text-sm">Administrer dine betalingsoplysninger og se kvitteringer</p>
+          <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.pay")}</h2>
+          <p className="text-muted-foreground text-sm">{t("settings.payDesc")}</p>
         </div>
         <div className="rounded-xl border border-border bg-muted/30 p-6 text-center">
           <div className="w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center mx-auto mb-4">
             <CreditCard className="w-6 h-6 text-secondary" />
           </div>
-          <p className="font-medium text-foreground mb-1">Administreres på hommies.dk</p>
+          <p className="font-medium text-foreground mb-1">{t("settings.payNativeTitle")}</p>
           <p className="text-sm text-muted-foreground">
-            Betalingskort, kvitteringer og køb administreres på vores hjemmeside i din browser.
+            {t("settings.payNativeBody")}
           </p>
         </div>
       </div>
@@ -78,8 +80,8 @@ const PaymentSection = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-1">Betaling og priser</h2>
-        <p className="text-muted-foreground text-sm">Administrer dine betalingsoplysninger og se kvitteringer</p>
+        <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.pay")}</h2>
+        <p className="text-muted-foreground text-sm">{t("settings.payDesc")}</p>
       </div>
 
       {/* Card management */}
@@ -90,8 +92,8 @@ const PaymentSection = () => {
               <CreditCard className="w-5 h-5 text-secondary" />
             </div>
             <div>
-              <p className="font-medium text-foreground">Betalingskort</p>
-              <p className="text-sm text-muted-foreground">Tilføj eller fjern kort til fremtidige køb</p>
+              <p className="font-medium text-foreground">{t("settings.cards")}</p>
+              <p className="text-sm text-muted-foreground">{t("settings.cardsDesc")}</p>
             </div>
           </div>
         </div>
@@ -105,10 +107,10 @@ const PaymentSection = () => {
             {loadingPortal
               ? <Loader2 className="w-4 h-4 animate-spin mr-2" />
               : <ExternalLink className="w-4 h-4 mr-2" />}
-            Administrer betalingskort
+            {t("settings.manageCards")}
           </Button>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            Åbner Stripes sikre kortportal i et nyt vindue
+            {t("settings.cardsOpens")}
           </p>
         </div>
       </div>
@@ -121,8 +123,8 @@ const PaymentSection = () => {
               <Receipt className="w-5 h-5 text-secondary" />
             </div>
             <div>
-              <p className="font-medium text-foreground">Kvitteringer og fakturaer</p>
-              <p className="text-sm text-muted-foreground">Se og download dine tidligere betalinger</p>
+              <p className="font-medium text-foreground">{t("settings.receipts")}</p>
+              <p className="text-sm text-muted-foreground">{t("settings.receiptsDesc")}</p>
             </div>
           </div>
         </div>
@@ -136,7 +138,7 @@ const PaymentSection = () => {
             {loadingPortal
               ? <Loader2 className="w-4 h-4 animate-spin mr-2" />
               : <ExternalLink className="w-4 h-4 mr-2" />}
-            Se kvitteringer
+            {t("settings.seeReceipts")}
           </Button>
         </div>
       </div>
@@ -149,8 +151,8 @@ const PaymentSection = () => {
               <ShieldCheck className="w-5 h-5 text-secondary" />
             </div>
             <div>
-              <p className="font-medium text-foreground">Køb og opgraderinger</p>
-              <p className="text-sm text-muted-foreground">Boost, annonceperioder og søgeagenter</p>
+              <p className="font-medium text-foreground">{t("settings.purchases")}</p>
+              <p className="text-sm text-muted-foreground">{t("settings.purchasesDesc")}</p>
             </div>
           </div>
         </div>
@@ -161,7 +163,7 @@ const PaymentSection = () => {
             variant="outline"
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            Gå til betalingssiden
+            {t("settings.goToPayment")}
           </Button>
         </div>
       </div>
@@ -185,6 +187,7 @@ const Settings = () => {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const isRoomie = profile?.user_type === "roomie";
 
@@ -265,16 +268,16 @@ const Settings = () => {
         const res = await unsubscribeFromPush(user.id);
         if (!res.ok) throw new Error(res.message);
         setPushActive(false);
-        toast({ title: "Push-notifikationer slået fra" });
+        toast({ title: t("settings.pushOffToast") });
       } else {
         const res = await subscribeToPush(user.id);
         if (!res.ok) throw new Error(res.message);
         setPushActive(true);
         setPushPermission("granted");
-        toast({ title: "Push-notifikationer aktiveret" });
+        toast({ title: t("settings.pushOnToast") });
       }
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Fejl", description: err.message });
+      toast({ variant: "destructive", title: t("settings.error"), description: err.message });
     } finally {
       setPushLoading(false);
     }
@@ -327,15 +330,15 @@ const Settings = () => {
 
       setBlockedUsers(prev => prev.filter(b => b.id !== blockId));
       toast({
-        title: "Bruger fjernet fra blokeret liste",
-        description: "Du kan nu se denne brugers profil og annoncer igen",
+        title: t("settings.unblockedToast"),
+        description: t("settings.unblockedToastBody"),
       });
     } catch (error) {
       console.error("Error unblocking user:", error);
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Kunne ikke fjerne blokering",
+        title: t("settings.error"),
+        description: t("settings.unblockFailed"),
       });
     } finally {
       setUnblockingId(null);
@@ -346,8 +349,8 @@ const Settings = () => {
     if (!newEmail || newEmail === user?.email) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Indtast en ny e-mailadresse",
+        title: t("settings.error"),
+        description: t("settings.enterNewEmail"),
       });
       return;
     }
@@ -361,13 +364,13 @@ const Settings = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Fejl",
+          title: t("settings.error"),
           description: error.message,
         });
       } else {
         toast({
-          title: "E-mail opdateret",
-          description: "Tjek din nye e-mail for at bekræfte ændringen",
+          title: t("settings.emailUpdated"),
+          description: t("settings.emailUpdatedBody"),
         });
       }
     } finally {
@@ -379,8 +382,8 @@ const Settings = () => {
     if (!currentPassword) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Indtast din nuværende adgangskode",
+        title: t("settings.error"),
+        description: t("settings.pwCurrentRequired"),
       });
       return;
     }
@@ -388,8 +391,8 @@ const Settings = () => {
     if (!newPassword) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Indtast en ny adgangskode",
+        title: t("settings.error"),
+        description: t("settings.pwNewRequired"),
       });
       return;
     }
@@ -397,8 +400,8 @@ const Settings = () => {
     if (newPassword !== confirmPassword) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Adgangskoderne matcher ikke",
+        title: t("settings.error"),
+        description: t("settings.pwMismatch"),
       });
       return;
     }
@@ -406,8 +409,8 @@ const Settings = () => {
     if (newPassword.length < 6) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Adgangskoden skal være mindst 6 tegn",
+        title: t("settings.error"),
+        description: t("settings.pwTooShort"),
       });
       return;
     }
@@ -422,8 +425,8 @@ const Settings = () => {
       if (signInError) {
         toast({
           variant: "destructive",
-          title: "Fejl",
-          description: "Nuværende adgangskode er forkert",
+          title: t("settings.error"),
+          description: t("settings.pwCurrentWrong"),
         });
         setIsSaving(false);
         return;
@@ -436,13 +439,13 @@ const Settings = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Fejl",
+          title: t("settings.error"),
           description: error.message,
         });
       } else {
         toast({
-          title: "Adgangskode opdateret",
-          description: "Din adgangskode er blevet ændret",
+          title: t("settings.pwUpdated"),
+          description: t("settings.pwUpdatedBody"),
         });
         setCurrentPassword("");
         setNewPassword("");
@@ -457,8 +460,8 @@ const Settings = () => {
     if (!problemDescription.trim()) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Beskriv venligst problemet",
+        title: t("settings.error"),
+        description: t("settings.reportEmpty"),
       });
       return;
     }
@@ -466,15 +469,15 @@ const Settings = () => {
     try {
       await submitReport(problemDescription, "problem", user?.email);
       toast({
-        title: "Tak for din feedback",
-        description: "Vi har modtaget din besked og vender tilbage hurtigst muligt.",
+        title: t("settings.reportThanks"),
+        description: t("settings.reportThanksBody"),
       });
       setProblemDescription("");
     } catch {
       toast({
         variant: "destructive",
-        title: "Kunne ikke sende",
-        description: "Prøv igen om lidt.",
+        title: t("settings.reportFailed"),
+        description: t("settings.reportRetry"),
       });
     }
   };
@@ -494,17 +497,17 @@ const Settings = () => {
       await refreshProfile();
       
       toast({
-        title: hidden ? "Profil skjult" : "Profil synlig",
-        description: hidden 
-          ? "Du vises nu ikke længere under Roomies i Explore" 
-          : "Udlejere kan nu finde dig under Roomies i Explore",
+        title: hidden ? t("settings.hiddenToast") : t("settings.visibleToast"),
+        description: hidden
+          ? t("settings.hiddenToastBody")
+          : t("settings.visibleToastBody"),
       });
     } catch (error) {
       console.error('Error toggling hidden status:', error);
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: "Kunne ikke ændre synlighed",
+        title: t("settings.error"),
+        description: t("settings.visibilityFailed"),
       });
     } finally {
       setIsTogglingHidden(false);
@@ -521,20 +524,20 @@ const Settings = () => {
         .eq("user_id", user.id);
       if (error) throw error;
       await refreshProfile();
-      toast({ title: "Telefonnummer gemt" });
+      toast({ title: t("settings.phoneSaved") });
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Fejl", description: err.message });
+      toast({ variant: "destructive", title: t("settings.error"), description: err.message });
     } finally {
       setPhoneSaving(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (deleteConfirmText !== "SLET") {
+    if (deleteConfirmText !== t("settings.typeDeleteWord")) {
       toast({
         variant: "destructive",
-        title: "Bekræftelse mangler",
-        description: 'Skriv "SLET" med store bogstaver for at fortsætte',
+        title: t("settings.confirmMissing"),
+        description: t("settings.typeDeleteInstruction"),
       });
       return;
     }
@@ -544,8 +547,8 @@ const Settings = () => {
       if (error) throw error;
 
       toast({
-        title: "Konto slettet",
-        description: "Din konto og alle data er slettet permanent",
+        title: t("settings.accountDeleted"),
+        description: t("settings.accountDeletedBody"),
       });
 
       await supabase.auth.signOut();
@@ -553,8 +556,8 @@ const Settings = () => {
     } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Fejl",
-        description: err.message ?? "Kunne ikke slette konto",
+        title: t("settings.error"),
+        description: err.message ?? t("settings.deleteFailed"),
       });
       setIsDeletingAccount(false);
     }
@@ -575,9 +578,9 @@ const Settings = () => {
         .eq("user_id", user.id);
       if (error) throw error;
       await refreshProfile();
-      toast({ title: "Indstillinger gemt" });
+      toast({ title: t("settings.settingsSaved") });
     } catch (err: any) {
-      toast({ variant: "destructive", title: "Fejl", description: err.message });
+      toast({ variant: "destructive", title: t("settings.error"), description: err.message });
     } finally {
       setNotifSaving(false);
     }
@@ -589,15 +592,15 @@ const Settings = () => {
   }
 
   const menuItems = [
-    { id: 'payment' as const, label: 'Betaling og priser', icon: CreditCard, color: 'text-secondary' },
-    { id: 'notifications' as const, label: 'Notifikationer', icon: Bell, color: 'text-secondary' },
-    ...(isRoomie ? [{ id: 'visibility' as const, label: 'Profilsynlighed', icon: hiddenFromExplore ? EyeOff : Eye, color: hiddenFromExplore ? 'text-orange-500' : 'text-green-500' }] : []),
-    { id: 'email' as const, label: 'E-mailadresse', icon: Mail, color: 'text-secondary' },
-    { id: 'password' as const, label: 'Adgangskode', icon: Lock, color: 'text-secondary' },
-    { id: 'phone' as const, label: 'Telefonnummer', icon: Phone, color: 'text-secondary' },
-    { id: 'blocked' as const, label: 'Blokerede brugere', icon: Ban, color: 'text-orange-500' },
-    { id: 'report' as const, label: 'Rapportér problem', icon: AlertTriangle, color: 'text-destructive' },
-    { id: 'delete' as const, label: 'Slet konto', icon: Trash2, color: 'text-destructive' },
+    { id: 'payment' as const, label: t('settings.menuPayment'), icon: CreditCard, color: 'text-secondary' },
+    { id: 'notifications' as const, label: t('settings.menuNotifications'), icon: Bell, color: 'text-secondary' },
+    ...(isRoomie ? [{ id: 'visibility' as const, label: t('settings.menuVisibility'), icon: hiddenFromExplore ? EyeOff : Eye, color: hiddenFromExplore ? 'text-orange-500' : 'text-green-500' }] : []),
+    { id: 'email' as const, label: t('settings.menuEmail'), icon: Mail, color: 'text-secondary' },
+    { id: 'password' as const, label: t('settings.menuPassword'), icon: Lock, color: 'text-secondary' },
+    { id: 'phone' as const, label: t('settings.menuPhone'), icon: Phone, color: 'text-secondary' },
+    { id: 'blocked' as const, label: t('settings.menuBlocked'), icon: Ban, color: 'text-orange-500' },
+    { id: 'report' as const, label: t('settings.menuReport'), icon: AlertTriangle, color: 'text-destructive' },
+    { id: 'delete' as const, label: t('settings.menuDelete'), icon: Trash2, color: 'text-destructive' },
   ];
 
   const renderContent = () => {
@@ -609,8 +612,8 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Profilsynlighed</h2>
-              <p className="text-muted-foreground text-sm">Kontroller hvordan din profil vises for andre</p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.visibility")}</h2>
+              <p className="text-muted-foreground text-sm">{t("settings.visibilityDesc")}</p>
             </div>
             
             <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
@@ -626,11 +629,11 @@ const Settings = () => {
                   )}
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Skjul profil fra Explore</p>
+                  <p className="font-medium text-foreground">{t("settings.hideTitle")}</p>
                   <p className="text-sm text-muted-foreground">
-                    {hiddenFromExplore 
-                      ? "Din profil vises ikke under Roomies" 
-                      : "Udlejere kan finde dig i Explore"}
+                    {hiddenFromExplore
+                      ? t("settings.hideDescOn")
+                      : t("settings.hideDescOff")}
                   </p>
                 </div>
               </div>
@@ -643,10 +646,10 @@ const Settings = () => {
 
             {!hiddenFromExplore && (
               <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
-                <p className="text-sm text-green-700 dark:text-green-400">
-                  💡 <strong>Tip:</strong> Ved at holde din profil synlig øger du chancen for at en udlejer, 
-                  der opfylder dine krav til et værelse, finder dig og kontakter dig direkte!
-                </p>
+                <p
+                  className="text-sm text-green-700 dark:text-green-400"
+                  dangerouslySetInnerHTML={{ __html: t("settings.visibilityTip") }}
+                />
               </div>
             )}
           </div>
@@ -656,28 +659,28 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">E-mailadresse</h2>
-              <p className="text-muted-foreground text-sm">Nuværende: {user.email}</p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.emailAddress")}</h2>
+              <p className="text-muted-foreground text-sm">{t("settings.currentEmail", { email: user.email })}</p>
             </div>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="newEmail">Ny e-mailadresse</Label>
+                <Label htmlFor="newEmail">{t("settings.newEmail")}</Label>
                 <Input
                   id="newEmail"
                   type="email"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="din@email.dk"
+                  placeholder={t("settings.emailPlaceholder")}
                   className="bg-muted/30"
                 />
               </div>
-              <Button 
-                onClick={handleUpdateEmail} 
+              <Button
+                onClick={handleUpdateEmail}
                 disabled={isSaving}
                 className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-6"
               >
-                {isSaving ? "Opdaterer..." : "Opdater e-mail"}
+                {isSaving ? t("settings.updating") : t("settings.updateEmail")}
               </Button>
             </div>
           </div>
@@ -687,13 +690,13 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Adgangskode</h2>
-              <p className="text-muted-foreground text-sm">Skift din adgangskode</p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.password")}</h2>
+              <p className="text-muted-foreground text-sm">{t("settings.changePassword")}</p>
             </div>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword">Nuværende adgangskode</Label>
+                <Label htmlFor="currentPassword">{t("settings.currentPw")}</Label>
                 <Input
                   id="currentPassword"
                   type="password"
@@ -704,7 +707,7 @@ const Settings = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newPassword">Ny adgangskode</Label>
+                <Label htmlFor="newPassword">{t("settings.newPw")}</Label>
                 <Input
                   id="newPassword"
                   type="password"
@@ -715,7 +718,7 @@ const Settings = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Bekræft ny adgangskode</Label>
+                <Label htmlFor="confirmPassword">{t("settings.confirmPw")}</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -725,12 +728,12 @@ const Settings = () => {
                   className="bg-muted/30"
                 />
               </div>
-              <Button 
-                onClick={handleUpdatePassword} 
+              <Button
+                onClick={handleUpdatePassword}
                 disabled={isSaving}
                 className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-6"
               >
-                {isSaving ? "Opdaterer..." : "Opdater adgangskode"}
+                {isSaving ? t("settings.updating") : t("settings.updatePassword")}
               </Button>
             </div>
           </div>
@@ -740,23 +743,23 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Telefonnummer</h2>
-              <p className="text-muted-foreground text-sm">Tilføj eller opdater dit nummer</p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.phone")}</h2>
+              <p className="text-muted-foreground text-sm">{t("settings.phoneDesc")}</p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefonnummer</Label>
+                <Label htmlFor="phone">{t("settings.phone")}</Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+45 12 34 56 78"
+                  placeholder={t("settings.phonePlaceholder")}
                   className="bg-muted/30"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Vises kun for brugere du selv accepterer at chatte med.
+                  {t("settings.phoneVisibility")}
                 </p>
               </div>
               <Button
@@ -764,7 +767,7 @@ const Settings = () => {
                 disabled={phoneSaving}
                 className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-6"
               >
-                {phoneSaving ? "Gemmer…" : "Gem telefonnummer"}
+                {phoneSaving ? t("settings.savingShort") : t("settings.savePhone")}
               </Button>
             </div>
           </div>
@@ -774,8 +777,8 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Notifikationer</h2>
-              <p className="text-muted-foreground text-sm">Vælg hvordan vi må kontakte dig</p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.notifications")}</h2>
+              <p className="text-muted-foreground text-sm">{t("settings.notificationsDesc")}</p>
             </div>
 
             {/* Push notifications block */}
@@ -786,23 +789,23 @@ const Settings = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-3 mb-1">
-                    <p className="font-medium text-foreground">Push-notifikationer</p>
+                    <p className="font-medium text-foreground">{t("settings.pushTitle")}</p>
                     {pushActive && (
                       <span className="text-[10px] font-semibold uppercase tracking-wider text-green-600 bg-green-50 border border-green-200 rounded-full px-2 py-0.5">
-                        Aktiv
+                        {t("settings.pushActiveLabel")}
                       </span>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Få notifikationer direkte på din enhed når du får beskeder eller anmodninger.
+                    {t("settings.pushBody")}
                   </p>
                   {!pushSupported ? (
                     <p className="text-xs text-amber-600">
-                      Din browser understøtter ikke push-notifikationer.
+                      {t("settings.pushUnsupported")}
                     </p>
                   ) : pushPermission === "denied" ? (
                     <p className="text-xs text-amber-600">
-                      Notifikationer er blokeret i browserindstillingerne — du skal aktivere dem manuelt der.
+                      {t("settings.pushBlocked")}
                     </p>
                   ) : (
                     <Button
@@ -814,7 +817,7 @@ const Settings = () => {
                       {pushLoading
                         ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         : <Bell className="w-4 h-4 mr-2" />}
-                      {pushActive ? "Slå push fra" : "Tillad push på denne enhed"}
+                      {pushActive ? t("settings.pushTurnOff") : t("settings.pushAllow")}
                     </Button>
                   )}
                 </div>
@@ -822,31 +825,31 @@ const Settings = () => {
             </div>
 
             <div className="pt-2">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-semibold">E-mail</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-semibold">{t("settings.emailHeader")}</p>
               <div className="space-y-3">
                 <NotifRow
-                  title="Nye beskeder"
-                  desc="Send mig en e-mail når jeg får en ny besked"
+                  title={t("settings.notifMessages")}
+                  desc={t("settings.notifMessagesDesc")}
                   checked={notifyMessages}
                   onChange={setNotifyMessages}
                 />
                 <NotifRow
-                  title="Anmodninger"
-                  desc="Send mig en e-mail når nogen sender mig en anmodning"
+                  title={t("settings.notifRequests")}
+                  desc={t("settings.notifRequestsDesc")}
                   checked={notifyRequests}
                   onChange={setNotifyRequests}
                 />
                 {isRoomie && (
                   <NotifRow
-                    title="Nye boliger fra mine søgeagenter"
-                    desc="Send mig en e-mail når en bolig matcher en af mine søgeagenter"
+                    title={t("settings.notifAgents")}
+                    desc={t("settings.notifAgentsDesc")}
                     checked={notifyNewProperties}
                     onChange={setNotifyNewProperties}
                   />
                 )}
                 <NotifRow
-                  title="Tips, tilbud og nyheder"
-                  desc="Send mig lejlighedsvise opdateringer fra Hommies"
+                  title={t("settings.notifMarketing")}
+                  desc={t("settings.notifMarketingDesc")}
                   checked={notifyMarketing}
                   onChange={setNotifyMarketing}
                 />
@@ -858,7 +861,7 @@ const Settings = () => {
               disabled={notifSaving}
               className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-6"
             >
-              {notifSaving ? "Gemmer…" : "Gem indstillinger"}
+              {notifSaving ? t("settings.savingShort") : t("settings.saveSettings")}
             </Button>
           </div>
         );
@@ -867,21 +870,23 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Blokerede brugere</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.blocked")}</h2>
               <p className="text-muted-foreground text-sm">
-                {blockedUsers.length === 0 
-                  ? "Ingen blokerede brugere" 
-                  : `${blockedUsers.length} blokeret${blockedUsers.length > 1 ? 'e' : ''}`}
+                {blockedUsers.length === 0
+                  ? t("settings.noBlocked")
+                  : blockedUsers.length === 1
+                    ? t("settings.blockedCountOne")
+                    : t("settings.blockedCountMany", { count: blockedUsers.length })}
               </p>
             </div>
-            
+
             <div className="space-y-3">
               {loadingBlocked ? (
-                <p className="text-sm text-muted-foreground text-center py-8">Indlæser...</p>
+                <p className="text-sm text-muted-foreground text-center py-8">{t("settings.loading")}</p>
               ) : blockedUsers.length === 0 ? (
                 <div className="text-center py-12 bg-muted/30 rounded-xl">
                   <Ban className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-                  <p className="text-muted-foreground">Du har ikke blokeret nogen brugere</p>
+                  <p className="text-muted-foreground">{t("settings.noneBlocked")}</p>
                 </div>
               ) : (
                 blockedUsers.map((blocked, index) => (
@@ -904,10 +909,10 @@ const Settings = () => {
                       )}
                       <div>
                         <p className="font-medium text-foreground">
-                          {blocked.profile?.name || "Ukendt bruger"}
+                          {blocked.profile?.name || t("settings.unknownUser")}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Blokeret {new Date(blocked.created_at).toLocaleDateString("da-DK")}
+                          {t("settings.blockedOn", { date: new Date(blocked.created_at).toLocaleDateString("da-DK") })}
                         </p>
                       </div>
                     </div>
@@ -918,7 +923,7 @@ const Settings = () => {
                       disabled={unblockingId === blocked.id}
                       className="text-orange-600 hover:text-orange-700 hover:bg-orange-500/10 active:scale-95 transition-all"
                     >
-                      {unblockingId === blocked.id ? "Fjerner..." : "Fjern blokering"}
+                      {unblockingId === blocked.id ? t("settings.unblocking") : t("settings.unblock")}
                     </Button>
                   </div>
                 ))
@@ -931,25 +936,25 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Slet konto</h2>
-              <p className="text-muted-foreground text-sm">Slet din konto og alle tilknyttede data permanent</p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.deleteAccount")}</h2>
+              <p className="text-muted-foreground text-sm">{t("settings.deleteAccountDesc")}</p>
             </div>
 
             <div className="p-4 rounded-xl bg-destructive/5 border border-destructive/20">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div className="space-y-2 text-sm">
-                  <p className="font-medium text-destructive">Denne handling kan ikke fortrydes</p>
-                  <p className="text-muted-foreground">Når du sletter din konto, slettes følgende permanent:</p>
+                  <p className="font-medium text-destructive">{t("settings.deleteIrreversible")}</p>
+                  <p className="text-muted-foreground">{t("settings.deleteList")}</p>
                   <ul className="list-disc list-inside text-muted-foreground space-y-0.5 pl-1">
-                    <li>Din profil og dine billeder</li>
-                    <li>Alle samtaler, beskeder og anmodninger</li>
-                    <li>Dine annoncer, søgeagenter og favoritter</li>
-                    <li>Dine husordener og dokumenter</li>
-                    <li>Dine matches og forbindelser</li>
+                    <li>{t("settings.deleteItem1")}</li>
+                    <li>{t("settings.deleteItem2")}</li>
+                    <li>{t("settings.deleteItem3")}</li>
+                    <li>{t("settings.deleteItem4")}</li>
+                    <li>{t("settings.deleteItem5")}</li>
                   </ul>
                   <p className="text-xs text-muted-foreground pt-1">
-                    Eventuelle igangværende betalinger fortsætter i Stripe og kan ikke automatisk refunderes.
+                    {t("settings.deleteStripe")}
                   </p>
                 </div>
               </div>
@@ -957,31 +962,31 @@ const Settings = () => {
 
             <div className="space-y-3">
               <Label htmlFor="deleteConfirm">
-                Skriv <span className="font-bold text-destructive">SLET</span> for at bekræfte
+                {t("settings.typeDeleteLabel")} <span className="font-bold text-destructive">{t("settings.typeDeleteWord")}</span> {t("settings.typeDeleteSuffix")}
               </Label>
               <Input
                 id="deleteConfirm"
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="SLET"
+                placeholder={t("settings.typeDeleteWord")}
                 className="bg-muted/30 font-mono"
                 disabled={isDeletingAccount}
               />
               <Button
                 onClick={handleDeleteAccount}
-                disabled={isDeletingAccount || deleteConfirmText !== "SLET"}
+                disabled={isDeletingAccount || deleteConfirmText !== t("settings.typeDeleteWord")}
                 variant="destructive"
                 className="w-full sm:w-auto"
               >
                 {isDeletingAccount ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Sletter konto…
+                    {t("settings.deleting")}
                   </>
                 ) : (
                   <>
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Slet min konto permanent
+                    {t("settings.deletePermanent")}
                   </>
                 )}
               </Button>
@@ -993,29 +998,29 @@ const Settings = () => {
         return (
           <div className="space-y-6 animate-fade-in">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Rapportér et problem</h2>
-              <p className="text-muted-foreground text-sm">Hjælp os med at forbedre Hommies</p>
+              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.reportProblem")}</h2>
+              <p className="text-muted-foreground text-sm">{t("settings.reportProblemDesc")}</p>
             </div>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="problem">Beskriv problemet</Label>
+                <Label htmlFor="problem">{t("settings.describeProblem")}</Label>
                 <Textarea
                   id="problem"
                   value={problemDescription}
                   onChange={(e) => setProblemDescription(e.target.value)}
-                  placeholder="Fortæl os hvad der gik galt..."
+                  placeholder={t("settings.describeProblemPlaceholder")}
                   rows={6}
                   className="bg-muted/30 resize-none"
                 />
               </div>
-              <Button 
+              <Button
                 onClick={handleReportProblem}
                 disabled={isSaving}
                 variant="destructive"
                 className="active:scale-[0.98] transition-all"
               >
-                Send rapport
+                {t("settings.sendReport")}
               </Button>
             </div>
           </div>
@@ -1039,17 +1044,17 @@ const Settings = () => {
             className="inline-flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground mb-6 -ml-1 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Tilbage
+            {t("settings.back")}
           </button>
           <div className="flex items-center gap-3 mb-3">
             <div className="h-px w-8 bg-foreground/40" />
-            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Konto</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("settings.account")}</span>
           </div>
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
-            Indstillinger.
+            {t("settings.title")}
           </h1>
           <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
-            Administrer din konto og præferencer.
+            {t("settings.subtitle")}
           </p>
         </div>
 
