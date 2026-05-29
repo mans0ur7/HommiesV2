@@ -485,5 +485,26 @@
     "myProfile": "My profile",
     "more": "More",
     "contactShort": "Contact"
+  },
+  "userProfile": {
+    "loading": "Loading profile...",
+    "notFound": "Profile not found",
+    "landlord": "Landlord",
+    "roomie": "Roomie",
+    "aboutMe": "About me",
+    "noDescription": "No description yet",
+    "showLess": "Show less",
+    "readMore": "Read more",
+    "personality": "Personality",
+    "lifestyle": "Lifestyle",
+    "languages": "Languages",
+    "nationality": "Nationality",
+    "rentalPreferences": "Rental preferences",
+    "monthlyBudget": "Monthly budget",
+    "rentalPeriod": "Rental period",
+    "listings": "Listings",
+    "noImage": "No image",
+    "furnished": "Furnished",
+    "unfurnished": "Not furnished"
   }
 }

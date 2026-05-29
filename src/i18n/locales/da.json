@@ -485,5 +485,26 @@
     "myProfile": "Min profil",
     "more": "Mere",
     "contactShort": "Kontakt"
+  },
+  "userProfile": {
+    "loading": "Indlæser profil...",
+    "notFound": "Profil ikke fundet",
+    "landlord": "Udlejer",
+    "roomie": "Roomie",
+    "aboutMe": "Om mig",
+    "noDescription": "Ingen beskrivelse endnu",
+    "showLess": "Vis mindre",
+    "readMore": "Læs mere",
+    "personality": "Personlighed",
+    "lifestyle": "Livsstil",
+    "languages": "Sprog",
+    "nationality": "Nationalitet",
+    "rentalPreferences": "Lejepræferencer",
+    "monthlyBudget": "Månedligt budget",
+    "rentalPeriod": "Lejeperiode",
+    "listings": "Annoncer",
+    "noImage": "Intet billede",
+    "furnished": "Møbleret",
+    "unfurnished": "Ikke møbleret"
   }
 }

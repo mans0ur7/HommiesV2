@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { X, ChevronLeft, ChevronRight, ArrowRight, Star, Heart, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -102,6 +103,7 @@ const getLifestyleColor = (label: string) => {
 const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   
   const [profile, setProfile] = useState<UserProfileData | null>(null);
@@ -149,7 +151,7 @@ const UserProfile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Indlæser profil...</div>
+        <div className="animate-pulse text-muted-foreground">{t("userProfile.loading")}</div>
       </div>
     );
   }
@@ -159,7 +161,7 @@ const UserProfile = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">Profil ikke fundet</p>
+          <p className="text-muted-foreground">{t("userProfile.notFound")}</p>
         </div>
       </div>
     );
@@ -261,7 +263,7 @@ const UserProfile = () => {
                   variant="secondary" 
                   className="text-sm font-semibold px-3 py-1 bg-primary text-primary-foreground"
                 >
-                  {profile.user_type === "landlord" ? "Udlejer" : "Roomie"}
+                  {profile.user_type === "landlord" ? t("userProfile.landlord") : t("userProfile.roomie")}
                 </Badge>
               </div>
               <p className="text-muted-foreground text-lg">
@@ -281,7 +283,7 @@ const UserProfile = () => {
                     ? profile.bio 
                     : `${profile.bio.substring(0, 200)}...`
                 ) : (
-                  "Ingen beskrivelse endnu"
+                  t("userProfile.noDescription")
                 )}
               </p>
               {profile.bio && profile.bio.length > 200 && (
@@ -289,7 +291,7 @@ const UserProfile = () => {
                   onClick={() => setShowFullBio(!showFullBio)}
                   className="mt-2 text-foreground font-medium flex items-center gap-1 hover:opacity-80 transition-opacity"
                 >
-                  {showFullBio ? "Vis mindre" : "Læs mere"}
+                  {showFullBio ? t("userProfile.showLess") : t("userProfile.readMore")}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               )}
@@ -298,7 +300,7 @@ const UserProfile = () => {
             {/* Personality */}
             {personality.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Personlighed</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.personality")}</h2>
                 <div className="flex flex-wrap gap-2">
                   {personality.map((item) => (
                     <span 
@@ -316,7 +318,7 @@ const UserProfile = () => {
             {/* Lifestyle */}
             {lifestyle.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Livsstil</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.lifestyle")}</h2>
                 <div className="flex flex-wrap gap-2">
                   {lifestyle.map((item) => (
                     <span 
@@ -334,7 +336,7 @@ const UserProfile = () => {
             {/* Languages */}
             {languages.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Sprog</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.languages")}</h2>
                 <p className="text-muted-foreground">{languages.join(", ")}</p>
               </div>
             )}
@@ -342,7 +344,7 @@ const UserProfile = () => {
             {/* Nationality */}
             {profile.nationality && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Nationalitet</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.nationality")}</h2>
                 <p className="text-muted-foreground">{profile.nationality}</p>
               </div>
             )}
@@ -350,16 +352,16 @@ const UserProfile = () => {
             {/* Rent Preferences */}
             {isRoomie && (profile.monthly_budget || profile.rental_period) && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">Lejepræferencer</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.rentalPreferences")}</h2>
                 <div className="space-y-1">
                   {profile.monthly_budget && (
                     <p className="text-muted-foreground">
-                      Månedligt budget <span className="font-semibold text-foreground">{profile.monthly_budget.toLocaleString()} kr.</span>
+                      {t("userProfile.monthlyBudget")} <span className="font-semibold text-foreground">{profile.monthly_budget.toLocaleString()} kr.</span>
                     </p>
                   )}
                   {profile.rental_period && (
                     <p className="text-muted-foreground">
-                      Lejeperiode <span className="font-semibold text-foreground">
+                      {t("userProfile.rentalPeriod")} <span className="font-semibold text-foreground">
                         {rentalPeriodOptions.find(o => o.value === profile.rental_period)?.label || profile.rental_period}
                       </span>
                     </p>
@@ -371,7 +373,7 @@ const UserProfile = () => {
             {/* Landlord Listings */}
             {!isRoomie && landlordProperties.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-4">Annoncer</h2>
+                <h2 className="text-xl font-semibold text-foreground mb-4">{t("userProfile.listings")}</h2>
                 <div className="grid grid-cols-2 gap-4">
                   {landlordProperties.map((property) => (
                     <div 
@@ -388,7 +390,7 @@ const UserProfile = () => {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <span className="text-muted-foreground text-sm">Intet billede</span>
+                            <span className="text-muted-foreground text-sm">{t("userProfile.noImage")}</span>
                           </div>
                         )}
                         <button 
@@ -426,7 +428,7 @@ const UserProfile = () => {
                             <Star className="w-3 h-3 fill-current text-foreground" />
                             <span className="text-foreground">4.5 (63)</span>
                             <span className="mx-0.5">•</span>
-                            <span>{property.is_furnished ? "Møbleret" : "Ikke møbleret"}</span>
+                            <span>{property.is_furnished ? t("userProfile.furnished") : t("userProfile.unfurnished")}</span>
                           </div>
                         </div>
                         <div className="text-right">
