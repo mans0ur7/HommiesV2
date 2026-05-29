@@ -10,9 +10,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import NotificationPopover from "@/components/navigation/NotificationPopover";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -133,7 +135,7 @@ const Navbar = () => {
                   <MoreVertical className="w-[18px] h-[18px]" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem asChild>
                   <Link to="/about" className="flex items-center gap-2 cursor-pointer">
                     <Info className="w-4 h-4" />
@@ -158,6 +160,13 @@ const Navbar = () => {
                     {t("menu.privacy")}
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <div className="px-2 py-1.5">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1.5 px-1">
+                    {t("settings.language")}
+                  </p>
+                  <LanguageSwitcher />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -396,6 +405,15 @@ const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Language Switcher */}
+          <div className="h-px bg-border my-2" />
+          <div className="px-4 py-2">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
+              {t("settings.language")}
+            </p>
+            <LanguageSwitcher />
+          </div>
 
           {/* Auth Section */}
           <div className="h-px bg-border my-2" />
