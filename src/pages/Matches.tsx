@@ -775,7 +775,7 @@ const Matches = () => {
         }}
         matchedName={matchedProfile?.name}
         matchedAvatar={matchedProfile?.avatar}
-        myAvatar={profile?.avatar_url}
+        myAvatar={userProfile?.avatar_url}
         onMessage={() => {
           setShowMatchCelebration(false);
           navigate("/inbox");
