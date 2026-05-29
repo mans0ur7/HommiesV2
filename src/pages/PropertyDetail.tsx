@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { 
   ChevronLeft,
   ChevronRight,
@@ -60,14 +61,15 @@ const amenityIcons: Record<string, typeof Car> = {
 };
 
 const propertyTypeLabels: Record<string, string> = {
-  apartment: "Lejlighed",
-  room: "Værelse",
+  apartment: "property.typeApartment",
+  room: "property.typeRoom",
   house: "Hus",
-  studio: "Studio",
-  shared: "Delelejlighed",
+  studio: "property.typeStudio",
+  shared: "property.typeShared",
 };
 
 const PropertyDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -145,17 +147,17 @@ const PropertyDetail = () => {
     }
     
     if (!property?.user_id || !id) {
-      toast.error("Der opstod en fejl. Prøv igen.");
+      toast.error(t("property.error"));
       return;
     }
 
     if (property.user_id === user.id) {
-      toast.error("Du kan ikke sende en forespørgsel til din egen bolig");
+      toast.error(t("property.cantRequestOwn"));
       return;
     }
 
     if (existingRequest) {
-      toast.info("Du har allerede sendt en forespørgsel til denne bolig");
+      toast.info(t("property.alreadyRequested"));
       return;
     }
 
@@ -175,10 +177,10 @@ const PropertyDetail = () => {
 
       setRequestSent(true);
       queryClient.invalidateQueries({ queryKey: ['property-request', id, user?.id] });
-      toast.success("Forespørgsel sendt til udlejer!");
+      toast.success(t("property.requestSent"));
     } catch (error) {
       console.error("Error sending request:", error);
-      toast.error("Der opstod en fejl. Prøv igen.");
+      toast.error(t("property.error"));
     } finally {
       setSendingRequest(false);
     }
@@ -197,9 +199,9 @@ const PropertyDetail = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <main className="container mx-auto px-4 lg:px-8 py-12 text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Bolig ikke fundet</h1>
-          <p className="text-muted-foreground mb-6">Denne bolig eksisterer ikke eller er blevet fjernet.</p>
-          <Button onClick={() => navigate("/explore")}>Tilbage til Udforsk</Button>
+          <h1 className="text-2xl font-bold text-foreground mb-4">{t("property.notFound")}</h1>
+          <p className="text-muted-foreground mb-6">{t("property.notFoundBody")}</p>
+          <Button onClick={() => navigate("/explore")}>{t("property.backToExplore")}</Button>
         </main>
         <Footer />
       </div>
@@ -212,7 +214,7 @@ const PropertyDetail = () => {
   const displayedAmenities = showAllAmenities ? amenities : amenities.slice(0, 6);
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Snart";
+    if (!dateString) return t("property.soon");
     return format(new Date(dateString), "d. MMM yyyy", { locale: da });
   };
 
@@ -227,10 +229,10 @@ const PropertyDetail = () => {
           <div className="flex items-center gap-2 text-muted-foreground text-sm min-w-0 flex-1">
             <button onClick={() => navigate(-1)} className="flex items-center gap-1 hover:text-foreground flex-shrink-0">
               <ChevronLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Tilbage</span>
+              <span className="hidden sm:inline">{t("property.back")}</span>
             </button>
             <span className="hidden sm:inline">•</span>
-            <button onClick={() => navigate("/explore")} className="hover:text-foreground hidden sm:inline">Udforsk</button>
+            <button onClick={() => navigate("/explore")} className="hover:text-foreground hidden sm:inline">{t("property.explore")}</button>
             <span className="hidden sm:inline">•</span>
             <span className="hidden sm:inline">{property.city}</span>
           </div>
@@ -253,7 +255,7 @@ const PropertyDetail = () => {
                   }).catch(console.error);
                 } else {
                   navigator.clipboard.writeText(window.location.href);
-                  toast.success("Link kopieret til udklipsholder");
+                  toast.success(t("property.linkCopied"));
                 }
               }}
               className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted"
@@ -443,7 +445,7 @@ const PropertyDetail = () => {
               {property.has_kitchen && (
                 <div className="flex flex-col items-center gap-1 px-6 py-3 border border-border rounded-2xl min-w-[80px]">
                   <ChefHat className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Køkken</span>
+                  <span className="text-sm text-muted-foreground">{t("property.kitchen")}</span>
                 </div>
               )}
               {(property.living_area_count || 0) > 0 && (
@@ -464,10 +466,10 @@ const PropertyDetail = () => {
             {landlord && (
               <div className="bg-primary rounded-3xl p-6 flex items-center justify-between">
                 <div>
-                  <p className="text-secondary text-xs font-medium uppercase tracking-wide mb-1">Udlejer</p>
+                  <p className="text-secondary text-xs font-medium uppercase tracking-wide mb-1">{t("property.landlord")}</p>
                   <h3 className="text-primary-foreground font-semibold text-lg">{landlord.name}</h3>
                   <p className="text-primary-foreground/70 text-sm">
-                    {landlord.work || landlord.study || "Udlejer"} 
+                    {landlord.work || landlord.study || t("property.landlord")}
                     {landlord.gender && ` • ${landlord.gender === 'male' ? 'Mand' : landlord.gender === 'female' ? 'Kvinde' : landlord.gender}`}
                   </p>
                   <Button 
@@ -492,7 +494,7 @@ const PropertyDetail = () => {
             {/* About */}
             {property.description && (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">Om boligen</h2>
+                <h2 className="text-xl font-bold text-foreground mb-4">{t("property.aboutHome")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {showAllAbout || property.description.length <= 300 
                     ? property.description 
@@ -505,7 +507,7 @@ const PropertyDetail = () => {
                     className="mt-4"
                     onClick={() => setShowAllAbout(!showAllAbout)}
                   >
-                    {showAllAbout ? "Vis mindre" : "Vis mere"}
+                    {showAllAbout ? t("property.showLess") : t("property.showMore")}
                   </Button>
                 )}
               </div>
@@ -514,7 +516,7 @@ const PropertyDetail = () => {
             {/* Amenities */}
             {amenities.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">Faciliteter</h2>
+                <h2 className="text-xl font-bold text-foreground mb-4">{t("property.amenities")}</h2>
                 <div className="grid grid-cols-3 gap-4">
                   {displayedAmenities.map((amenity, index) => {
                     const IconComponent = amenityIcons[amenity] || Zap;
@@ -533,7 +535,7 @@ const PropertyDetail = () => {
                     className="mt-4"
                     onClick={() => setShowAllAmenities(!showAllAmenities)}
                   >
-                    {showAllAmenities ? "Vis mindre" : "Vis alle"}
+                    {showAllAmenities ? t("property.showLess") : t("property.showAll")}
                   </Button>
                 )}
               </div>
@@ -541,7 +543,7 @@ const PropertyDetail = () => {
 
             {/* Location */}
             <div>
-              <h2 className="text-xl font-bold text-foreground mb-4">Beliggenhed</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">{t("property.location")}</h2>
               <div className="bg-muted rounded-2xl h-[300px] relative overflow-hidden mb-4">
                 <PropertyLocationMap
                   city={property.city}
@@ -568,10 +570,10 @@ const PropertyDetail = () => {
               </div>
               <div className="space-y-2 text-sm">
                 {property.metro_lines && property.metro_lines.length > 0 && (
-                  <p><span className="text-muted-foreground">Metro:</span> <span className="font-medium">{property.metro_lines.join(", ")}</span></p>
+                  <p><span className="text-muted-foreground">{t("property.metro")}:</span> <span className="font-medium">{property.metro_lines.join(", ")}</span></p>
                 )}
                 {property.s_train_lines && property.s_train_lines.length > 0 && (
-                  <p><span className="text-muted-foreground">S-tog:</span> <span className="font-medium">{property.s_train_lines.join(", ")}</span></p>
+                  <p><span className="text-muted-foreground">{t("property.sTrain")}:</span> <span className="font-medium">{property.s_train_lines.join(", ")}</span></p>
                 )}
                 {property.bus_lines && (
                   <p><span className="text-muted-foreground">Bus:</span> <span className="font-medium">{property.bus_lines}</span></p>
@@ -595,7 +597,7 @@ const PropertyDetail = () => {
 
             {/* Reviews Section */}
             <div className="mt-8">
-              <h2 className="text-xl font-bold text-foreground mb-4">Anmeldelser</h2>
+              <h2 className="text-xl font-bold text-foreground mb-4">{t("property.reviews")}</h2>
               
               {/* Average Rating Display */}
               {property.rating_count && property.rating_count > 0 ? (
@@ -611,7 +613,7 @@ const PropertyDetail = () => {
                   </div>
                 </div>
               ) : (
-                <p className="text-muted-foreground mb-6">Ingen anmeldelser endnu</p>
+                <p className="text-muted-foreground mb-6">{t("property.noReviews")}</p>
               )}
               
               <PropertyReviews key={reviewsKey} propertyId={property.id} />
@@ -632,23 +634,23 @@ const PropertyDetail = () => {
                   <p className="font-medium text-foreground">{property.monthly_rent.toLocaleString()} Kr</p>
                 </div>
                 <div className="bg-muted rounded-2xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Depositum</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t("property.deposit")}</p>
                   <p className="font-medium text-foreground">{(property.deposit || 0).toLocaleString()} Kr</p>
                 </div>
                 <div className="bg-muted rounded-2xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Ledig fra</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t("property.availableFrom")}</p>
                   <p className="font-medium text-foreground">{formatDate(property.available_from)}</p>
                 </div>
                 <div className="bg-muted rounded-2xl p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Min. lejeperiode</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t("property.minStay")}</p>
                   <p className="font-medium text-foreground">{
                     ({
                       "1 month": "1 måned",
                       "3 months": "3 måneder",
                       "6 months": "6 måneder",
                       "12 months": "12 måneder",
-                      "unlimited": "Ubegrænset",
-                    } as Record<string, string>)[property.min_stay || ""] || property.min_stay || "Fleksibel"
+                      "unlimited": t("property.unlimited"),
+                    } as Record<string, string>)[property.min_stay || ""] || property.min_stay || t("property.flexible")
                   }</p>
                 </div>
               </div>
@@ -656,36 +658,36 @@ const PropertyDetail = () => {
               <div className="space-y-3 mb-6">
                 {(property.aconto || 0) > 0 ? (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Aconto</span>
+                    <span className="text-muted-foreground">{t("property.aconto")}</span>
                     <span className="font-medium text-foreground">{property.aconto?.toLocaleString()} Kr/md</span>
                   </div>
                 ) : (property.utility_cost || 0) > 0 ? (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Forbrug</span>
+                    <span className="text-muted-foreground">{t("property.utilities")}</span>
                     <span className="font-medium text-foreground">{property.utility_cost?.toLocaleString()} Kr/md</span>
                   </div>
                 ) : (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Forbrug inkl.</span>
+                    <span className="text-muted-foreground">{t("property.utilitiesIncluded")}</span>
                     <span className="font-medium text-foreground">{property.bills_included ? "Ja" : "Nej"}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Max beboere</span>
+                  <span className="text-muted-foreground">{t("property.maxOccupants")}</span>
                   <span className="font-medium text-foreground">{property.max_occupants || 1} {(property.max_occupants || 1) === 1 ? 'person' : 'personer'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Type</span>
-                  <span className="font-medium text-foreground">{propertyTypeLabels[property.property_type || 'apartment'] || property.property_type}</span>
+                  <span className="font-medium text-foreground">{t(propertyTypeLabels[property.property_type || 'apartment'] || "property.typeApartment")}</span>
                 </div>
                 {property.size_sqm && (
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Størrelse</span>
+                    <span className="text-muted-foreground">{t("property.size")}</span>
                     <span className="font-medium text-foreground">{property.size_sqm} m²</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Møbleret</span>
+                  <span className="text-muted-foreground">{t("property.furnished")}</span>
                   <span className="font-medium text-foreground">{property.is_furnished ? "Ja" : "Nej"}</span>
                 </div>
               </div>
@@ -701,23 +703,23 @@ const PropertyDetail = () => {
                 {sendingRequest ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Sender...
+                    {t("property.sending")}
                   </>
                 ) : !user ? (
                   <>
                     <MessageCircle className="w-5 h-5 mr-2" />
-                    Kontakt udlejer
+                    {t("property.contactLandlord")}
                   </>
                 ) : existingRequest || requestSent ? (
-                  existingRequest?.status === 'accepted' ? "Forespørgsel accepteret" :
-                  existingRequest?.status === 'rejected' ? "Forespørgsel afvist" :
-                  "Forespørgsel sendt"
+                  existingRequest?.status === 'accepted' ? t("property.requestAccepted") :
+                  existingRequest?.status === 'rejected' ? t("property.requestRejected") :
+                  t("property.requestSentStatus")
                 ) : property.user_id === user.id ? (
-                  "Din annonce"
+                  t("property.ownListing")
                 ) : (
                   <>
                     <MessageCircle className="w-5 h-5 mr-2" />
-                    Kontakt udlejer
+                    {t("property.contactLandlord")}
                   </>
                 )}
               </Button>
