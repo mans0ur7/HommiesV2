@@ -990,6 +990,13 @@
     "phone": "Telefon: +45 31 21 74 17",
     "policyLink": "Læs også hele privatlivspolitikken"
   },
+  "match": {
+    "eyebrow": "Det er et match!",
+    "title": "It's a match!",
+    "subtitle": "Du og {{name}} har vist interesse for hinanden. Skriv en hilsen og kom i gang.",
+    "messageCta": "Skriv en besked",
+    "keepSwiping": "Bliv ved med at swipe"
+  },
   "block": {
     "trigger": "Blokér bruger",
     "confirmTitle": "Blokér {{name}}?",

@@ -990,6 +990,13 @@
     "phone": "Phone: +45 31 21 74 17",
     "policyLink": "Read the full privacy policy"
   },
+  "match": {
+    "eyebrow": "It's a match!",
+    "title": "It's a match!",
+    "subtitle": "You and {{name}} both showed interest. Say hi and get the conversation going.",
+    "messageCta": "Send a message",
+    "keepSwiping": "Keep swiping"
+  },
   "block": {
     "trigger": "Block user",
     "confirmTitle": "Block {{name}}?",

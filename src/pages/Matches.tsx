@@ -8,6 +8,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 
 import MatchCard from "@/components/matches/MatchCard";
 import MatchProfileModal from "@/components/matches/MatchProfileModal";
+import MatchCelebration from "@/components/matches/MatchCelebration";
 import LocationModal from "@/components/matches/LocationModal";
 import FilterModal from "@/components/matches/FilterModal";
 
@@ -15,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLandlordHasPublishedProperty } from "@/hooks/useLandlordHasPublishedProperty";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { hapticLight, hapticSuccess, hapticError } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -108,6 +110,8 @@ const Matches = () => {
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+  const [showMatchCelebration, setShowMatchCelebration] = useState(false);
+  const [matchedProfile, setMatchedProfile] = useState<{ name: string; avatar: string | null; userId: string } | null>(null);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [sentRequestsCount, setSentRequestsCount] = useState(0);
@@ -426,6 +430,7 @@ const Matches = () => {
     const currentItem = activeTab === "roomies" ? profiles[currentIndex] : properties[currentIndex];
     if (!currentItem) return;
 
+    hapticSuccess();
     setSwipeDirection("right");
 
     try {
@@ -443,15 +448,37 @@ const Matches = () => {
 
       if (error) throw error;
 
-      toast.success(t("matches.connectionSent"));
       trackView(currentItem);
-      
+
+      // Check for mutual match (other side already connected back) — only for roomies
+      let isMutual = false;
+      if (activeTab === "roomies") {
+        const otherUserId = (currentItem as Profile).user_id;
+        const { data: theirConnection } = await supabase
+          .from("connections")
+          .select("id")
+          .eq("user_id", otherUserId)
+          .eq("target_user_id", user.id)
+          .eq("connection_type", "roomie")
+          .maybeSingle();
+        isMutual = !!theirConnection;
+      }
+
+      if (isMutual && activeTab === "roomies") {
+        const p = currentItem as Profile;
+        setMatchedProfile({ name: p.name, avatar: p.avatar_url, userId: p.user_id });
+        setShowMatchCelebration(true);
+      } else {
+        toast.success(t("matches.connectionSent"));
+      }
+
       setTimeout(() => {
         setSwipeDirection(null);
         setCurrentIndex(prev => prev + 1);
       }, 300);
     } catch (error: any) {
       console.error("Error connecting:", error);
+      hapticError();
       if (error.code === "23505") {
         toast.info(t("matches.alreadyConnected"));
       } else {
@@ -467,6 +494,7 @@ const Matches = () => {
     const currentItem = activeTab === "roomies" ? profiles[currentIndex] : properties[currentIndex];
     if (!currentItem) return;
 
+    hapticLight();
     setSwipeDirection("left");
 
     try {
@@ -738,6 +766,20 @@ const Matches = () => {
         onPropertyFiltersChange={setPropertyFilters}
         roomieFilters={roomieFilters}
         onRoomieFiltersChange={setRoomieFilters}
+      />
+      <MatchCelebration
+        open={showMatchCelebration}
+        onClose={() => {
+          setShowMatchCelebration(false);
+          setMatchedProfile(null);
+        }}
+        matchedName={matchedProfile?.name}
+        matchedAvatar={matchedProfile?.avatar}
+        myAvatar={profile?.avatar_url}
+        onMessage={() => {
+          setShowMatchCelebration(false);
+          navigate("/inbox");
+        }}
       />
       </div>
     </AppLayout>

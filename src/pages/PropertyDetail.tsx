@@ -41,6 +41,7 @@ import PropertyReviews from "@/components/ratings/PropertyReviews";
 import RatePropertyButton from "@/components/ratings/RatePropertyButton";
 import ReportPropertyModal from "@/components/property/ReportPropertyModal";
 import PropertyLocationMap from "@/components/property/PropertyLocationMap";
+import { shareLink } from "@/lib/share";
 
 // Map amenity names to icons
 const amenityIcons: Record<string, typeof Car> = {
@@ -245,18 +246,14 @@ const PropertyDetail = () => {
             >
               <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
             </button>
-            <button 
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({
-                    title: property.title,
-                    text: `Se denne bolig: ${property.title}`,
-                    url: window.location.href,
-                  }).catch(console.error);
-                } else {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast.success(t("property.linkCopied"));
-                }
+            <button
+              onClick={async () => {
+                const result = await shareLink({
+                  title: property.title,
+                  text: `Se denne bolig på Hommies: ${property.title}`,
+                  url: `https://hommies.dk/property/${property.id}`,
+                });
+                if (result === "copied") toast.success(t("property.linkCopied"));
               }}
               className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted"
             >
