@@ -990,6 +990,28 @@
     "phone": "Telefon: +45 31 21 74 17",
     "policyLink": "Læs også hele privatlivspolitikken"
   },
+  "report": {
+    "title": "Rapportér bruger",
+    "body": "Hjælp os med at holde Hommies trygt. Vi gennemgår alle rapporter.",
+    "bodyNamed": "Rapportér {{name}}. Vi gennemgår alle rapporter og griber ind når noget bryder vores regler.",
+    "reasonLabel": "Årsag",
+    "reasonSpam": "Spam eller reklame",
+    "reasonFake": "Falsk profil eller misvisende oplysninger",
+    "reasonInappropriate": "Upassende billeder eller indhold",
+    "reasonHarassment": "Chikane, trusler eller hadefuld tale",
+    "reasonOther": "Andet (beskriv nedenfor)",
+    "detailsLabel": "Yderligere detaljer (valgfrit)",
+    "detailsPlaceholder": "Beskriv kort hvad der skete...",
+    "alsoBlock": "Blokér også denne bruger",
+    "alsoBlockHint": "Du vil ikke længere se brugeren i Match eller modtage beskeder fra dem.",
+    "cancel": "Annullér",
+    "send": "Send rapport",
+    "sending": "Sender...",
+    "sent": "Tak — vi har modtaget din rapport.",
+    "sendFailed": "Kunne ikke sende. Prøv igen om lidt.",
+    "loginRequired": "Du skal være logget ind for at rapportere",
+    "reportTrigger": "Rapportér bruger"
+  },
   "notFound": {
     "title": "Ups! Siden blev ikke fundet",
     "back": "Tilbage til forsiden"

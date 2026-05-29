@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, ChevronLeft, ChevronRight, Sparkles, Calendar, Wallet, Globe, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { X, ChevronLeft, ChevronRight, Sparkles, Calendar, Wallet, Globe, ArrowRight, Flag } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
+import ReportUserModal from "@/components/ReportUserModal";
 
 interface Profile {
   id: string;
@@ -83,7 +92,9 @@ const lifestyleColors: Record<string, string> = {
 
 const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgnore }: MatchProfileModalProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const handlePrevImage = () => {
     const images = profile?.images || property?.images || [];
@@ -129,6 +140,23 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
               >
                 <X className="w-5 h-5" />
               </button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label={t("report.reportTrigger")}
+                    className="absolute top-4 right-4 z-20 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                  >
+                    <MoreVertical className="w-5 h-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setReportOpen(true)} className="text-destructive cursor-pointer">
+                    <Flag className="w-4 h-4 mr-2" />
+                    {t("report.reportTrigger")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <img
                 src={images[currentImageIndex]}
@@ -294,6 +322,23 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
                 <X className="w-5 h-5" />
               </button>
 
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-label={t("report.reportTrigger")}
+                    className="absolute top-4 right-4 z-20 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                  >
+                    <MoreVertical className="w-5 h-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setReportOpen(true)} className="text-destructive cursor-pointer">
+                    <Flag className="w-4 h-4 mr-2" />
+                    {t("report.reportTrigger")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <img
                 src={images[currentImageIndex]}
                 alt={profile.name}
@@ -444,6 +489,13 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
             </div>
           </div>
         </DialogContent>
+        <ReportUserModal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          reportedUserId={profile.user_id}
+          reportedUserName={profile.name}
+          onReported={handleClose}
+        />
       </Dialog>
     );
   }

@@ -990,6 +990,28 @@
     "phone": "Phone: +45 31 21 74 17",
     "policyLink": "Read the full privacy policy"
   },
+  "report": {
+    "title": "Report user",
+    "body": "Help us keep Hommies safe. We review every report.",
+    "bodyNamed": "Report {{name}}. We review every report and act when something breaks our rules.",
+    "reasonLabel": "Reason",
+    "reasonSpam": "Spam or advertising",
+    "reasonFake": "Fake profile or misleading info",
+    "reasonInappropriate": "Inappropriate photos or content",
+    "reasonHarassment": "Harassment, threats or hate speech",
+    "reasonOther": "Other (describe below)",
+    "detailsLabel": "Additional details (optional)",
+    "detailsPlaceholder": "Briefly describe what happened...",
+    "alsoBlock": "Also block this user",
+    "alsoBlockHint": "You will no longer see this user in Match and won't receive messages from them.",
+    "cancel": "Cancel",
+    "send": "Send report",
+    "sending": "Sending...",
+    "sent": "Thanks — we received your report.",
+    "sendFailed": "Could not send. Try again in a moment.",
+    "loginRequired": "You must be logged in to report",
+    "reportTrigger": "Report user"
+  },
   "notFound": {
     "title": "Oops! Page not found",
     "back": "Back to home"
