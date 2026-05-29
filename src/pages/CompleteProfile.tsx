@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User, ArrowLeft } from "lucide-react";
+import { Upload, User, LogOut } from "lucide-react";
+import hommiesLogo from "@/assets/hommies-logo.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -222,22 +223,25 @@ const CompleteProfile = () => {
       style={{ paddingTop: "calc(var(--safe-top) + 1.5rem)" }}
     >
       <div className="w-full max-w-lg mx-auto">
-        <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+        {/* Top bar — centered logo + small log out (no back button — this is the only screen until profile is finished) */}
+        <div className="flex items-center justify-center relative mb-6 sm:mb-8">
+          <img src={hommiesLogo} alt="Hommies" className="h-8" />
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={async () => { await signOut(); navigate("/auth"); }}
-            className="shrink-0"
+            className="absolute right-0 text-foreground/60 hover:text-foreground"
+            aria-label={t("menu.logout")}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <LogOut className="h-4 w-4" />
           </Button>
-          <div className="text-center flex-1 pr-10">
-            <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">{t("profile.completeTitle")}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {t("profile.tellAboutYou")}
-            </p>
-          </div>
+        </div>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">{t("profile.completeTitle")}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            {t("profile.tellAboutYou")}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
