@@ -12,6 +12,13 @@
     "weeksAgo": "{{count}}w ago",
     "longAgo": "a long time ago"
   },
+  "responseTime": {
+    "withinHour": "Typically replies within an hour",
+    "withinHours": "Typically replies within a few hours",
+    "withinDay": "Typically replies within a day",
+    "withinFewDays": "Typically replies within a few days",
+    "slow": "Rarely replies quickly"
+  },
   "nav": {
     "home": "Home",
     "explore": "Explore",

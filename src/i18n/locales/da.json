@@ -12,6 +12,13 @@
     "weeksAgo": "for {{count}} u siden",
     "longAgo": "for længe siden"
   },
+  "responseTime": {
+    "withinHour": "Svarer typisk inden for 1 time",
+    "withinHours": "Svarer typisk inden for et par timer",
+    "withinDay": "Svarer typisk inden for et døgn",
+    "withinFewDays": "Svarer typisk inden for få dage",
+    "slow": "Svarer sjældent hurtigt"
+  },
   "nav": {
     "home": "Hjem",
     "explore": "Udforsk",

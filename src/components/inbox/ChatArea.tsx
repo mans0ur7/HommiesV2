@@ -355,6 +355,11 @@ const ChatArea = ({
         .update({ updated_at: new Date().toISOString() })
         .eq("id", conversation.id);
 
+      // Throttled server-side; safe to fire-and-forget after every send.
+      supabase.rpc("refresh_my_response_time").then(({ error: rpcErr }) => {
+        if (rpcErr) console.warn("[response-time] refresh failed", rpcErr.message);
+      });
+
       onMessageSent();
     }
 

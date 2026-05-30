@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Sparkles, Calendar, Wallet, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import LastActive from "@/components/common/LastActive";
+import ResponseTime from "@/components/common/ResponseTime";
 import { usePresence } from "@/hooks/usePresence";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ interface RoomieProfile {
   monthly_budget: number | null;
   rental_period: string | null;
   last_seen_at?: string | null;
+  median_response_minutes?: number | null;
 }
 
 interface ExploreRoomieModalProps {
@@ -221,8 +223,9 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
               {(roomie.age || genderLabel) && roomie.study && " • "}
               {roomie.study || "Studerende"}
             </p>
-            <div className="mb-6">
+            <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1">
               <LastActive lastSeenAt={roomie.last_seen_at} isOnline={isOnline(roomie.user_id)} hideIfUnknown />
+              <ResponseTime medianMinutes={roomie.median_response_minutes} />
             </div>
 
             {/* Personality */}
@@ -384,8 +387,9 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
               {(roomie.age || genderLabel) && roomie.study && " • "}
               {roomie.study || "Studerende"}
             </p>
-            <div className="mb-6">
+            <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1">
               <LastActive lastSeenAt={roomie.last_seen_at} isOnline={isOnline(roomie.user_id)} hideIfUnknown />
+              <ResponseTime medianMinutes={roomie.median_response_minutes} />
             </div>
 
             {/* Personality */}

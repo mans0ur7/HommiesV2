@@ -29,6 +29,7 @@ import {
 import { MoreVertical } from "lucide-react";
 import ReportUserModal from "@/components/ReportUserModal";
 import LastActive from "@/components/common/LastActive";
+import ResponseTime from "@/components/common/ResponseTime";
 import { usePresence } from "@/hooks/usePresence";
 
 interface Profile {
@@ -49,6 +50,7 @@ interface Profile {
   monthly_budget: number | null;
   rental_period: string | null;
   last_seen_at?: string | null;
+  median_response_minutes?: number | null;
 }
 
 interface Property {
@@ -254,8 +256,9 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
                 {(profile.age || genderLabel) && profile.study && " • "}
                 {profile.study || "Studerende"}
               </p>
-              <div className="mb-6">
+              <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <LastActive lastSeenAt={profile.last_seen_at} isOnline={isOnline(profile.user_id)} hideIfUnknown />
+                <ResponseTime medianMinutes={profile.median_response_minutes} />
               </div>
 
               {/* Personality */}
@@ -471,8 +474,9 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
                 {(profile.age || genderLabel) && profile.study && " • "}
                 {profile.study || "Studerende"}
               </p>
-              <div className="mb-6">
+              <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <LastActive lastSeenAt={profile.last_seen_at} isOnline={isOnline(profile.user_id)} hideIfUnknown />
+                <ResponseTime medianMinutes={profile.median_response_minutes} />
               </div>
 
               {/* Personality */}
