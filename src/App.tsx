@@ -9,6 +9,7 @@ import BugReportButton from "@/components/BugReportButton";
 import CookieBanner from "@/components/CookieBanner";
 import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
+import { HelmetProvider } from "react-helmet-async";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { useAppBadge } from "@/hooks/useAppBadge";
 import { useLastSeenHeartbeat } from "@/hooks/useLastSeenHeartbeat";
@@ -84,6 +85,7 @@ const PageLoader = () => (
 );
 
 const App = () => (
+  <HelmetProvider>
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
@@ -134,6 +136,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </HelmetProvider>
 );
 
 export default App;

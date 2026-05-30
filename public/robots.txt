@@ -12,3 +12,15 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /complete-profile
+Disallow: /settings
+Disallow: /payment
+Disallow: /inbox
+Disallow: /matches
+Disallow: /search-agents
+Disallow: /my-listings
+Disallow: /documents
+
+Sitemap: https://hommies.dk/sitemap.xml

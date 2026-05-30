@@ -15,6 +15,7 @@ import CTASection from "@/components/landing/CTASection";
 import FAQSection from "@/components/landing/FAQSection";
 import Footer from "@/components/landing/Footer";
 import PartnerBanner from "@/components/landing/PartnerBanner";
+import SeoHead from "@/components/common/SeoHead";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -53,6 +54,23 @@ const Index = () => {
   // Show public landing page for non-authenticated users (web)
   return (
     <div className="min-h-screen bg-background">
+      <SeoHead
+        title="Hommies — Find din perfekte roomie og bolig i Danmark"
+        description="Hommies hjælper studerende og unge professionelle med at finde den rigtige roommate og bolig i København, Aarhus og hele Danmark. Opret en gratis profil og kom i gang."
+        canonical="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Hommies",
+          url: "https://hommies.dk",
+          inLanguage: "da",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://hommies.dk/explore?q={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }}
+      />
       <Navbar />
       <HeroSection />
       <StatsBar />

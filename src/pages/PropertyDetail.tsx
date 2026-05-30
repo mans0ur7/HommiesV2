@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import SeoHead from "@/components/common/SeoHead";
 import { useTranslation } from "react-i18next";
 import { 
   ChevronLeft,
@@ -246,8 +247,51 @@ const PropertyDetail = () => {
     return format(new Date(dateString), "d. MMM yyyy", { locale: da });
   };
 
+  const propertyJsonLd = property
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: property.title,
+        description: property.description || `${property.title} i ${property.city}`,
+        image: property.images?.slice(0, 4) || [],
+        category: "Real Estate Listing",
+        brand: { "@type": "Organization", name: "Hommies" },
+        offers: {
+          "@type": "Offer",
+          price: property.monthly_rent,
+          priceCurrency: "DKK",
+          availability: property.is_published
+            ? "https://schema.org/InStock"
+            : "https://schema.org/OutOfStock",
+          url: `https://hommies.dk/property/${property.id}`,
+        },
+        ...(property.rating_average && property.rating_count
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: property.rating_average,
+                reviewCount: property.rating_count,
+              },
+            }
+          : {}),
+      }
+    : undefined;
+
   return (
     <AppLayout>
+    {property && (
+      <SeoHead
+        title={`${property.title} · ${property.city}`}
+        description={
+          property.description?.slice(0, 160) ||
+          `${property.title} i ${property.city}, ${property.monthly_rent.toLocaleString()} kr/md`
+        }
+        canonical={`/property/${property.id}`}
+        image={property.images?.[0]}
+        type="product"
+        jsonLd={propertyJsonLd}
+      />
+    )}
     <div className="min-h-screen bg-background">
       {!isMobile && <Navbar />}
       
