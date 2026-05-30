@@ -460,6 +460,8 @@
     "alreadyRequested": "You've already sent a request for this home",
     "requestSent": "Request sent to landlord!",
     "linkCopied": "Link copied to clipboard",
+    "viewedToday_one": "{{count}} person viewed today",
+    "viewedToday_other": "{{count}} people viewed today",
     "kitchen": "Kitchen",
     "landlord": "Landlord",
     "aboutHome": "About this home",

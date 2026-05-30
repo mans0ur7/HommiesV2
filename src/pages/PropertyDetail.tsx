@@ -23,7 +23,8 @@ import {
   Users,
   DoorOpen,
   X,
-  MessageCircle
+  MessageCircle,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/landing/Navbar";
@@ -86,6 +87,30 @@ const PropertyDetail = () => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxZoom, setLightboxZoom] = useState(1);
   useEffect(() => { setLightboxZoom(1); }, [lightboxIndex, lightboxOpen]);
+
+  // Record this view + fetch the aggregate count so we can show "X viewed today"
+  const [viewStats, setViewStats] = useState<{ today_count: number; week_count: number } | null>(null);
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+
+    const run = async () => {
+      if (user?.id) {
+        await supabase.rpc("record_property_view", { p_property_id: id });
+      }
+      const { data, error: statsErr } = await supabase.rpc("get_property_view_stats", {
+        p_property_id: id,
+      });
+      if (!cancelled && !statsErr && data) {
+        const row = Array.isArray(data) ? data[0] : data;
+        if (row) setViewStats({ today_count: row.today_count ?? 0, week_count: row.week_count ?? 0 });
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, user?.id]);
   // NOTE: We allow non-logged-in users to view property details
   // They will only be redirected when clicking "Kontakt udlejer"
 
@@ -432,6 +457,12 @@ const PropertyDetail = () => {
                 <MapPin className="w-4 h-4" />
                 <span>{property.address}, {property.postal_code} {property.city}</span>
               </div>
+              {viewStats && viewStats.today_count >= 3 && (
+                <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-700 text-xs font-medium">
+                  <Eye className="w-3.5 h-3.5" />
+                  {t("property.viewedToday", { count: viewStats.today_count })}
+                </div>
+              )}
             </div>
 
             {/* Room Details */}

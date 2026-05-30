@@ -460,6 +460,8 @@
     "alreadyRequested": "Du har allerede sendt en forespørgsel til denne bolig",
     "requestSent": "Forespørgsel sendt til udlejer!",
     "linkCopied": "Link kopieret til udklipsholder",
+    "viewedToday_one": "{{count}} har set boligen i dag",
+    "viewedToday_other": "{{count}} har set boligen i dag",
     "kitchen": "Køkken",
     "landlord": "Udlejer",
     "aboutHome": "Om boligen",
