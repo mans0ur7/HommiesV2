@@ -250,6 +250,8 @@
     "withFilters": "med filtre",
     "noRoomiesFound": "Ingen roomies fundet",
     "noRoomiesBody": "Prøv at justere dine filtre.",
+    "resetFilters": "Nulstil filtre",
+    "openFilters": "Åbn filtre",
     "roomieOccupation": "Roomie",
     "sortNewest": "Nyeste først",
     "sortPriceLow": "Pris: Lav til høj",
@@ -276,6 +278,8 @@
     "noMoreProperties": "Ingen flere boliger lige nu.",
     "checkBackRoomies": "Kig forbi i morgen – nye profiler kommer dagligt.",
     "checkBackProperties": "Kig forbi i morgen – nye boliger kommer dagligt.",
+    "openFilters": "Juster filtre",
+    "browseExplore": "Udforsk i stedet",
     "no": "NEJ",
     "yes": "JA",
     "connectionSent": "Anmodning sendt!",
@@ -299,7 +303,10 @@
     "acceptFailed": "Kunne ikke acceptere anmodning",
     "chatCreateFailed": "Kunne ikke oprette chat",
     "groupRequestAccepted": "Gruppe-anmodning accepteret!",
-    "groupRequestRejected": "Gruppe-anmodning afvist"
+    "groupRequestRejected": "Gruppe-anmodning afvist",
+    "emptyTitle": "Ingen samtaler endnu",
+    "emptyBody": "Når du matcher med en roomie eller udlejer, dukker samtalen op her.",
+    "emptyAction": "Find dit match"
   },
   "reset": {
     "linkExpired": "Linket er udløbet",

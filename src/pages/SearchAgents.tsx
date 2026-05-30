@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import EmptyState from "@/components/ui/empty-state";
 import { useAuth } from "@/contexts/AuthContext";
 import { isNativeApp } from "@/lib/native";
 import { useSearchAgents, CreateSearchAgentData } from "@/hooks/useSearchAgents";
@@ -245,21 +246,15 @@ const SearchAgents = () => {
         </div>
         
         {searchAgents.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/60 bg-background py-14 px-6 flex flex-col items-center text-center">
-            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
-              <Search className="w-6 h-6 text-foreground/60" />
-            </div>
-            <h3 className="text-xl md:text-2xl font-medium tracking-tight mb-2">{t("searchAgents.noAgents")}</h3>
-            <p className="text-foreground/60 max-w-sm mb-6 text-sm">
-              {t("searchAgents.noAgentsBody")}
-            </p>
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t("searchAgents.createFirst")}
-            </Button>
+          <div className="rounded-2xl border border-dashed border-border/60 bg-background">
+            <EmptyState
+              icon={Search}
+              tone="primary"
+              title={t("searchAgents.noAgents")}
+              description={t("searchAgents.noAgentsBody")}
+              actionLabel={<><Plus className="w-4 h-4 mr-2" />{t("searchAgents.createFirst")}</>}
+              onAction={() => setShowCreateModal(true)}
+            />
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

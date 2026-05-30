@@ -6,6 +6,7 @@ import Navbar from "@/components/landing/Navbar";
 
 import AppLayout from "@/components/navigation/AppLayout";
 
+import EmptyState from "@/components/ui/empty-state";
 import MatchCard from "@/components/matches/MatchCard";
 import MatchProfileModal from "@/components/matches/MatchProfileModal";
 import MatchCelebration from "@/components/matches/MatchCelebration";
@@ -625,21 +626,16 @@ const Matches = () => {
                 <div className="w-full h-full bg-muted/40 rounded-3xl"></div>
               </div>
             ) : !hasMoreItems ? (
-              <div className="text-center px-4 max-w-md">
-                <div className="w-14 h-14 rounded-2xl border border-border/60 flex items-center justify-center mx-auto mb-4">
-                  {activeTab === "roomies" ? (
-                    <Users className="w-6 h-6 text-foreground/50" />
-                  ) : (
-                    <Home className="w-6 h-6 text-foreground/50" />
-                  )}
-                </div>
-                <h3 className="text-lg md:text-xl font-medium text-foreground mb-1.5 tracking-tight">
-                  {activeTab === "roomies" ? t("matches.noMoreRoomies") : t("matches.noMoreProperties")}
-                </h3>
-                <p className="text-sm text-foreground/60">
-                  {activeTab === "roomies" ? t("matches.checkBackRoomies") : t("matches.checkBackProperties")}
-                </p>
-              </div>
+              <EmptyState
+                icon={activeTab === "roomies" ? Users : Home}
+                tone={activeTab === "roomies" ? "primary" : "secondary"}
+                title={activeTab === "roomies" ? t("matches.noMoreRoomies") : t("matches.noMoreProperties")}
+                description={activeTab === "roomies" ? t("matches.checkBackRoomies") : t("matches.checkBackProperties")}
+                actionLabel={t("matches.openFilters")}
+                onAction={() => setMobileFiltersOpen(true)}
+                secondaryActionLabel={t("matches.browseExplore")}
+                onSecondaryAction={() => navigate("/explore")}
+              />
             ) : (
               <div className="relative h-full flex items-center justify-center gap-4 md:gap-8">
                 {/* Desktop: Ignore button (left side) */}

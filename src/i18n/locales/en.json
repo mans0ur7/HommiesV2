@@ -250,6 +250,8 @@
     "withFilters": "with filters",
     "noRoomiesFound": "No roomies found",
     "noRoomiesBody": "Try adjusting your filters.",
+    "resetFilters": "Reset filters",
+    "openFilters": "Open filters",
     "roomieOccupation": "Roomie",
     "sortNewest": "Newest first",
     "sortPriceLow": "Price: low to high",
@@ -276,6 +278,8 @@
     "noMoreProperties": "No more homes right now.",
     "checkBackRoomies": "Check back tomorrow – new profiles come in daily.",
     "checkBackProperties": "Check back tomorrow – new homes come in daily.",
+    "openFilters": "Adjust filters",
+    "browseExplore": "Browse Explore instead",
     "no": "NO",
     "yes": "YES",
     "connectionSent": "Request sent!",
@@ -299,7 +303,10 @@
     "acceptFailed": "Could not accept request",
     "chatCreateFailed": "Could not create chat",
     "groupRequestAccepted": "Group request accepted!",
-    "groupRequestRejected": "Group request rejected"
+    "groupRequestRejected": "Group request rejected",
+    "emptyTitle": "No conversations yet",
+    "emptyBody": "When you match with a roomie or landlord, the chat will show up here.",
+    "emptyAction": "Find your match"
   },
   "reset": {
     "linkExpired": "The link has expired",

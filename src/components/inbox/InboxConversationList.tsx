@@ -1,5 +1,8 @@
 import { Search, Home, User, UsersRound, MessageCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import EmptyState from "@/components/ui/empty-state";
 import { usePresence } from "@/hooks/usePresence";
 
 interface Conversation {
@@ -55,6 +58,8 @@ const InboxConversationList = ({
   loading,
   activeTab,
 }: InboxConversationListProps) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { isOnline } = usePresence();
 
   const formatTime = (dateString: string) => {
@@ -265,17 +270,15 @@ const InboxConversationList = ({
             ))}
           </div>
         ) : isEmpty ? (
-          <div className="p-8 text-center animate-fade-in">
-            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center shadow-lg">
-              <MessageCircle className="w-6 h-6 text-primary" />
-            </div>
-            <p className="font-semibold text-foreground text-sm">
-              Ingen samtaler
-            </p>
-            <p className="text-xs text-muted-foreground mt-1 max-w-[180px] mx-auto">
-              Match med brugere for at starte en samtale
-            </p>
-          </div>
+          <EmptyState
+            icon={MessageCircle}
+            tone="primary"
+            variant="compact"
+            title={t("inbox.emptyTitle")}
+            description={t("inbox.emptyBody")}
+            actionLabel={t("inbox.emptyAction")}
+            onAction={() => navigate("/matches")}
+          />
         ) : (
           <div className="space-y-4 pb-2">
             {/* Groups Section - always visible */}

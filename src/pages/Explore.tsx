@@ -15,6 +15,7 @@ import ExploreFiltersPanel, { defaultPropertyFilters, PropertyFilters } from "@/
 import RoomieFiltersPanel, { defaultRoomieFilters, RoomieFilters } from "@/components/explore/RoomieFiltersPanel";
 import PropertyMap from "@/components/explore/PropertyMap";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import EmptyState from "@/components/ui/empty-state";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { danishCities } from "@/data/danishCities";
@@ -774,21 +775,15 @@ const Explore = () => {
                     ))}
                   </div>
                 ) : displayProperties.length === 0 ? (
-                  <div className="text-center py-16 md:py-24 border border-dashed border-border rounded-3xl">
-                    <SearchX className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg md:text-2xl font-bold text-foreground mb-2">
-                      {selectedArea ? t("explore.noPropertiesNear", { area: selectedArea }) : appliedSearch ? t("explore.noPropertiesForQuery", { query: appliedSearch }) : t("explore.noPropertiesFound")}
-                    </h3>
-                    <p className="text-sm md:text-base text-muted-foreground mb-6 px-4 max-w-md mx-auto">
-                      {selectedArea
-                        ? t("explore.noPropertiesAreaBody")
-                        : t("explore.noPropertiesBody")}
-                    </p>
-                    {selectedArea ? (
-                      <Button onClick={handleClearAreaFilter} variant="outline">{t("explore.showAllProperties")}</Button>
-                    ) : appliedSearch && (
-                      <Button onClick={handleClearSearch} variant="outline">{t("explore.showAllProperties")}</Button>
-                    )}
+                  <div className="border border-dashed border-border rounded-3xl">
+                    <EmptyState
+                      icon={SearchX}
+                      tone="secondary"
+                      title={selectedArea ? t("explore.noPropertiesNear", { area: selectedArea }) : appliedSearch ? t("explore.noPropertiesForQuery", { query: appliedSearch }) : t("explore.noPropertiesFound")}
+                      description={selectedArea ? t("explore.noPropertiesAreaBody") : t("explore.noPropertiesBody")}
+                      actionLabel={selectedArea || appliedSearch ? t("explore.showAllProperties") : undefined}
+                      onAction={selectedArea ? handleClearAreaFilter : appliedSearch ? handleClearSearch : undefined}
+                    />
                   </div>
                 ) : (
                   <>
@@ -863,10 +858,15 @@ const Explore = () => {
                   ))}
                 </div>
               ) : roomies.length === 0 ? (
-                <div className="text-center py-16 md:py-24 border border-dashed border-border rounded-3xl">
-                  <Users className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg md:text-2xl font-bold text-foreground mb-2">{t("explore.noRoomiesFound")}</h3>
-                  <p className="text-sm md:text-base text-muted-foreground">{t("explore.noRoomiesBody")}</p>
+                <div className="border border-dashed border-border rounded-3xl">
+                  <EmptyState
+                    icon={Users}
+                    tone="primary"
+                    title={t("explore.noRoomiesFound")}
+                    description={t("explore.noRoomiesBody")}
+                    actionLabel={roomieFiltersCount > 0 ? t("explore.resetFilters") : undefined}
+                    onAction={roomieFiltersCount > 0 ? () => setRoomieFilters(defaultRoomieFilters) : undefined}
+                  />
                 </div>
               ) : (
                 <>

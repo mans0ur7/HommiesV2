@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/ui/empty-state";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import AppLayout from "@/components/navigation/AppLayout";
@@ -127,17 +128,13 @@ export default function Documents() {
         </div>
 
         {contracts.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">
-                {t("documents.noneYet")}
-              </h3>
-              <p className="text-muted-foreground text-center max-w-sm">
-                {isLandlord ? t("documents.noneLandlord") : t("documents.noneTenant")}
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={FileText}
+            tone="secondary"
+            variant="card"
+            title={t("documents.noneYet")}
+            description={isLandlord ? t("documents.noneLandlord") : t("documents.noneTenant")}
+          />
         ) : (
           <div className="space-y-4">
             {contracts.map((contract) => {

@@ -1,6 +1,7 @@
 import { HousingGroup } from "@/hooks/useHousingGroups";
 import { Settings, Users, User, Plus, MessageSquare, Home, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import EmptyState from "@/components/ui/empty-state";
 
 interface YourGroupsSectionProps {
   groups: HousingGroup[];
@@ -58,10 +59,16 @@ const YourGroupsSection = ({
       </div>
 
       {groups.length === 0 ? (
-        <div className="text-center py-10 text-foreground/60 border border-dashed border-border/60 rounded-2xl">
-          <Users className="w-10 h-10 mx-auto mb-3 opacity-40" />
-          <p className="text-sm">Du har ingen grupper endnu</p>
-          <p className="text-xs mt-1 text-foreground/50">Opret en gruppe og invitér dine roomie-forbindelser</p>
+        <div className="border border-dashed border-border/60 rounded-2xl">
+          <EmptyState
+            icon={Users}
+            tone="primary"
+            variant="compact"
+            title="Du har ingen grupper endnu"
+            description="Opret en gruppe og invitér dine roomie-forbindelser."
+            actionLabel={<><Plus className="w-4 h-4 mr-1" />Opret gruppe</>}
+            onAction={onCreateGroup}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
