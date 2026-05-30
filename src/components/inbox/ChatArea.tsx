@@ -25,6 +25,8 @@ import { usePropertyRating } from "@/hooks/usePropertyRating";
 import { usePresence } from "@/hooks/usePresence";
 import RatingPrompt from "@/components/ratings/RatingPrompt";
 import TypingIndicator from "./TypingIndicator";
+import SharePropertyModal from "./SharePropertyModal";
+import PropertyCardBubble from "./PropertyCardBubble";
 import type { Conversation } from "@/types/inbox";
 import { submitReport } from "@/lib/bugReport";
 import {
@@ -109,6 +111,7 @@ interface Message {
   created_at: string;
   read_at: string | null;
   image_url?: string | null;
+  property_card_id?: string | null;
 }
 
 interface ChatAreaProps {
@@ -144,6 +147,7 @@ const ChatArea = ({
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showShareProperty, setShowShareProperty] = useState(false);
   const [showRatingPrompt, setShowRatingPrompt] = useState(false);
   const [manualRatingTriggered, setManualRatingTriggered] = useState(false);
 
@@ -334,6 +338,38 @@ const ChatArea = ({
     if (!error) {
       // Notify badge to refresh immediately (realtime UPDATE may be unreliable)
       window.dispatchEvent(new CustomEvent("messages-read"));
+    }
+  };
+
+  const handleSendPropertyCard = async (propertyId: string) => {
+    if (!conversation || sending) return;
+    setSending(true);
+    setShowShareProperty(false);
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: conversation.id,
+          sender_id: currentUserId,
+          content: " ",
+          property_card_id: propertyId,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      if (data) {
+        setMessages((prev) => [...prev, data]);
+        await supabase
+          .from("conversations")
+          .update({ updated_at: new Date().toISOString() })
+          .eq("id", conversation.id);
+        onMessageSent();
+      }
+    } catch (e: unknown) {
+      console.error("[chat] property card send failed", e);
+      toast.error(t("chat.shareProperty.sendFailed"));
+    } finally {
+      setSending(false);
     }
   };
 
@@ -724,6 +760,13 @@ const ChatArea = ({
               {!isOwn && !showAvatar && <div className="w-7" />}
               
               <div className={`max-w-[75%] group ${isOwn ? "items-end" : "items-start"}`}>
+                {message.property_card_id ? (
+                  <PropertyCardBubble
+                    propertyId={message.property_card_id}
+                    isOwn={isOwn}
+                    onOpen={() => navigate(`/property/${message.property_card_id}`)}
+                  />
+                ) : (
                 <MessageBubble
                   isOwn={isOwn}
                   content={message.content}
@@ -737,6 +780,7 @@ const ChatArea = ({
                     setReportingMessageId(message.id);
                   } : undefined}
                 />
+                )}
                 <div className={`flex items-center gap-1 mt-1 ${isOwn ? "justify-end" : "justify-start"}`}>
                   <span className={`text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity`}>
                     {formatMessageTime(message.created_at)}
@@ -839,6 +883,12 @@ const ChatArea = ({
         </DialogContent>
       </Dialog>
 
+      <SharePropertyModal
+        open={showShareProperty}
+        onClose={() => setShowShareProperty(false)}
+        onPick={handleSendPropertyCard}
+      />
+
       {/* Icebreaker quick replies — only on a fresh conversation */}
       {messages.length === 0 && !sending && (
         <div className="px-4 md:px-6 pb-2 flex flex-wrap gap-2 flex-shrink-0">
@@ -888,6 +938,17 @@ const ChatArea = ({
             className="flex-shrink-0 h-11 w-11 md:h-12 md:w-12 rounded-full text-muted-foreground hover:text-foreground"
           >
             <ImageIcon className="h-5 w-5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={sending}
+            onClick={() => setShowShareProperty(true)}
+            aria-label={t("chat.shareProperty.title")}
+            className="flex-shrink-0 h-11 w-11 md:h-12 md:w-12 rounded-full text-muted-foreground hover:text-foreground hidden sm:inline-flex"
+          >
+            <Home className="h-5 w-5" />
           </Button>
           <Input
             placeholder={t("chat.inputPlaceholder")}

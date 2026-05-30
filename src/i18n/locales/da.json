@@ -25,6 +25,13 @@
     "imageOnly": "Vælg venligst et billede",
     "imageTooLarge": "Billedet er for stort (maks. 8 MB)",
     "imageSendFailed": "Kunne ikke sende billede",
+    "shareProperty": {
+      "title": "Del en bolig",
+      "search": "Søg titel eller by",
+      "empty": "Du har ingen gemte eller egne boliger endnu.",
+      "cancel": "Annullér",
+      "sendFailed": "Kunne ikke dele bolig"
+    },
     "icebreakers": {
       "stillAvailable": "Hej! Er boligen stadig ledig?",
       "canIVisit": "Må jeg komme forbi og se den?",

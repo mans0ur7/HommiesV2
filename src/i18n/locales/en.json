@@ -25,6 +25,13 @@
     "imageOnly": "Please pick an image",
     "imageTooLarge": "Image is too large (max 8 MB)",
     "imageSendFailed": "Could not send image",
+    "shareProperty": {
+      "title": "Share a property",
+      "search": "Search title or city",
+      "empty": "You have no saved or own properties yet.",
+      "cancel": "Cancel",
+      "sendFailed": "Could not share property"
+    },
     "icebreakers": {
       "stillAvailable": "Hi! Is the place still available?",
       "canIVisit": "Can I come by and take a look?",
