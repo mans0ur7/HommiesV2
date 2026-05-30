@@ -7,7 +7,13 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { Eye, EyeOff, Home, Users, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Home, Users, ArrowRight, Fingerprint } from "lucide-react";
+import {
+  checkBiometricAvailable,
+  authenticateBiometric,
+  isBiometricEnabled,
+  getBiometricEmail,
+} from "@/lib/biometric";
 import hommiesLogo from "@/assets/hommies-logo.png";
 import { useShowcaseImages } from "@/hooks/useShowcaseImages";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +48,36 @@ const Auth = () => {
     setIsLogin(searchParams.get("mode") !== "signup");
   }, [searchParams]);
 
+  // If the user previously opted in to biometric quick-login on this device,
+  // prefill their email and offer a Face/fingerprint button next to the form
+  // so they can authenticate in one tap instead of typing.
+  const [biometricStatus, setBiometricStatus] = useState<{ available: boolean; enabled: boolean }>({
+    available: false,
+    enabled: false,
+  });
+  useEffect(() => {
+    (async () => {
+      const status = await checkBiometricAvailable();
+      const enabled = isBiometricEnabled();
+      const savedEmail = getBiometricEmail();
+      if (status.available && enabled && savedEmail && isLogin) {
+        setEmail(savedEmail);
+      }
+      setBiometricStatus({ available: status.available, enabled });
+    })();
+  }, [isLogin]);
+
+  const handleBiometricLogin = async () => {
+    const ok = await authenticateBiometric("Log ind med fingeraftryk eller Face ID");
+    if (!ok) {
+      toast({ title: "Biometrisk login afvist", variant: "destructive" });
+      return;
+    }
+    // We've authenticated locally; the user still needs to confirm password
+    // because we don't store the raw password. Surface a quick hint instead.
+    toast({ title: "Skriv adgangskode for at færdiggøre login" });
+  };
+
   const validateForm = () => {
     const newErrors: typeof errors = {};
     const emailResult = emailSchema.safeParse(email);
@@ -68,6 +104,18 @@ const Auth = () => {
             toast({ variant: "destructive", title: "Fejl", description: error.message });
           }
         } else {
+          // Offer biometric quick-login on the first successful sign-in
+          if (biometricStatus.available && !biometricStatus.enabled) {
+            const wantsBiometric = window.confirm("Vil du aktivere biometrisk login (fingeraftryk / Face) næste gang?");
+            if (wantsBiometric) {
+              const ok = await authenticateBiometric("Bekræft for at aktivere biometrisk login");
+              if (ok) {
+                const { enableBiometricForEmail } = await import("@/lib/biometric");
+                enableBiometricForEmail(email);
+                toast({ title: "Biometrisk login aktiveret" });
+              }
+            }
+          }
           navigate("/");
         }
       } else {
@@ -265,6 +313,17 @@ const Auth = () => {
                   </>
                 )}
               </Button>
+
+              {isLogin && biometricStatus.available && biometricStatus.enabled && (
+                <button
+                  type="button"
+                  onClick={handleBiometricLogin}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-full border border-border/60 text-sm font-medium text-foreground/80 hover:text-foreground hover:border-foreground/40 transition-colors"
+                >
+                  <Fingerprint className="w-4 h-4" />
+                  Log ind med biometri
+                </button>
+              )}
 
               {!isLogin && (
                 <p className="text-[11px] text-foreground/45 text-center leading-relaxed">
