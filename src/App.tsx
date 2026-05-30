@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-ro
 import { useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import BugReportButton from "@/components/BugReportButton";
+import CookieBanner from "@/components/CookieBanner";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { useAppBadge } from "@/hooks/useAppBadge";
 
@@ -24,6 +25,7 @@ const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
+const Terms = lazy(() => import("./pages/Terms"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Payment = lazy(() => import("./pages/Payment"));
 const Inbox = lazy(() => import("./pages/Inbox"));
@@ -101,6 +103,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/delete-account" element={<DeleteAccount />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
@@ -119,6 +122,7 @@ const App = () => (
           </Routes>
           </Suspense>
           <BugReportButton />
+          <CookieBanner />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
