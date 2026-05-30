@@ -142,6 +142,31 @@ const Auth = () => {
       setErrors({ email: t("auth.enterEmailFirst") });
       return;
     }
+
+    // Client-side rate limit: 3 reset attempts per 15 min per email/device.
+    // Supabase will rate-limit too, but throwing here gives a clearer toast
+    // and avoids burning a quota for a misclick.
+    try {
+      const key = "hommies_reset_attempts_v1";
+      const now = Date.now();
+      const raw = localStorage.getItem(key);
+      const log: { email: string; at: number }[] = raw ? JSON.parse(raw) : [];
+      const fresh = log.filter((e) => now - e.at < 15 * 60 * 1000);
+      const sameEmail = fresh.filter((e) => e.email === email.toLowerCase());
+      if (sameEmail.length >= 3) {
+        toast({
+          variant: "destructive",
+          title: t("auth.resetTooManyTitle"),
+          description: t("auth.resetTooManyBody"),
+        });
+        return;
+      }
+      fresh.push({ email: email.toLowerCase(), at: now });
+      localStorage.setItem(key, JSON.stringify(fresh));
+    } catch {
+      /* localStorage unavailable — let Supabase enforce its own limit */
+    }
+
     const redirectTo = isNativeApp()
       ? "https://hommies.dk/reset-password"
       : `${window.location.origin}/reset-password`;

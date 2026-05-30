@@ -94,6 +94,8 @@
     "haveAccount": "Already have an account?",
     "resetSentTitle": "Check your email",
     "resetSentBody": "We've sent you a link to reset your password.",
+    "resetTooManyTitle": "Slow down",
+    "resetTooManyBody": "You've asked for too many reset links. Try again in 15 minutes.",
     "enterEmailFirst": "Enter your email above and we'll send a reset link"
   },
   "home": {

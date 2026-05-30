@@ -94,6 +94,8 @@
     "haveAccount": "Har du allerede en konto?",
     "resetSentTitle": "Tjek din email",
     "resetSentBody": "Vi har sendt et link til at nulstille din adgangskode.",
+    "resetTooManyTitle": "Vent lidt",
+    "resetTooManyBody": "Du har bedt om for mange nulstillinger. Prøv igen om 15 minutter.",
     "enterEmailFirst": "Indtast din email ovenfor, så sender vi et nulstillingslink"
   },
   "home": {
