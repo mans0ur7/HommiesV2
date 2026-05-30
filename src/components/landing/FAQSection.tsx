@@ -29,8 +29,8 @@ const FAQSection = () => {
             </h2>
             <p className="mt-3 text-muted-foreground text-base">
               {t("landing.faqBody")}{" "}
-              <a href="mailto:hej@hommies.dk" className="underline underline-offset-4 text-foreground hover:text-primary">
-                hej@hommies.dk
+              <a href="mailto:info@hommies.dk" className="underline underline-offset-4 text-foreground hover:text-primary">
+                info@hommies.dk
               </a>
               .
             </p>

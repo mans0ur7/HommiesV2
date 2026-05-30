@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, User, ChevronLeft, ChevronRight, Pencil, X, Check, ArrowRight, ArrowLeft, Star, Heart, UserCircle, Settings, Sparkles, Plus, Trash2 } from "lucide-react";
+import { pickImage } from "@/lib/camera";
 
 interface Property {
   id: string;
@@ -459,10 +460,21 @@ const Profile = () => {
                         <User className="w-10 h-10 text-muted-foreground" />
                       )}
                     </div>
-                    <label className="absolute bottom-1 right-1 w-7 h-7 bg-secondary rounded-lg flex items-center justify-center cursor-pointer hover:bg-secondary/90">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const file = await pickImage("prompt");
+                        if (file) {
+                          setAvatarFile(file);
+                          const reader = new FileReader();
+                          reader.onloadend = () => setAvatarPreview(reader.result as string);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="absolute bottom-1 right-1 w-7 h-7 bg-secondary rounded-lg flex items-center justify-center cursor-pointer hover:bg-secondary/90"
+                    >
                       <Upload className="w-3.5 h-3.5 text-secondary-foreground" />
-                      <input type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
-                    </label>
+                    </button>
                     <span className="absolute top-1 left-1 bg-secondary text-secondary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
                       {t("profile.mainPhoto")}
                     </span>
@@ -486,11 +498,22 @@ const Profile = () => {
 
                   {/* Add New Image Button */}
                   {profileImages.length < 5 && (
-                    <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-secondary hover:bg-muted/50 transition-colors">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const file = await pickImage("prompt");
+                        if (file) {
+                          setNewImageFiles(prev => [...prev, file]);
+                          const reader = new FileReader();
+                          reader.onloadend = () => setProfileImages(prev => [...prev, reader.result as string]);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-secondary hover:bg-muted/50 transition-colors"
+                    >
                       <Plus className="w-6 h-6 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground mt-1">{t("profile.addPicture")}</span>
-                      <input type="file" accept="image/*" multiple onChange={handleAddImages} className="hidden" />
-                    </label>
+                    </button>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">{t("profile.add5more")}</p>

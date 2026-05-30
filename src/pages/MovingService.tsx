@@ -28,7 +28,7 @@ const MovingService = () => {
               <Button
                 size="lg"
                 className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                onClick={() => window.open("mailto:kontakt@hommies.dk?subject=Flytteservice forespørgsel", "_blank")}
+                onClick={() => window.open("mailto:info@hommies.dk?subject=Flytteservice forespørgsel", "_blank")}
               >
                 <Phone className="w-5 h-5 mr-2" />
                 {t("moving.contactQuote")}
@@ -134,7 +134,7 @@ const MovingService = () => {
             <Button
               size="lg"
               className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-              onClick={() => window.open("mailto:kontakt@hommies.dk?subject=Flytteservice forespørgsel", "_blank")}
+              onClick={() => window.open("mailto:info@hommies.dk?subject=Flytteservice forespørgsel", "_blank")}
             >
               {t("moving.getQuote")}
             </Button>

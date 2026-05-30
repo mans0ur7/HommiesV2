@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useGroupRequests } from "@/hooks/useGroupRequests";
 import { useIsMobile } from "@/hooks/use-mobile";
 import InboxConversationList from "@/components/inbox/InboxConversationList";
+import PullToRefresh from "@/components/PullToRefresh";
 import type { Conversation, MatchRequest } from "@/types/inbox";
 
 type TabType = "landlord" | "roomie";
@@ -540,18 +541,20 @@ const Inbox = () => {
                   </div>
                 </div>
 
-                {/* Conversation Lists with Sections */}
-                <div className="flex-1 min-h-0 overflow-y-auto">
-                  <InboxConversationList
-                    regularConversations={filteredConversations}
-                    groupConversations={filteredGroupConversations}
-                    selectedId={selectedConversation?.id}
-                    onSelect={handleSelectConversationMobile}
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    loading={loading}
-                    activeTab={activeTab}
-                  />
+                {/* Conversation Lists with Sections — pull-to-refresh on mobile */}
+                <div className="flex-1 min-h-0">
+                  <PullToRefresh onRefresh={fetchData}>
+                    <InboxConversationList
+                      regularConversations={filteredConversations}
+                      groupConversations={filteredGroupConversations}
+                      selectedId={selectedConversation?.id}
+                      onSelect={handleSelectConversationMobile}
+                      searchQuery={searchQuery}
+                      onSearchChange={setSearchQuery}
+                      loading={loading}
+                      activeTab={activeTab}
+                    />
+                  </PullToRefresh>
                 </div>
               </div>
 

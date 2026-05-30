@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SlidersHorizontal, Check, ChevronDown, Search, X } from "lucide-react";
+import { SlidersHorizontal, Search, X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +43,38 @@ const genderOptions = [
   { id: "other", label: "Andet" },
 ];
 
+// Module-scope helpers — see ExploreFiltersPanel for why these MUST live
+// outside the component (slider drag would otherwise unmount mid-stream).
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex items-center gap-3 mb-3">
+    <span className="h-px w-6 bg-foreground/30" />
+    <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/60">
+      {children}
+    </span>
+  </div>
+);
+
+const ToggleChip = ({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) => (
+  <button
+    onClick={onClick}
+    className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+      selected
+        ? "bg-foreground text-background border-foreground"
+        : "bg-background text-foreground/80 border-border/60 hover:border-foreground/40"
+    }`}
+  >
+    {children}
+  </button>
+);
+
 const RoomieFiltersPanel = ({
   filters,
   onFiltersChange,
@@ -51,17 +83,10 @@ const RoomieFiltersPanel = ({
   variant = "sidebar",
 }: RoomieFiltersPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  
-  // Local state for filters (to prevent constant refetching)
   const [localFilters, setLocalFilters] = useState(filters);
-  
-  // For nationality dropdown
   const [nationalityOpen, setNationalityOpen] = useState(false);
-  
-  // For language dropdown
   const [languageOpen, setLanguageOpen] = useState(false);
 
-  // Sync local state when filters change externally (e.g., on reset)
   useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
@@ -71,7 +96,7 @@ const RoomieFiltersPanel = ({
       ...prev,
       nationalities: prev.nationalities.includes(nationality)
         ? prev.nationalities.filter(n => n !== nationality)
-        : [...prev.nationalities, nationality]
+        : [...prev.nationalities, nationality],
     }));
   };
 
@@ -80,26 +105,17 @@ const RoomieFiltersPanel = ({
       ...prev,
       languages: prev.languages.includes(language)
         ? prev.languages.filter(l => l !== language)
-        : [...prev.languages, language]
+        : [...prev.languages, language],
     }));
   };
 
-  const removeNationality = (nationality: string) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      nationalities: prev.nationalities.filter(n => n !== nationality)
-    }));
-  };
+  const removeNationality = (nationality: string) =>
+    setLocalFilters(prev => ({ ...prev, nationalities: prev.nationalities.filter(n => n !== nationality) }));
 
-  const removeLanguage = (language: string) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      languages: prev.languages.filter(l => l !== language)
-    }));
-  };
+  const removeLanguage = (language: string) =>
+    setLocalFilters(prev => ({ ...prev, languages: prev.languages.filter(l => l !== language) }));
 
-  // Check if local filters differ from applied filters
-  const hasLocalChanges = 
+  const hasLocalChanges =
     localFilters.gender !== filters.gender ||
     localFilters.ageRange[0] !== filters.ageRange[0] ||
     localFilters.ageRange[1] !== filters.ageRange[1] ||
@@ -117,69 +133,62 @@ const RoomieFiltersPanel = ({
     setIsOpen(false);
   };
 
-  const FilterContent = () => (
-    <div className="space-y-5">
+  // JSX-as-value, NOT a nested component, so the slider's drag handlers
+  // survive across re-renders.
+  const renderFilters = () => (
+    <div className="space-y-9">
       {/* Gender */}
-      <div className="space-y-2">
-        <h3 className="font-medium text-foreground text-sm">Køn</h3>
-        <div className="grid grid-cols-2 gap-1.5">
+      <div>
+        <SectionLabel>Køn</SectionLabel>
+        <div className="flex flex-wrap gap-2">
           {genderOptions.map((option) => (
-            <button
+            <ToggleChip
               key={option.id}
-              onClick={() =>
-                setLocalFilters(prev => ({ ...prev, gender: option.id }))
-              }
-              className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-sm transition-colors ${
-                localFilters.gender === option.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted hover:bg-muted/80 text-foreground"
-              }`}
+              selected={localFilters.gender === option.id}
+              onClick={() => setLocalFilters(prev => ({ ...prev, gender: option.id }))}
             >
-              {localFilters.gender === option.id && (
-                <Check className="w-3.5 h-3.5" />
-              )}
               {option.label}
-            </button>
+            </ToggleChip>
           ))}
         </div>
       </div>
 
-      {/* Age Range */}
-      <div className="space-y-3">
-        <h3 className="font-medium text-foreground text-sm">Alder</h3>
-        <div className="px-2">
-          <Slider
-            value={localFilters.ageRange}
-            min={18}
-            max={50}
-            step={1}
-            onValueChange={(value) =>
-              setLocalFilters(prev => ({ ...prev, ageRange: value as [number, number] }))
-            }
-            className="w-full"
-          />
-          <div className="flex justify-between text-xs text-muted-foreground mt-2">
-            <span>{localFilters.ageRange[0]} år</span>
-            <span>{localFilters.ageRange[1]} år</span>
-          </div>
+      {/* Age */}
+      <div>
+        <SectionLabel>Aldersinterval</SectionLabel>
+        <Slider
+          value={localFilters.ageRange}
+          min={18}
+          max={50}
+          step={1}
+          onValueChange={(value) =>
+            setLocalFilters(prev => ({ ...prev, ageRange: value as [number, number] }))
+          }
+        />
+        <div className="flex items-center justify-between mt-4 text-sm">
+          <span className="font-semibold text-foreground">{localFilters.ageRange[0]} år</span>
+          <span className="text-foreground/40 text-xs">til</span>
+          <span className="font-semibold text-foreground">
+            {localFilters.ageRange[1]}{localFilters.ageRange[1] >= 50 ? "+" : ""} år
+          </span>
         </div>
       </div>
 
-      {/* Nationality - Searchable Command Dropdown */}
-      <div className="space-y-2">
-        <h3 className="font-medium text-foreground text-sm">Nationalitet</h3>
+      {/* Nationality */}
+      <div>
+        <SectionLabel>Nationalitet</SectionLabel>
         <Popover open={nationalityOpen} onOpenChange={setNationalityOpen} modal={true}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-between text-sm font-normal"
+              className="w-full justify-between text-sm font-normal rounded-full border-border/60 h-11"
             >
               <span>
                 {localFilters.nationalities.length > 0
                   ? `${localFilters.nationalities.length} valgt`
-                  : "Vælg nationalitet..."}
+                  : "Vælg nationalitet"}
               </span>
-              <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+              <Search className="w-4 h-4 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[280px] p-0 bg-popover border border-border shadow-lg z-[200]" align="start" sideOffset={4}>
@@ -195,12 +204,12 @@ const RoomieFiltersPanel = ({
                       className="cursor-pointer"
                     >
                       <div className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border transition-colors ${
-                        localFilters.nationalities.includes(nationality) 
-                          ? 'bg-primary border-primary' 
+                        localFilters.nationalities.includes(nationality)
+                          ? 'bg-foreground border-foreground'
                           : 'border-border'
                       }`}>
                         {localFilters.nationalities.includes(nationality) && (
-                          <Check className="h-3 w-3 text-primary-foreground" />
+                          <span className="text-background text-[10px] leading-none">✓</span>
                         )}
                       </div>
                       {nationality}
@@ -211,16 +220,15 @@ const RoomieFiltersPanel = ({
             </Command>
           </PopoverContent>
         </Popover>
-        {/* Show selected nationalities as removable tags */}
         {localFilters.nationalities.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1.5 mt-3">
             {localFilters.nationalities.map((nationality) => (
-              <Badge key={nationality} variant="secondary" className="flex items-center gap-1 pr-1">
+              <Badge key={nationality} variant="secondary" className="flex items-center gap-1 pr-1 rounded-full bg-foreground text-background hover:bg-foreground/90">
                 {nationality}
                 <button
                   type="button"
                   onClick={() => removeNationality(nationality)}
-                  className="ml-1 hover:text-destructive rounded-full"
+                  className="ml-1 hover:opacity-70 rounded-full"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -230,21 +238,21 @@ const RoomieFiltersPanel = ({
         )}
       </div>
 
-      {/* Language - Searchable Command Dropdown */}
-      <div className="space-y-2">
-        <h3 className="font-medium text-foreground text-sm">Sprog</h3>
+      {/* Languages */}
+      <div>
+        <SectionLabel>Sprog</SectionLabel>
         <Popover open={languageOpen} onOpenChange={setLanguageOpen} modal={true}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-between text-sm font-normal"
+              className="w-full justify-between text-sm font-normal rounded-full border-border/60 h-11"
             >
               <span>
                 {localFilters.languages.length > 0
                   ? `${localFilters.languages.length} valgt`
-                  : "Vælg sprog..."}
+                  : "Vælg sprog"}
               </span>
-              <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+              <Search className="w-4 h-4 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[280px] p-0 bg-popover border border-border shadow-lg z-[200]" align="start" sideOffset={4}>
@@ -260,12 +268,12 @@ const RoomieFiltersPanel = ({
                       className="cursor-pointer"
                     >
                       <div className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border transition-colors ${
-                        localFilters.languages.includes(language) 
-                          ? 'bg-primary border-primary' 
+                        localFilters.languages.includes(language)
+                          ? 'bg-foreground border-foreground'
                           : 'border-border'
                       }`}>
                         {localFilters.languages.includes(language) && (
-                          <Check className="h-3 w-3 text-primary-foreground" />
+                          <span className="text-background text-[10px] leading-none">✓</span>
                         )}
                       </div>
                       {language}
@@ -276,16 +284,15 @@ const RoomieFiltersPanel = ({
             </Command>
           </PopoverContent>
         </Popover>
-        {/* Show selected languages as removable tags */}
         {localFilters.languages.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1.5 mt-3">
             {localFilters.languages.map((language) => (
-              <Badge key={language} variant="secondary" className="flex items-center gap-1 pr-1">
+              <Badge key={language} variant="secondary" className="flex items-center gap-1 pr-1 rounded-full bg-foreground text-background hover:bg-foreground/90">
                 {language}
                 <button
                   type="button"
                   onClick={() => removeLanguage(language)}
-                  className="ml-1 hover:text-destructive rounded-full"
+                  className="ml-1 hover:opacity-70 rounded-full"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -295,33 +302,31 @@ const RoomieFiltersPanel = ({
         )}
       </div>
 
-      {/* Profile Image */}
-      <div className="space-y-2">
-        <h3 className="font-medium text-foreground text-sm">Profil</h3>
-        <button
-          onClick={() =>
-            setLocalFilters(prev => ({ ...prev, hasProfileImage: !prev.hasProfileImage }))
-          }
-          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors ${
-            localFilters.hasProfileImage
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted hover:bg-muted/80 text-foreground"
-          }`}
+      {/* Profile image required */}
+      <div>
+        <SectionLabel>Profil</SectionLabel>
+        <ToggleChip
+          selected={localFilters.hasProfileImage}
+          onClick={() => setLocalFilters(prev => ({ ...prev, hasProfileImage: !prev.hasProfileImage }))}
         >
-          <span>Har profilbillede</span>
-          {localFilters.hasProfileImage && <Check className="w-4 h-4" />}
-        </button>
+          Har profilbillede
+        </ToggleChip>
       </div>
 
-      {/* Sidebar-only inline buttons (dialog/sheet show sticky footer) */}
       {variant === "sidebar" && (
-        <div className="space-y-2 pt-2">
-          <Button onClick={applyFilters} className="w-full" disabled={!hasLocalChanges}>
-            <Search className="w-4 h-4 mr-2" />
-            Find
-          </Button>
-          <Button variant="outline" onClick={handleReset} className="w-full" size="sm">
+        <div className="flex items-center justify-between gap-3 pt-2">
+          <button
+            onClick={handleReset}
+            className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
+          >
             Nulstil
+          </button>
+          <Button
+            onClick={applyFilters}
+            disabled={!hasLocalChanges}
+            className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-6 font-semibold"
+          >
+            Vis resultater
           </Button>
         </div>
       )}
@@ -329,47 +334,47 @@ const RoomieFiltersPanel = ({
   );
 
   const StickyFooter = () => (
-    <div className="flex items-center gap-3 border-t border-border bg-background/95 backdrop-blur px-6 py-4">
-      <Button
-        variant="ghost"
+    <div className="flex items-center justify-between gap-3 border-t border-border/60 bg-background px-6 py-4">
+      <button
         onClick={handleReset}
-        className="text-foreground/70 hover:text-foreground"
+        className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors px-2 py-2"
       >
-        Nulstil alt
-      </Button>
+        Nulstil
+      </button>
       <Button
         onClick={applyFilters}
         disabled={!hasLocalChanges}
-        className="ml-auto rounded-full px-6 bg-foreground text-background hover:bg-foreground/90"
+        className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-8 font-semibold"
       >
-        <Search className="w-4 h-4 mr-2" />
         Vis resultater
       </Button>
     </div>
   );
 
-  // Render based on variant
+  const HeaderEditorial = () => (
+    <div className="flex items-center gap-3 mb-2">
+      <div className="h-px w-8 bg-foreground/40" />
+      <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">
+        Filtrér
+        {activeFiltersCount > 0 && <span className="ml-2 text-foreground">· {activeFiltersCount} aktive</span>}
+      </span>
+    </div>
+  );
+
+  // Sidebar
   if (variant === "sidebar") {
     return (
-      <div className="w-72 flex-shrink-0">
-        <div className="sticky top-24 bg-background rounded-2xl border border-border p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="w-5 h-5 text-primary" />
-              <h2 className="font-semibold text-foreground">Filtre</h2>
-            </div>
-            {activeFiltersCount > 0 && (
-              <span className="px-2 py-0.5 bg-foreground text-background text-xs font-medium rounded-full">
-                {activeFiltersCount}
-              </span>
-            )}
-          </div>
-          <FilterContent />
+      <div className="w-80 flex-shrink-0">
+        <div className="sticky top-24 bg-background rounded-3xl border border-border/60 p-6">
+          <HeaderEditorial />
+          <h2 className="text-2xl font-medium tracking-tight text-foreground mb-6">Filtre.</h2>
+          {renderFilters()}
         </div>
       </div>
     );
   }
 
+  // Dialog (desktop popup)
   if (variant === "dialog") {
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -387,19 +392,13 @@ const RoomieFiltersPanel = ({
             )}
           </button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl border-border/70 max-h-[90vh] flex flex-col">
-          <DialogHeader className="px-6 py-4 border-b border-border/70 shrink-0">
-            <DialogTitle className="text-lg font-semibold flex items-center gap-2">
-              Filtre
-              {activeFiltersCount > 0 && (
-                <span className="ml-1 px-2 py-0.5 bg-muted text-foreground/70 text-xs font-medium rounded-full">
-                  {activeFiltersCount} aktive
-                </span>
-              )}
-            </DialogTitle>
+        <DialogContent className="max-w-xl p-0 gap-0 overflow-hidden rounded-3xl border-border/60 max-h-[88vh] flex flex-col">
+          <DialogHeader className="px-6 pt-6 pb-5 border-b border-border/60 shrink-0 text-left space-y-0">
+            <HeaderEditorial />
+            <DialogTitle className="text-3xl font-medium tracking-tight text-foreground">Filtre.</DialogTitle>
           </DialogHeader>
-          <div className="overflow-y-auto px-6 py-5 flex-1">
-            <FilterContent />
+          <div className="overflow-y-auto px-6 py-6 flex-1">
+            {renderFilters()}
           </div>
           <StickyFooter />
         </DialogContent>
@@ -407,7 +406,7 @@ const RoomieFiltersPanel = ({
     );
   }
 
-  // Sheet variant for mobile/tablet
+  // Sheet variant (mobile bottom)
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -424,19 +423,13 @@ const RoomieFiltersPanel = ({
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[90vh] p-0 rounded-t-3xl flex flex-col">
-        <SheetHeader className="px-5 py-4 border-b border-border/70 shrink-0">
-          <SheetTitle className="text-lg font-semibold flex items-center gap-2">
-            Filtre
-            {activeFiltersCount > 0 && (
-              <span className="ml-1 px-2 py-0.5 bg-muted text-foreground/70 text-xs font-medium rounded-full">
-                {activeFiltersCount} aktive
-              </span>
-            )}
-          </SheetTitle>
+      <SheetContent side="bottom" className="h-[88vh] p-0 rounded-t-3xl flex flex-col">
+        <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 shrink-0 text-left space-y-0">
+          <HeaderEditorial />
+          <SheetTitle className="text-3xl font-medium tracking-tight text-foreground">Filtre.</SheetTitle>
         </SheetHeader>
-        <div className="overflow-y-auto px-5 py-5 flex-1">
-          <FilterContent />
+        <div className="overflow-y-auto px-6 py-6 flex-1">
+          {renderFilters()}
         </div>
         <StickyFooter />
       </SheetContent>
