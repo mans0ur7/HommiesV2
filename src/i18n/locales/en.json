@@ -19,6 +19,21 @@
     "withinFewDays": "Typically replies within a few days",
     "slow": "Rarely replies quickly"
   },
+  "chat": {
+    "inputPlaceholder": "Write a message...",
+    "sendImage": "Send image",
+    "imageOnly": "Please pick an image",
+    "imageTooLarge": "Image is too large (max 8 MB)",
+    "imageSendFailed": "Could not send image",
+    "icebreakers": {
+      "stillAvailable": "Hi! Is the place still available?",
+      "canIVisit": "Can I come by and take a look?",
+      "utilitiesIncluded": "Are utilities included in the rent?",
+      "hiNice": "Hi! Cool profile 👋",
+      "lookingTogether": "Want to look for a place together?",
+      "whichArea": "Which area are you looking in?"
+    }
+  },
   "nav": {
     "home": "Home",
     "explore": "Explore",

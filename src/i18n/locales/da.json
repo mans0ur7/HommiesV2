@@ -19,6 +19,21 @@
     "withinFewDays": "Svarer typisk inden for få dage",
     "slow": "Svarer sjældent hurtigt"
   },
+  "chat": {
+    "inputPlaceholder": "Skriv en besked...",
+    "sendImage": "Send billede",
+    "imageOnly": "Vælg venligst et billede",
+    "imageTooLarge": "Billedet er for stort (maks. 8 MB)",
+    "imageSendFailed": "Kunne ikke sende billede",
+    "icebreakers": {
+      "stillAvailable": "Hej! Er boligen stadig ledig?",
+      "canIVisit": "Må jeg komme forbi og se den?",
+      "utilitiesIncluded": "Er forbrug inkluderet i lejen?",
+      "hiNice": "Hej! Spændende profil 👋",
+      "lookingTogether": "Skal vi finde noget sammen?",
+      "whichArea": "Hvilket område leder du efter?"
+    }
+  },
   "nav": {
     "home": "Hjem",
     "explore": "Udforsk",

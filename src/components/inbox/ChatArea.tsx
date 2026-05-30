@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, MoreHorizontal, User, Ban, Trash2, Star, Home, FileSignature, ChevronLeft, UsersRound, Check, CheckCheck, MessageCircle, Copy, Flag } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Send, MoreHorizontal, User, Ban, Trash2, Star, Home, FileSignature, ChevronLeft, UsersRound, Check, CheckCheck, MessageCircle, Copy, Flag, ImageIcon } from "lucide-react";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
@@ -38,28 +39,47 @@ import {
 const MessageBubble = ({
   isOwn,
   content,
+  imageUrl,
   onCopy,
   onReport,
+  onImageClick,
 }: {
   isOwn: boolean;
   content: string;
+  imageUrl?: string | null;
   onCopy: () => void;
   onReport?: () => void;
+  onImageClick?: () => void;
 }) => {
   const [open, setOpen] = useState(false);
   const longPress = useLongPress(() => setOpen(true));
+  const isImageOnly = !!imageUrl && (!content || content.trim() === "");
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div
           {...longPress}
-          className={`rounded-2xl px-4 py-2.5 shadow-sm select-none cursor-default ${
-            isOwn
-              ? "bg-primary text-primary-foreground rounded-br-md"
-              : "bg-background border border-border/50 text-foreground rounded-bl-md"
+          className={`shadow-sm select-none cursor-default overflow-hidden ${
+            isImageOnly
+              ? "rounded-2xl"
+              : isOwn
+                ? "rounded-2xl px-4 py-2.5 bg-primary text-primary-foreground rounded-br-md"
+                : "rounded-2xl px-4 py-2.5 bg-background border border-border/50 text-foreground rounded-bl-md"
           }`}
         >
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">{content}</p>
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt=""
+              onClick={onImageClick}
+              className={`block max-w-[240px] max-h-[240px] object-cover cursor-zoom-in ${
+                isImageOnly ? "" : isOwn ? "-mx-4 -mt-2.5 mb-2" : "-mx-4 -mt-2.5 mb-2"
+              }`}
+            />
+          )}
+          {!isImageOnly && (
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">{content}</p>
+          )}
         </div>
       </PopoverTrigger>
       <PopoverContent align="center" side="top" className="w-44 p-1">
@@ -88,6 +108,7 @@ interface Message {
   sender_id: string;
   created_at: string;
   read_at: string | null;
+  image_url?: string | null;
 }
 
 interface ChatAreaProps {
@@ -110,6 +131,7 @@ const ChatArea = ({
   showBackButton = false,
 }: ChatAreaProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isBlocking, setIsBlocking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [reportingMessageId, setReportingMessageId] = useState<string | null>(null);
@@ -121,6 +143,7 @@ const ChatArea = ({
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showRatingPrompt, setShowRatingPrompt] = useState(false);
   const [manualRatingTriggered, setManualRatingTriggered] = useState(false);
 
@@ -311,6 +334,58 @@ const ChatArea = ({
     if (!error) {
       // Notify badge to refresh immediately (realtime UPDATE may be unreliable)
       window.dispatchEvent(new CustomEvent("messages-read"));
+    }
+  };
+
+  const handleSendImage = async (file: File) => {
+    if (!conversation || sending) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error(t("chat.imageOnly"));
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error(t("chat.imageTooLarge"));
+      return;
+    }
+
+    setSending(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${currentUserId}/${conversation.id}-${Date.now()}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from("chat-images")
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw upErr;
+
+      const { data: pub } = supabase.storage.from("chat-images").getPublicUrl(path);
+      const publicUrl = pub.publicUrl;
+
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: conversation.id,
+          sender_id: currentUserId,
+          content: " ",
+          image_url: publicUrl,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+
+      if (data) {
+        setMessages((prev) => [...prev, data]);
+        await supabase
+          .from("conversations")
+          .update({ updated_at: new Date().toISOString() })
+          .eq("id", conversation.id);
+        onMessageSent();
+      }
+    } catch (e: unknown) {
+      console.error("[chat] image send failed", e);
+      toast.error(t("chat.imageSendFailed"));
+    } finally {
+      setSending(false);
     }
   };
 
@@ -652,6 +727,8 @@ const ChatArea = ({
                 <MessageBubble
                   isOwn={isOwn}
                   content={message.content}
+                  imageUrl={message.image_url}
+                  onImageClick={message.image_url ? () => window.open(message.image_url || "", "_blank") : undefined}
                   onCopy={() => {
                     navigator.clipboard.writeText(message.content);
                     toast.success("Besked kopieret");
@@ -762,10 +839,58 @@ const ChatArea = ({
         </DialogContent>
       </Dialog>
 
+      {/* Icebreaker quick replies — only on a fresh conversation */}
+      {messages.length === 0 && !sending && (
+        <div className="px-4 md:px-6 pb-2 flex flex-wrap gap-2 flex-shrink-0">
+          {(conversation.property
+            ? [
+                t("chat.icebreakers.stillAvailable"),
+                t("chat.icebreakers.canIVisit"),
+                t("chat.icebreakers.utilitiesIncluded"),
+              ]
+            : [
+                t("chat.icebreakers.hiNice"),
+                t("chat.icebreakers.lookingTogether"),
+                t("chat.icebreakers.whichArea"),
+              ]
+          ).map((text) => (
+            <button
+              key={text}
+              onClick={() => setNewMessage(text)}
+              className="px-3 py-1.5 rounded-full bg-muted/60 hover:bg-muted text-xs text-foreground/80 hover:text-foreground transition-colors border border-border/40"
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="px-4 py-4 md:px-6 bg-background/80 backdrop-blur-lg border-t flex-shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleSendImage(f);
+              e.target.value = "";
+            }}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={sending}
+            onClick={() => fileInputRef.current?.click()}
+            aria-label={t("chat.sendImage")}
+            className="flex-shrink-0 h-11 w-11 md:h-12 md:w-12 rounded-full text-muted-foreground hover:text-foreground"
+          >
+            <ImageIcon className="h-5 w-5" />
+          </Button>
           <Input
-            placeholder="Skriv en besked..."
+            placeholder={t("chat.inputPlaceholder")}
             value={newMessage}
             onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
             onKeyDown={handleKeyDown}
