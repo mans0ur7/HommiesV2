@@ -27,6 +27,7 @@ export interface PaginatedRoomie {
   languages: string[] | null;
   monthly_budget: number | null;
   rental_period: string | null;
+  last_seen_at?: string | null;
 }
 
 const PAGE_SIZE = 15;
@@ -59,7 +60,7 @@ export function usePaginatedRoomies(filters: RoomieFilters = {}) {
   const buildQuery = useCallback(() => {
     let query = supabase
       .from('profiles')
-      .select('id, user_id, name, avatar_url, study, work, age, gender, nationality, bio, images, personality, lifestyle, languages, monthly_budget, rental_period, hidden_from_explore')
+      .select('id, user_id, name, avatar_url, study, work, age, gender, nationality, bio, images, personality, lifestyle, languages, monthly_budget, rental_period, hidden_from_explore, last_seen_at')
       .eq('user_type', 'roomie')
       .eq('hidden_from_explore', false)
       .order('created_at', { ascending: false });

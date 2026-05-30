@@ -183,7 +183,7 @@ const Inbox = () => {
           if (otherUserId) {
             const { data: profileData } = await supabase
               .from("profiles")
-              .select("id, name, avatar_url, age, study, user_id, user_type")
+              .select("id, name, avatar_url, age, study, user_id, user_type, last_seen_at")
               .eq("user_id", otherUserId)
               .maybeSingle();
             otherProfile = profileData;
@@ -236,6 +236,7 @@ const Inbox = () => {
               avatar_url: otherProfile?.avatar_url,
               age: otherProfile?.age,
               study: otherProfile?.study,
+              last_seen_at: otherProfile?.last_seen_at ?? null,
             },
             lastMessage: messages?.[0],
             unreadCount: count || 0,

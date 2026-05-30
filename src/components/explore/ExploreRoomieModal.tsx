@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Sparkles, Calendar, Wallet, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import LastActive from "@/components/common/LastActive";
+import { usePresence } from "@/hooks/usePresence";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +26,7 @@ interface RoomieProfile {
   languages: string[] | null;
   monthly_budget: number | null;
   rental_period: string | null;
+  last_seen_at?: string | null;
 }
 
 interface ExploreRoomieModalProps {
@@ -56,6 +59,7 @@ const lifestyleColors: Record<string, string> = {
 
 const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) => {
   const { user } = useAuth();
+  const { isOnline } = usePresence();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isConnecting, setIsConnecting] = useState(false);
 
@@ -210,13 +214,16 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
           {/* Profile info - scrolls naturally */}
           <div className="p-6">
             <h2 className="text-2xl font-bold text-foreground mb-1">{roomie.name}</h2>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-2">
               {roomie.age && `${roomie.age}`}
               {roomie.age && genderLabel && " • "}
               {genderLabel}
               {(roomie.age || genderLabel) && roomie.study && " • "}
               {roomie.study || "Studerende"}
             </p>
+            <div className="mb-6">
+              <LastActive lastSeenAt={roomie.last_seen_at} isOnline={isOnline(roomie.user_id)} hideIfUnknown />
+            </div>
 
             {/* Personality */}
             {roomie.personality && roomie.personality.length > 0 && (
@@ -370,13 +377,16 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
           {/* Right: Profile info */}
           <div className="p-8 overflow-y-auto max-h-[90vh]">
             <h2 className="text-2xl font-bold text-foreground mb-1">{roomie.name}</h2>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-2">
               {roomie.age && `${roomie.age}`}
               {roomie.age && genderLabel && " • "}
               {genderLabel}
               {(roomie.age || genderLabel) && roomie.study && " • "}
               {roomie.study || "Studerende"}
             </p>
+            <div className="mb-6">
+              <LastActive lastSeenAt={roomie.last_seen_at} isOnline={isOnline(roomie.user_id)} hideIfUnknown />
+            </div>
 
             {/* Personality */}
             {roomie.personality && roomie.personality.length > 0 && (

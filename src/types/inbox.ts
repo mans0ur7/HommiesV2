@@ -21,6 +21,7 @@ export interface Conversation {
     avatar_url: string | null;
     age: number | null;
     study: string | null;
+    last_seen_at?: string | null;
   };
   lastMessage?: {
     content: string;

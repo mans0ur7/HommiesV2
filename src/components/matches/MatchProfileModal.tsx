@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { MoreVertical } from "lucide-react";
 import ReportUserModal from "@/components/ReportUserModal";
+import LastActive from "@/components/common/LastActive";
+import { usePresence } from "@/hooks/usePresence";
 
 interface Profile {
   id: string;
@@ -46,6 +48,7 @@ interface Profile {
   languages: string[] | null;
   monthly_budget: number | null;
   rental_period: string | null;
+  last_seen_at?: string | null;
 }
 
 interface Property {
@@ -108,6 +111,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { isOnline } = usePresence();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
   const [blockConfirmOpen, setBlockConfirmOpen] = useState(false);
@@ -243,13 +247,16 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
             {/* Profile info - scrolls naturally */}
             <div className="p-6">
               <h2 className="text-2xl font-bold text-foreground mb-1">{profile.name}</h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground mb-2">
                 {profile.age && `${profile.age}`}
                 {profile.age && genderLabel && " • "}
                 {genderLabel}
                 {(profile.age || genderLabel) && profile.study && " • "}
                 {profile.study || "Studerende"}
               </p>
+              <div className="mb-6">
+                <LastActive lastSeenAt={profile.last_seen_at} isOnline={isOnline(profile.user_id)} hideIfUnknown />
+              </div>
 
               {/* Personality */}
               {profile.personality && profile.personality.length > 0 && (
@@ -457,13 +464,16 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
             {/* Right: Profile info */}
             <div className="p-8 overflow-y-auto max-h-[90vh]">
               <h2 className="text-2xl font-bold text-foreground mb-1">{profile.name}</h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground mb-2">
                 {profile.age && `${profile.age}`}
                 {profile.age && genderLabel && " • "}
                 {genderLabel}
                 {(profile.age || genderLabel) && profile.study && " • "}
                 {profile.study || "Studerende"}
               </p>
+              <div className="mb-6">
+                <LastActive lastSeenAt={profile.last_seen_at} isOnline={isOnline(profile.user_id)} hideIfUnknown />
+              </div>
 
               {/* Personality */}
               {profile.personality && profile.personality.length > 0 && (

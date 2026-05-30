@@ -3,6 +3,15 @@
     "da": "Dansk",
     "en": "English"
   },
+  "lastActive": {
+    "now": "Aktiv nu",
+    "activePrefix": "Aktiv",
+    "minutesAgo": "for {{count}} min siden",
+    "hoursAgo": "for {{count}} t siden",
+    "daysAgo": "for {{count}} d siden",
+    "weeksAgo": "for {{count}} u siden",
+    "longAgo": "for længe siden"
+  },
   "nav": {
     "home": "Hjem",
     "explore": "Udforsk",

@@ -9,6 +9,7 @@ import BugReportButton from "@/components/BugReportButton";
 import CookieBanner from "@/components/CookieBanner";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { useAppBadge } from "@/hooks/useAppBadge";
+import { useLastSeenHeartbeat } from "@/hooks/useLastSeenHeartbeat";
 
 // Lazy-loaded routes — each page is fetched on demand instead of shipping the
 // whole app in the initial bundle.
@@ -58,6 +59,7 @@ const ProfileGuard = () => {
   const navigate = useNavigate();
   useDeepLinks();
   useAppBadge();
+  useLastSeenHeartbeat();
 
   useEffect(() => {
     if (loading || !profileLoaded) return;
