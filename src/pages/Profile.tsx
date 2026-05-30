@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { checkFields } from "@/lib/contentFilter";
 import { Upload, User, ChevronLeft, ChevronRight, Pencil, X, Check, ArrowRight, ArrowLeft, Star, Heart, UserCircle, Settings, Sparkles, Plus, Trash2 } from "lucide-react";
 import { pickImage } from "@/lib/camera";
 
@@ -240,6 +241,18 @@ const Profile = () => {
 
   const handleSave = async () => {
     if (!user || !profile) return;
+
+    // Block bios with slurs, scam markers, or obvious spam patterns
+    const check = checkFields({ name, bio, study, workOther });
+    if (!check.ok) {
+      toast({
+        variant: "destructive",
+        title: t("contentFilter.title"),
+        description: t(`contentFilter.${check.reason}`),
+      });
+      return;
+    }
+
     setIsSaving(true);
 
     try {

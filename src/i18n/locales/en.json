@@ -12,6 +12,13 @@
     "weeksAgo": "{{count}}w ago",
     "longAgo": "a long time ago"
   },
+  "contentFilter": {
+    "title": "We couldn't save that",
+    "profanity": "Your text contains language we don't allow. Please rephrase.",
+    "spam": "Your text looks like spam. Remove repeated characters or links.",
+    "scam": "We block suspicious links and foreign phone numbers in text fields.",
+    "emojiSpam": "Too many emojis in a row — please trim the text."
+  },
   "responseTime": {
     "withinHour": "Typically replies within an hour",
     "withinHours": "Typically replies within a few hours",

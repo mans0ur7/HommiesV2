@@ -12,6 +12,13 @@
     "weeksAgo": "for {{count}} u siden",
     "longAgo": "for længe siden"
   },
+  "contentFilter": {
+    "title": "Vi kunne ikke gemme det",
+    "profanity": "Teksten indeholder upassende ord. Prøv at omformulere.",
+    "spam": "Teksten ligner spam. Fjern gentagne tegn eller links.",
+    "scam": "Vi blokerer mistænkelige links og udenlandske telefonnumre i tekstfelter.",
+    "emojiSpam": "For mange emojis i træk – ryd lidt op i teksten."
+  },
   "responseTime": {
     "withinHour": "Svarer typisk inden for 1 time",
     "withinHours": "Svarer typisk inden for et par timer",

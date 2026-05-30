@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import GenderCompositionSelector from "@/components/listings/GenderCompositionSelector";
 import { compressImage } from "@/lib/compressImage";
+import { checkFields } from "@/lib/contentFilter";
 import { isNativeApp } from "@/lib/native";
 import { useListingDraft } from "@/hooks/useListingDraft";
 
@@ -385,6 +386,20 @@ const MyListings = () => {
 
   const handleSubmit = async () => {
     try {
+      const filterResult = checkFields({
+        title: formData.title,
+        description: formData.description,
+        address: formData.address,
+      });
+      if (!filterResult.ok) {
+        toast({
+          variant: "destructive",
+          title: t("contentFilter.title"),
+          description: t(`contentFilter.${filterResult.reason}`),
+        });
+        return;
+      }
+
       const propertyData = {
         user_id: user?.id,
         title: formData.title,
