@@ -3,7 +3,9 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 import { initNativeApp, isNativeApp } from "./lib/native";
+import { initSentry } from "./lib/sentry";
 
+initSentry();
 initNativeApp();
 
 // Register the service worker early so the site is install-eligible (PWA).

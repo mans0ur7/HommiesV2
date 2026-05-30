@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import BugReportButton from "@/components/BugReportButton";
 import CookieBanner from "@/components/CookieBanner";
 import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
+import { Analytics } from "@vercel/analytics/react";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { useAppBadge } from "@/hooks/useAppBadge";
 import { useLastSeenHeartbeat } from "@/hooks/useLastSeenHeartbeat";
@@ -128,6 +129,7 @@ const App = () => (
           </RouteErrorBoundary>
           <BugReportButton />
           <CookieBanner />
+          <Analytics />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
