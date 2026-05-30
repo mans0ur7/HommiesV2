@@ -58,9 +58,11 @@ const ExplorePropertyCard = ({
     >
       {/* Full-bleed background image */}
       {image ? (
-        <img 
-          src={image} 
+        <img
+          src={image}
           alt={`Billede af ${title}`}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (

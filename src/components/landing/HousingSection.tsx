@@ -26,7 +26,7 @@ const HousingSection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 auto-rows-[180px]">
           {/* Big photo tile */}
           <div className="sm:col-span-4 sm:row-span-2 relative overflow-hidden rounded-3xl bg-muted">
-            <img src={housing1} alt={t("landing.housingRoomsEyebrow")} className="absolute inset-0 w-full h-full object-cover" />
+            <img src={housing1} alt={t("landing.housingRoomsEyebrow")} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 text-background">
               <div className="text-xs uppercase tracking-wider opacity-80 mb-1">{t("landing.housingRoomsEyebrow")}</div>
@@ -78,7 +78,7 @@ const HousingSection = () => {
           {/* Photo + chat */}
           <div className="sm:col-span-3 grid grid-cols-2 gap-4">
             <div className="relative overflow-hidden rounded-3xl bg-muted">
-              <img src={housing3} alt={t("landing.housingDirectTitle")} className="absolute inset-0 w-full h-full object-cover" />
+              <img src={housing3} alt={t("landing.housingDirectTitle")} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
             </div>
             <div className="rounded-3xl bg-card border border-border p-5 flex flex-col justify-between">
               <MessageCircle className="w-6 h-6 text-primary" />

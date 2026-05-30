@@ -7,6 +7,7 @@ import { useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import BugReportButton from "@/components/BugReportButton";
 import CookieBanner from "@/components/CookieBanner";
+import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { useAppBadge } from "@/hooks/useAppBadge";
 import { useLastSeenHeartbeat } from "@/hooks/useLastSeenHeartbeat";
@@ -89,6 +90,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ProfileGuard />
+          <RouteErrorBoundary>
           <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -123,6 +125,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+          </RouteErrorBoundary>
           <BugReportButton />
           <CookieBanner />
         </BrowserRouter>
