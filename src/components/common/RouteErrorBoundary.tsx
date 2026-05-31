@@ -25,12 +25,6 @@ export default class RouteErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: { componentStack?: string }) {
     console.error("[RouteErrorBoundary]", error, info.componentStack);
-    // Forward to Sentry once it's installed
-    type WindowWithSentry = Window & { Sentry?: { captureException: (e: Error) => void } };
-    const w = window as unknown as WindowWithSentry;
-    if (w.Sentry?.captureException) {
-      w.Sentry.captureException(error);
-    }
   }
 
   render() {
