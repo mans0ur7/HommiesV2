@@ -458,7 +458,7 @@ const Profile = () => {
                     >
                       <Upload className="w-3.5 h-3.5 text-secondary-foreground" />
                     </button>
-                    <span className="absolute top-1 left-1 bg-secondary text-secondary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
+                    <span className="absolute top-1 left-1 bg-secondary text-secondary-foreground text-[11px] font-medium px-1.5 py-0.5 rounded">
                       {t("profile.mainPhoto")}
                     </span>
                   </div>
@@ -873,7 +873,10 @@ const Profile = () => {
 
             {/* About me */}
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.aboutMe")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.aboutMe")}</h2>
+              </div>
               <p className="text-muted-foreground leading-relaxed">
                 {profile.bio ? (
                   showFullBio || profile.bio.length <= 200
@@ -897,7 +900,10 @@ const Profile = () => {
             {/* Personality */}
             {personality.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.personality")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.personality")}</h2>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {personality.map((item) => (
                     <span
@@ -915,7 +921,10 @@ const Profile = () => {
             {/* Lifestyle */}
             {lifestyle.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.lifestyle")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.lifestyle")}</h2>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {lifestyle.map((item) => (
                     <span
@@ -933,7 +942,10 @@ const Profile = () => {
             {/* Languages */}
             {languages.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.languages")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.languages")}</h2>
+                </div>
                 <p className="text-muted-foreground">{languages.join(", ")}</p>
               </div>
             )}
@@ -941,7 +953,10 @@ const Profile = () => {
             {/* Nationality */}
             {profile.nationality && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.nationality")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.nationality")}</h2>
+                </div>
                 <p className="text-muted-foreground">{profile.nationality}</p>
               </div>
             )}
@@ -949,7 +964,10 @@ const Profile = () => {
             {/* Rent Preferences */}
             {isRoomie && (profile.monthly_budget || profile.rental_period) && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.rentalPreferences")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.rentalPreferences")}</h2>
+                </div>
                 <div className="space-y-1">
                   {profile.monthly_budget && (
                     <p className="text-muted-foreground">
@@ -970,7 +988,10 @@ const Profile = () => {
             {/* Landlord Listings - Right column */}
             {!isRoomie && landlordProperties.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-4">{t("userProfile.listings")}</h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.listings")}</h2>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   {landlordProperties.map((property) => (
                     <div 
@@ -983,7 +1004,7 @@ const Profile = () => {
                           <img 
                             src={property.images[0]} 
                             alt={property.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -1007,7 +1028,7 @@ const Profile = () => {
                               </div>
                             )}
                           </div>
-                          <span className="text-xs text-white font-medium drop-shadow-lg">{profile.name}</span>
+                          <span className="text-xs text-white font-medium">{profile.name}</span>
                         </div>
                         {/* Image dots indicator */}
                         {property.images && property.images.length > 1 && (

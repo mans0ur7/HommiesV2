@@ -49,25 +49,28 @@ const GroupDetailView = ({
       </Button>
 
       {/* Elegant group header card */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-primary via-primary to-primary/80 p-6 md:p-8">
-        {/* Decorative blob */}
-        <div className="absolute -right-20 -top-20 w-56 h-56 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-        <div className="absolute -left-10 -bottom-20 w-48 h-48 rounded-full bg-white/5 blur-2xl pointer-events-none" />
-
+      <div className="relative rounded-3xl border border-border/60 bg-background p-6 md:p-8">
         <button
           onClick={() => onEditGroup(group)}
-          className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 h-8 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white text-xs font-medium transition-colors"
+          className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border border-border/60 bg-secondary/20 hover:bg-secondary/30 text-foreground/70 text-xs font-medium transition-colors"
         >
           <Settings className="w-3.5 h-3.5" />
           Indstillinger
         </button>
 
-        <div className="relative">
+        <div>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
+              Gruppe
+            </span>
+          </div>
+
           <div className="flex -space-x-3 mb-4">
             {acceptedMembers.slice(0, 4).map((member, idx) => (
               <div
                 key={member.id}
-                className="w-12 h-12 rounded-full border-[3px] border-primary overflow-hidden bg-white/20"
+                className="w-12 h-12 rounded-full border-[3px] border-background overflow-hidden bg-secondary/20"
                 style={{ zIndex: 4 - idx }}
               >
                 {member.profile?.avatar_url ? (
@@ -78,32 +81,32 @@ const GroupDetailView = ({
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-white/70" />
+                    <User className="w-5 h-5 text-foreground/50" />
                   </div>
                 )}
               </div>
             ))}
             {acceptedMembers.length > 4 && (
-              <div className="w-12 h-12 rounded-full border-[3px] border-primary bg-white/20 flex items-center justify-center">
-                <span className="text-xs text-white font-semibold">
+              <div className="w-12 h-12 rounded-full border-[3px] border-background bg-secondary/20 flex items-center justify-center">
+                <span className="text-xs text-foreground/70 font-medium">
                   +{acceptedMembers.length - 4}
                 </span>
               </div>
             )}
           </div>
 
-          <h2 className="font-semibold text-white text-2xl md:text-3xl tracking-tight">
+          <h2 className="font-medium text-foreground text-2xl md:text-3xl tracking-tight">
             {group.name}
           </h2>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-white/80">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-foreground/60">
             <span className="inline-flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5" />
               {acceptedMembers.length} {acceptedMembers.length === 1 ? "medlem" : "medlemmer"}
             </span>
             {group.budget_per_person && (
               <span className="inline-flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-white/50" />
+                <span className="w-1 h-1 rounded-full bg-foreground/30" />
                 {group.budget_per_person.toLocaleString()} kr / person
               </span>
             )}

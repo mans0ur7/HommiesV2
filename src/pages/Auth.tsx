@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { Eye, EyeOff, Home, Users, ArrowRight, Fingerprint } from "lucide-react";
+import { Eye, EyeOff, Home, Users, ArrowRight, Fingerprint, Loader2 } from "lucide-react";
 import {
   checkBiometricAvailable,
   authenticateBiometric,
@@ -235,8 +235,8 @@ const Auth = () => {
         <div className="flex-1 flex items-center justify-center py-10">
           <div className="w-full max-w-md">
             {/* Eyebrow + heading */}
-            <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-5">
-              <span className="w-6 h-px bg-foreground/30" />
+            <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-5">
+              <span className="h-px w-8 bg-foreground/40" />
               {isLogin ? t("auth.loginEyebrow") : t("auth.signupEyebrow")}
             </span>
             <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground leading-[1.05] mb-3">
@@ -361,7 +361,7 @@ const Auth = () => {
               >
                 {isLoading ? (
                   <>
-                    <span className="animate-spin mr-2">⏳</span>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     {t("auth.loading")}
                   </>
                 ) : (
@@ -415,7 +415,7 @@ const Auth = () => {
             alt="Lyst nordisk hjem"
             className="absolute inset-0 w-full h-full object-cover opacity-90"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
 
 
           {/* Quote */}

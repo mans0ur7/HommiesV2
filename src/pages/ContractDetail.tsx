@@ -73,9 +73,9 @@ interface Contract {
 }
 
 const statusConfig: Record<string, { labelKey: string; icon: React.ElementType; color: string }> = {
-  draft:   { labelKey: "contract.statusDraft",  icon: Clock,       color: "bg-yellow-500" },
-  ready:   { labelKey: "contract.statusReady",  icon: FileText,    color: "bg-blue-500"   },
-  signed:  { labelKey: "contract.statusSigned", icon: CheckCircle, color: "bg-green-600"  },
+  draft:   { labelKey: "contract.statusDraft",  icon: Clock,       color: "bg-secondary text-secondary-foreground" },
+  ready:   { labelKey: "contract.statusReady",  icon: FileText,    color: "bg-secondary text-secondary-foreground" },
+  signed:  { labelKey: "contract.statusSigned", icon: CheckCircle, color: "bg-foreground text-background"          },
 };
 
 export default function ContractDetail() {
@@ -219,15 +219,18 @@ export default function ContractDetail() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-xl font-semibold text-foreground leading-tight">
-                  {t("contract.title")}
-                </h1>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
+                    {t("contract.title")}
+                  </span>
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {contract.property_address}, {contract.property_city}
                 </p>
               </div>
             </div>
-            <Badge className={`${statusInfo.color} text-white shrink-0`}>
+            <Badge className={`${statusInfo.color} shrink-0`}>
               <StatusIcon className="h-3 w-3 mr-1" />
               {t(statusInfo.labelKey)}
             </Badge>
@@ -252,7 +255,7 @@ export default function ContractDetail() {
             {isTenant && contract.status === "ready" && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button size="sm" disabled={signing} className="bg-green-600 hover:bg-green-700 text-white">
+                  <Button size="sm" disabled={signing} className="bg-foreground text-background hover:bg-foreground/90">
                     {signing
                       ? <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       : <PenLine className="h-4 w-4 mr-2" />}
@@ -269,7 +272,7 @@ export default function ContractDetail() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>{t("contract.cancel")}</AlertDialogCancel>
                     <AlertDialogAction
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-foreground text-background hover:bg-foreground/90"
                       onClick={handleSign}
                     >
                       {t("contract.sign")}
@@ -286,18 +289,18 @@ export default function ContractDetail() {
           </div>
 
           {/* Signing status */}
-          <Card>
+          <Card className="rounded-2xl border border-border/60 shadow-none">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">{t("contract.signatures")}</CardTitle>
+              <CardTitle className="text-base font-medium tracking-tight">{t("contract.signatures")}</CardTitle>
             </CardHeader>
             <CardContent className="grid sm:grid-cols-2 gap-4">
-              <div className="rounded-lg border p-3 space-y-1">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+              <div className="rounded-2xl border border-border/60 p-3 space-y-1">
+                <p className="text-[11px] text-foreground/60 uppercase tracking-[0.18em]">
                   {t("contract.author")}
                 </p>
                 <p className="font-medium text-sm">{contract.landlord_name || "—"}</p>
                 {contract.ready_at ? (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
+                  <p className="text-xs text-foreground/70 flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
                     {format(new Date(contract.ready_at), "d. MMM yyyy · HH:mm", { locale: da })}
                   </p>
@@ -305,13 +308,13 @@ export default function ContractDetail() {
                   <p className="text-xs text-muted-foreground">{t("contract.notSignedYet")}</p>
                 )}
               </div>
-              <div className="rounded-lg border p-3 space-y-1">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+              <div className="rounded-2xl border border-border/60 p-3 space-y-1">
+                <p className="text-[11px] text-foreground/60 uppercase tracking-[0.18em]">
                   {t("contract.tenant")}
                 </p>
                 <p className="font-medium text-sm">{contract.tenant_name || "—"}</p>
                 {contract.tenant_confirmed_at ? (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
+                  <p className="text-xs text-foreground/70 flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
                     {format(new Date(contract.tenant_confirmed_at), "d. MMM yyyy · HH:mm", { locale: da })}
                   </p>
@@ -325,13 +328,13 @@ export default function ContractDetail() {
           </Card>
 
           {/* § 1 Parter */}
-          <Card>
+          <Card className="rounded-2xl border border-border/60 shadow-none">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">{t("contract.section1")}</CardTitle>
+              <CardTitle className="text-base font-medium tracking-tight">{t("contract.section1")}</CardTitle>
             </CardHeader>
             <CardContent className="grid sm:grid-cols-2 gap-6">
               <div>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
+                <p className="text-[11px] text-foreground/60 uppercase tracking-[0.18em] mb-2">
                   {t("contract.author")}
                 </p>
                 <div className="text-sm space-y-0.5">
@@ -341,7 +344,7 @@ export default function ContractDetail() {
                 </div>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">
+                <p className="text-[11px] text-foreground/60 uppercase tracking-[0.18em] mb-2">
                   {t("contract.tenant")}
                 </p>
                 <div className="text-sm space-y-0.5">
@@ -369,9 +372,9 @@ export default function ContractDetail() {
 
           {/* § 2 Stilletid & støj */}
           {(contract.quiet_hours || contract.noise_policy) && (
-            <Card>
+            <Card className="rounded-2xl border border-border/60 shadow-none">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">{t("contract.section2")}</CardTitle>
+                <CardTitle className="text-base font-medium tracking-tight">{t("contract.section2")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {contract.quiet_hours && (
@@ -392,9 +395,9 @@ export default function ContractDetail() {
 
           {/* § 3 Rengøring & køkken */}
           {(contract.maintenance_responsibility || contract.kitchen_rules) && (
-            <Card>
+            <Card className="rounded-2xl border border-border/60 shadow-none">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">{t("contract.section3")}</CardTitle>
+                <CardTitle className="text-base font-medium tracking-tight">{t("contract.section3")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 {contract.maintenance_responsibility && (
@@ -414,24 +417,24 @@ export default function ContractDetail() {
           )}
 
           {/* § 4 Gæster, husdyr, rygning */}
-          <Card>
+          <Card className="rounded-2xl border border-border/60 shadow-none">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">{t("contract.section4")}</CardTitle>
+              <CardTitle className="text-base font-medium tracking-tight">{t("contract.section4")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <div className="flex flex-wrap gap-3">
                 <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
                   contract.pets_allowed
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    ? "bg-secondary/20 text-foreground/70 border border-border/60"
+                    : "bg-muted text-muted-foreground border border-border/60"
                 }`}>
                   <Dog className="h-3.5 w-3.5" />
                   {t("contract.petsLabel")} {contract.pets_allowed ? t("contract.allowed") : t("contract.notAllowed")}
                 </div>
                 <div className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
                   contract.smoking_allowed
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    ? "bg-secondary/20 text-foreground/70 border border-border/60"
+                    : "bg-muted text-muted-foreground border border-border/60"
                 }`}>
                   <Cigarette className="h-3.5 w-3.5" />
                   {t("contract.smokingLabel")} {contract.smoking_allowed ? t("contract.allowed") : t("contract.notAllowed")}
@@ -457,9 +460,9 @@ export default function ContractDetail() {
 
           {/* § 5 Yderligere regler */}
           {contract.house_rules?.trim() && (
-            <Card>
+            <Card className="rounded-2xl border border-border/60 shadow-none">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">{t("contract.section5")}</CardTitle>
+                <CardTitle className="text-base font-medium tracking-tight">{t("contract.section5")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm whitespace-pre-wrap">{contract.house_rules}</p>

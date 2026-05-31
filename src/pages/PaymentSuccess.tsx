@@ -50,17 +50,17 @@ const PaymentSuccess = () => {
         {status === "loading" && (
           <>
             <Loader2 className="w-12 h-12 animate-spin text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-foreground">{t("paymentSuccess.confirming")}</h2>
+            <h2 className="text-xl font-medium tracking-tight text-foreground">{t("paymentSuccess.confirming")}</h2>
             <p className="text-sm text-muted-foreground mt-2">{t("paymentSuccess.waitMoment")}</p>
           </>
         )}
 
         {status === "success" && (
           <>
-            <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-8 h-8 text-green-500" />
+            <div className="w-16 h-16 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-8 h-8 text-foreground" />
             </div>
-            <h2 className="text-2xl font-semibold text-foreground mb-2">{t("paymentSuccess.completed")}</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-foreground mb-2">{t("paymentSuccess.completed")}</h2>
             {productType && (
               <p className="text-muted-foreground text-sm mb-1">
                 {t("paymentSuccess.activated", { product: PRODUCT_LABEL_KEYS[productType] ? t(PRODUCT_LABEL_KEYS[productType]) : productType })}
@@ -88,10 +88,10 @@ const PaymentSuccess = () => {
 
         {status === "error" && (
           <>
-            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 rounded-full bg-destructive/10 border border-border/60 flex items-center justify-center mx-auto mb-6">
               <XCircle className="w-8 h-8 text-destructive" />
             </div>
-            <h2 className="text-2xl font-semibold text-foreground mb-2">{t("paymentSuccess.errorTitle")}</h2>
+            <h2 className="text-2xl font-medium tracking-tight text-foreground mb-2">{t("paymentSuccess.errorTitle")}</h2>
             <p className="text-muted-foreground text-sm mb-8">
               {t("paymentSuccess.errorBody")}
             </p>

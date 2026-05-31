@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Users, MapPin, Wallet, Home, Check, X, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface GroupMemberProfile {
   user_id: string;
@@ -51,6 +53,7 @@ const GroupInvitationModal = ({
   memberId,
   onRespond,
 }: GroupInvitationModalProps) => {
+  const isMobile = useIsMobile();
   const [members, setMembers] = useState<GroupMemberProfile[]>([]);
   const [creatorProfile, setCreatorProfile] = useState<{ name: string; avatar_url: string | null } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -135,18 +138,29 @@ const GroupInvitationModal = ({
   ];
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-primary" />
+    <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={cn(
+          "p-0 gap-0 bg-background flex flex-col",
+          isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+        )}
+      >
+        {/* Header */}
+        <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">Invitation</span>
+          </div>
+          <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
             {group.name}
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+        </SheetHeader>
 
-        <div className="space-y-4 py-2">
+        {/* Scrollable content */}
+        <div className="overflow-y-auto px-6 py-6 flex-1 space-y-6">
           {/* Invited by */}
-          <div className="flex items-center gap-3 p-3 bg-secondary/10 rounded-lg border border-secondary/20">
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-secondary/20 border border-border/60">
             {inviterAvatar ? (
               <img
                 src={inviterAvatar}
@@ -187,16 +201,18 @@ const GroupInvitationModal = ({
           </div>
 
           {/* Members */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              Medlemmer ({allMembers.length})
-            </h4>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="h-px w-8 bg-foreground/40" />
+              <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
+                Medlemmer ({allMembers.length})
+              </span>
+            </div>
 
             {loading ? (
               <div className="space-y-2">
                 {[1, 2].map((i) => (
-                  <div key={i} className="flex items-center gap-3 p-2 animate-pulse">
+                  <div key={i} className="flex items-center gap-3 p-2">
                     <div className="w-9 h-9 rounded-full bg-muted" />
                     <div className="h-4 w-24 bg-muted rounded" />
                   </div>
@@ -207,7 +223,7 @@ const GroupInvitationModal = ({
                 {allMembers.map((member) => (
                   <div
                     key={member.user_id}
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50"
+                    className="flex items-center gap-3 p-2 rounded-2xl hover:bg-muted/50"
                   >
                     {member.profile?.avatar_url ? (
                       <img
@@ -225,7 +241,7 @@ const GroupInvitationModal = ({
                         {member.profile?.name || "Ukendt"}
                       </p>
                       {member.status === "creator" && (
-                        <p className="text-[10px] text-primary font-medium">Oprettet gruppen</p>
+                        <p className="text-[11px] text-foreground/60 font-medium">Oprettet gruppen</p>
                       )}
                     </div>
                   </div>
@@ -241,13 +257,13 @@ const GroupInvitationModal = ({
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 justify-end pt-2">
+        {/* Sticky footer */}
+        <div className="border-t border-border/60 px-6 py-4 flex items-center justify-end gap-2 bg-background">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => handleRespond(false)}
             disabled={responding}
-            className="gap-2"
+            className="gap-2 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <X className="w-4 h-4" />
             Afvis
@@ -255,14 +271,14 @@ const GroupInvitationModal = ({
           <Button
             onClick={() => handleRespond(true)}
             disabled={responding}
-            className="gap-2"
+            className="gap-2 rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold px-5"
           >
             <Check className="w-4 h-4" />
             {responding ? "Accepterer..." : "Accepter"}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 

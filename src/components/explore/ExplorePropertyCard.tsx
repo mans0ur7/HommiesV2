@@ -54,7 +54,7 @@ const ExplorePropertyCard = ({
       role="button"
       tabIndex={0}
       aria-label={`${title} i ${location} - ${price.toLocaleString()} kr/md`}
-      className="group relative aspect-[3/4] md:aspect-[4/5] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group relative aspect-[3/4] md:aspect-[4/5] rounded-2xl border border-border/60 overflow-hidden cursor-pointer transition-all duration-300 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       {/* Full-bleed background image */}
       {image ? (
@@ -66,21 +66,21 @@ const ExplorePropertyCard = ({
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-muted">
           <Home className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground/50" />
         </div>
       )}
-      
+
       {/* Gradient overlays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-foreground/30 via-transparent to-transparent" />
       
       {/* Top row - badges and favorite */}
       <div className="absolute top-2 left-2 right-2 md:top-3 md:left-3 md:right-3 flex items-start justify-between z-10">
         {/* Left side - Boosted badge */}
         <div className="flex items-center gap-1.5">
           {isBoosted && (
-            <span className="px-2 py-1 rounded-full text-[10px] md:text-xs font-semibold bg-gradient-to-r from-amber-400 to-orange-500 text-white flex items-center gap-1 shadow-lg">
+            <span className="px-2 py-1 rounded-full text-xs font-semibold bg-secondary text-secondary-foreground flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
               {t("myListings.boostedLabel")}
             </span>
@@ -92,10 +92,10 @@ const ExplorePropertyCard = ({
           onClick={handleLikeClick}
           aria-label={isFavorite ? `Fjern ${title} fra favoritter` : `Tilføj ${title} til favoritter`}
           aria-pressed={isFavorite}
-          className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg backdrop-blur-md ${
-            isFavorite 
-              ? "bg-red-500 text-white scale-110" 
-              : "bg-white/20 text-white hover:bg-white/40 hover:scale-110 active:scale-95"
+          className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-md ${
+            isFavorite
+              ? "bg-secondary text-secondary-foreground"
+              : "bg-white/20 text-white hover:bg-white/40 active:scale-95"
           }`}
         >
           <Heart className={`w-4 h-4 md:w-5 md:h-5 transition-transform ${isFavorite ? "fill-current" : ""}`} aria-hidden="true" />
@@ -133,17 +133,17 @@ const ExplorePropertyCard = ({
         
         {/* Price and rating row */}
         <div className="flex items-center justify-between">
-          <div className="bg-white/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-lg">
+          <div className="bg-white/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm">
             <span className="font-bold text-sm md:text-base text-foreground">{price.toLocaleString()} kr</span>
-            <span className="text-[10px] md:text-xs text-muted-foreground">/md</span>
+            <span className="text-xs text-muted-foreground">/md</span>
           </div>
-          
+
           {rating && rating > 0 && (
             <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-lg px-2 py-1">
-              <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" aria-hidden="true" />
+              <Star className="w-3.5 h-3.5 fill-foreground text-foreground" aria-hidden="true" />
               <span className="text-xs md:text-sm font-semibold text-white">{rating.toFixed(1)}</span>
               {ratingCount > 0 && (
-                <span className="text-[10px] text-white/70">({ratingCount})</span>
+                <span className="text-xs text-white/70">({ratingCount})</span>
               )}
             </div>
           )}

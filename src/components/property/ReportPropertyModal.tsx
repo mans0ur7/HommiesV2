@@ -1,16 +1,17 @@
 import { useState } from "react";
-import { Flag, AlertTriangle } from "lucide-react";
+import { Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface ReportPropertyModalProps {
@@ -27,8 +28,11 @@ const reportReasons = [
   { id: "other", label: "Andet" },
 ];
 
+const fieldLabel = "text-[11px] uppercase tracking-[0.18em] text-foreground/60";
+
 const ReportPropertyModal = ({ propertyId, propertyTitle }: ReportPropertyModalProps) => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [comment, setComment] = useState("");
@@ -70,8 +74,8 @@ const ReportPropertyModal = ({ propertyId, propertyTitle }: ReportPropertyModalP
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
@@ -80,22 +84,33 @@ const ReportPropertyModal = ({ propertyId, propertyTitle }: ReportPropertyModalP
           <Flag className="w-4 h-4" />
           Rapportér
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-destructive" />
-            Rapportér annonce
-          </DialogTitle>
-          <DialogDescription>
+      </SheetTrigger>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={cn(
+          "p-0 gap-0 bg-background flex flex-col",
+          isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+        )}
+      >
+        {/* Header */}
+        <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">Rapportér</span>
+          </div>
+          <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+            Rapportér annonce.
+          </SheetTitle>
+          <p className="text-sm text-foreground/60 pt-1">
             Rapportér "{propertyTitle}" hvis du mener, der er noget galt med denne annonce.
-          </DialogDescription>
-        </DialogHeader>
+          </p>
+        </SheetHeader>
 
-        <div className="space-y-4 py-4">
+        {/* Scrollable content */}
+        <div className="overflow-y-auto px-6 py-6 flex-1 space-y-6">
           {/* Reason Selection */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
+          <div className="space-y-3">
+            <label className={fieldLabel}>
               Vælg årsag *
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -103,11 +118,12 @@ const ReportPropertyModal = ({ propertyId, propertyTitle }: ReportPropertyModalP
                 <button
                   key={reason.id}
                   onClick={() => setSelectedReason(reason.id)}
-                  className={`px-3 py-2.5 rounded-lg text-sm text-left transition-colors ${
+                  className={cn(
+                    "px-3 py-2.5 rounded-2xl text-sm text-left transition-colors",
                     selectedReason === reason.id
-                      ? "bg-destructive text-destructive-foreground"
-                      : "bg-muted hover:bg-muted/80 text-foreground"
-                  }`}
+                      ? "bg-foreground text-background"
+                      : "border border-border/60 text-foreground hover:bg-muted"
+                  )}
                 >
                   {reason.label}
                 </button>
@@ -116,38 +132,39 @@ const ReportPropertyModal = ({ propertyId, propertyTitle }: ReportPropertyModalP
           </div>
 
           {/* Comment */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
+          <div className="space-y-3">
+            <label className={fieldLabel}>
               Yderligere kommentarer (valgfrit)
             </label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Beskriv problemet mere detaljeret..."
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-destructive/50"
+              className="w-full px-3 py-2 rounded-2xl border border-border/60 bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-foreground/20"
               rows={3}
             />
           </div>
         </div>
 
-        <div className="flex gap-3">
+        {/* Sticky footer */}
+        <div className="border-t border-border/60 px-6 py-4 flex items-center justify-end gap-2 bg-background">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => setIsOpen(false)}
-            className="flex-1"
+            className="rounded-full text-foreground/70"
           >
             Annuller
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!selectedReason || isSubmitting}
-            className="flex-1 bg-destructive hover:bg-destructive/90"
+            className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold px-5"
           >
             {isSubmitting ? "Sender..." : "Send rapport"}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 

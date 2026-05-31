@@ -59,14 +59,18 @@ const PaymentSection = () => {
   // (store billing rules), so show a notice instead of the Stripe portal.
   if (native) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.pay")}</h2>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.pay")}</span>
+          </div>
+          <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.pay")}</h2>
           <p className="text-muted-foreground text-sm">{t("settings.payDesc")}</p>
         </div>
-        <div className="rounded-xl border border-border bg-muted/30 p-6 text-center">
-          <div className="w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center mx-auto mb-4">
-            <CreditCard className="w-6 h-6 text-secondary" />
+        <div className="rounded-2xl border border-border/60 bg-secondary/20 p-6 text-center">
+          <div className="w-12 h-12 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center mx-auto mb-4">
+            <CreditCard className="w-6 h-6 text-foreground/70" />
           </div>
           <p className="font-medium text-foreground mb-1">{t("settings.payNativeTitle")}</p>
           <p className="text-sm text-muted-foreground">
@@ -78,18 +82,22 @@ const PaymentSection = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.pay")}</h2>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-px w-8 bg-foreground/40" />
+          <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.pay")}</span>
+        </div>
+        <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.pay")}</h2>
         <p className="text-muted-foreground text-sm">{t("settings.payDesc")}</p>
       </div>
 
       {/* Card management */}
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/20">
+      <div className="rounded-2xl border border-border/60 overflow-hidden">
+        <div className="p-4 border-b border-border/60 bg-muted/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-secondary" />
+            <div className="w-10 h-10 rounded-xl bg-secondary/20 border border-border/60 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-foreground/70" />
             </div>
             <div>
               <p className="font-medium text-foreground">{t("settings.cards")}</p>
@@ -116,11 +124,11 @@ const PaymentSection = () => {
       </div>
 
       {/* Receipts */}
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/20">
+      <div className="rounded-2xl border border-border/60 overflow-hidden">
+        <div className="p-4 border-b border-border/60 bg-muted/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
-              <Receipt className="w-5 h-5 text-secondary" />
+            <div className="w-10 h-10 rounded-xl bg-secondary/20 border border-border/60 flex items-center justify-center">
+              <Receipt className="w-5 h-5 text-foreground/70" />
             </div>
             <div>
               <p className="font-medium text-foreground">{t("settings.receipts")}</p>
@@ -144,11 +152,11 @@ const PaymentSection = () => {
       </div>
 
       {/* Køb */}
-      <div className="rounded-xl border border-border overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/20">
+      <div className="rounded-2xl border border-border/60 overflow-hidden">
+        <div className="p-4 border-b border-border/60 bg-muted/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-secondary" />
+            <div className="w-10 h-10 rounded-xl bg-secondary/20 border border-border/60 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-foreground/70" />
             </div>
             <div>
               <p className="font-medium text-foreground">{t("settings.purchases")}</p>
@@ -174,7 +182,7 @@ const PaymentSection = () => {
 const NotifRow = ({
   title, desc, checked, onChange,
 }: { title: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) => (
-  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
+  <div className="flex items-center justify-between p-4 bg-secondary/20 border border-border/60 rounded-2xl">
     <div className="pr-4">
       <p className="font-medium text-foreground text-sm">{title}</p>
       <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
@@ -598,11 +606,11 @@ const Settings = () => {
   const menuItems = [
     { id: 'payment' as const, label: t('settings.menuPayment'), icon: CreditCard, color: 'text-secondary' },
     { id: 'notifications' as const, label: t('settings.menuNotifications'), icon: Bell, color: 'text-secondary' },
-    ...(isRoomie ? [{ id: 'visibility' as const, label: t('settings.menuVisibility'), icon: hiddenFromExplore ? EyeOff : Eye, color: hiddenFromExplore ? 'text-orange-500' : 'text-green-500' }] : []),
+    ...(isRoomie ? [{ id: 'visibility' as const, label: t('settings.menuVisibility'), icon: hiddenFromExplore ? EyeOff : Eye, color: hiddenFromExplore ? 'text-foreground/70' : 'text-foreground/70' }] : []),
     { id: 'email' as const, label: t('settings.menuEmail'), icon: Mail, color: 'text-secondary' },
     { id: 'password' as const, label: t('settings.menuPassword'), icon: Lock, color: 'text-secondary' },
     { id: 'phone' as const, label: t('settings.menuPhone'), icon: Phone, color: 'text-secondary' },
-    { id: 'blocked' as const, label: t('settings.menuBlocked'), icon: Ban, color: 'text-orange-500' },
+    { id: 'blocked' as const, label: t('settings.menuBlocked'), icon: Ban, color: 'text-foreground/70' },
     { id: 'report' as const, label: t('settings.menuReport'), icon: AlertTriangle, color: 'text-destructive' },
     { id: 'delete' as const, label: t('settings.menuDelete'), icon: Trash2, color: 'text-destructive' },
   ];
@@ -614,22 +622,23 @@ const Settings = () => {
       
       case 'visibility':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.visibility")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.visibility")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.visibility")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.visibilityDesc")}</p>
             </div>
-            
-            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
+
+            <div className="flex items-center justify-between p-4 bg-secondary/20 border border-border/60 rounded-2xl">
               <div className="flex items-center gap-3">
-                <div className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center",
-                  hiddenFromExplore ? 'bg-orange-500/20' : 'bg-green-500/20'
-                )}>
+                <div className="w-10 h-10 rounded-xl bg-secondary/20 border border-border/60 flex items-center justify-center">
                   {hiddenFromExplore ? (
-                    <EyeOff className="w-5 h-5 text-orange-500" />
+                    <EyeOff className="w-5 h-5 text-foreground/70" />
                   ) : (
-                    <Eye className="w-5 h-5 text-green-500" />
+                    <Eye className="w-5 h-5 text-foreground/70" />
                   )}
                 </div>
                 <div>
@@ -641,7 +650,7 @@ const Settings = () => {
                   </p>
                 </div>
               </div>
-              <Switch 
+              <Switch
                 checked={hiddenFromExplore}
                 onCheckedChange={handleToggleHiddenFromExplore}
                 disabled={isTogglingHidden}
@@ -649,9 +658,9 @@ const Settings = () => {
             </div>
 
             {!hiddenFromExplore && (
-              <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
+              <div className="p-4 bg-secondary/20 rounded-2xl border border-border/60">
                 <p
-                  className="text-sm text-green-700 dark:text-green-400"
+                  className="text-sm text-foreground/70"
                   dangerouslySetInnerHTML={{ __html: t("settings.visibilityTip") }}
                 />
               </div>
@@ -661,9 +670,13 @@ const Settings = () => {
 
       case 'email':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.emailAddress")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.emailAddress")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.emailAddress")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.currentEmail", { email: user.email })}</p>
             </div>
 
@@ -692,9 +705,13 @@ const Settings = () => {
 
       case 'password':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.password")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.password")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.password")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.changePassword")}</p>
             </div>
 
@@ -745,9 +762,13 @@ const Settings = () => {
 
       case 'phone':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.phone")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.phone")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.phone")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.phoneDesc")}</p>
             </div>
 
@@ -779,23 +800,27 @@ const Settings = () => {
 
       case 'notifications':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.notifications")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.notifications")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.notifications")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.notificationsDesc")}</p>
             </div>
 
             {/* Push notifications block */}
-            <div className="p-4 rounded-xl border border-border bg-muted/20">
+            <div className="p-4 rounded-2xl border border-border/60 bg-muted/20">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                  <Bell className="w-5 h-5 text-secondary" />
+                <div className="w-10 h-10 rounded-xl bg-secondary/20 border border-border/60 flex items-center justify-center flex-shrink-0">
+                  <Bell className="w-5 h-5 text-foreground/70" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-3 mb-1">
                     <p className="font-medium text-foreground">{t("settings.pushTitle")}</p>
                     {pushActive && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-green-600 bg-green-50 border border-green-200 rounded-full px-2 py-0.5">
+                      <span className="text-[11px] font-semibold uppercase tracking-wider bg-foreground text-background rounded-full px-2 py-0.5">
                         {t("settings.pushActiveLabel")}
                       </span>
                     )}
@@ -804,11 +829,11 @@ const Settings = () => {
                     {t("settings.pushBody")}
                   </p>
                   {!pushSupported ? (
-                    <p className="text-xs text-amber-600">
+                    <p className="text-xs text-foreground/70">
                       {t("settings.pushUnsupported")}
                     </p>
                   ) : pushPermission === "denied" ? (
-                    <p className="text-xs text-amber-600">
+                    <p className="text-xs text-foreground/70">
                       {t("settings.pushBlocked")}
                     </p>
                   ) : (
@@ -829,7 +854,10 @@ const Settings = () => {
             </div>
 
             <div className="pt-2">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-semibold">{t("settings.emailHeader")}</p>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.emailHeader")}</span>
+              </div>
               <div className="space-y-3">
                 <NotifRow
                   title={t("settings.notifMessages")}
@@ -872,9 +900,13 @@ const Settings = () => {
 
       case 'blocked':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.blocked")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.blocked")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.blocked")}</h2>
               <p className="text-muted-foreground text-sm">
                 {blockedUsers.length === 0
                   ? t("settings.noBlocked")
@@ -888,26 +920,25 @@ const Settings = () => {
               {loadingBlocked ? (
                 <p className="text-sm text-muted-foreground text-center py-8">{t("settings.loading")}</p>
               ) : blockedUsers.length === 0 ? (
-                <div className="text-center py-12 bg-muted/30 rounded-xl">
+                <div className="text-center py-12 bg-secondary/20 border border-border/60 rounded-2xl">
                   <Ban className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
                   <p className="text-muted-foreground">{t("settings.noneBlocked")}</p>
                 </div>
               ) : (
-                blockedUsers.map((blocked, index) => (
-                  <div 
-                    key={blocked.id} 
-                    className="flex items-center justify-between p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors animate-fade-in"
-                    style={{ animationDelay: `${index * 50}ms` }}
+                blockedUsers.map((blocked) => (
+                  <div
+                    key={blocked.id}
+                    className="flex items-center justify-between p-4 bg-secondary/20 border border-border/60 rounded-2xl hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       {blocked.profile?.avatar_url ? (
-                        <img 
-                          src={blocked.profile.avatar_url} 
+                        <img
+                          src={blocked.profile.avatar_url}
                           alt={blocked.profile.name}
-                          className="w-10 h-10 rounded-full object-cover ring-2 ring-border"
+                          className="w-10 h-10 rounded-full object-cover border border-border/60"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center ring-2 ring-border">
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center border border-border/60">
                           <User className="w-5 h-5 text-muted-foreground" />
                         </div>
                       )}
@@ -925,7 +956,7 @@ const Settings = () => {
                       size="sm"
                       onClick={() => handleUnblock(blocked.blocked_user_id, blocked.id)}
                       disabled={unblockingId === blocked.id}
-                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-500/10 active:scale-95 transition-all"
+                      className="text-foreground/70 hover:text-foreground hover:bg-muted/50 transition-colors"
                     >
                       {unblockingId === blocked.id ? t("settings.unblocking") : t("settings.unblock")}
                     </Button>
@@ -938,13 +969,17 @@ const Settings = () => {
 
       case 'delete':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.deleteAccount")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.deleteAccount")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.deleteAccount")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.deleteAccountDesc")}</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-destructive/5 border border-destructive/20">
+            <div className="p-4 rounded-2xl bg-destructive/5 border border-destructive/20">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                 <div className="space-y-2 text-sm">
@@ -1000,9 +1035,13 @@ const Settings = () => {
 
       case 'report':
         return (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">{t("settings.reportProblem")}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.reportProblem")}</span>
+              </div>
+              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.reportProblem")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.reportProblemDesc")}</p>
             </div>
 
@@ -1022,7 +1061,7 @@ const Settings = () => {
                 onClick={handleReportProblem}
                 disabled={isSaving}
                 variant="destructive"
-                className="active:scale-[0.98] transition-all"
+                className="transition-colors"
               >
                 {t("settings.sendReport")}
               </Button>
@@ -1052,7 +1091,7 @@ const Settings = () => {
           </button>
           <div className="flex items-center gap-3 mb-3">
             <div className="h-px w-8 bg-foreground/40" />
-            <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("settings.account")}</span>
+            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.account")}</span>
           </div>
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
             {t("settings.title")}
@@ -1076,7 +1115,7 @@ const Settings = () => {
                     key={item.id}
                     onClick={() => setActiveSection(item.id)}
                     className={cn(
-                      "flex items-center gap-3 px-3 lg:px-4 py-3 rounded-xl text-left transition-all border",
+                      "flex items-center gap-3 px-3 lg:px-4 py-3 rounded-2xl text-left transition-colors border",
                       isActive
                         ? "bg-foreground text-background border-foreground"
                         : "border-transparent hover:border-border/60 hover:bg-muted/40"

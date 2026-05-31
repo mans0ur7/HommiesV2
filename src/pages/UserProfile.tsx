@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { X, ChevronLeft, ChevronRight, ArrowRight, Star, Heart, User } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, ChevronLeft, ChevronRight, ArrowRight, Heart, User } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -156,13 +155,14 @@ const UserProfile = () => {
       {!isMobile && <Navbar />}
       
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Header with close */}
-        <div className="flex justify-between items-center mb-6">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8 md:mb-10">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground -ml-1 transition-colors"
           >
-            <X className="w-5 h-5 text-foreground" />
+            <ArrowLeft className="w-4 h-4" />
+            {t("profile.backShort")}
           </button>
         </div>
 
@@ -224,26 +224,29 @@ const UserProfile = () => {
           <div className="space-y-8">
             {/* Name and basic info */}
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-4xl font-bold text-foreground">{profile.name}</h1>
-                <Badge 
-                  variant="secondary" 
-                  className="text-sm font-semibold px-3 py-1 bg-primary text-primary-foreground"
-                >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
                   {profile.user_type === "landlord" ? t("userProfile.landlord") : t("userProfile.roomie")}
-                </Badge>
+                </span>
               </div>
-              <p className="text-muted-foreground text-lg">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
+                {profile.name}.
+              </h1>
+              <p className="text-foreground/60 text-base mt-3">
                 {[profile.age && `${profile.age}`, genderLabel, workLabel].filter(Boolean).join(" • ")}
                 {profile.nationality && ` • ${profile.nationality}`}
               </p>
             </div>
 
-            <div className="border-t border-border" />
+            <div className="border-t border-border/60" />
 
             {/* About me - First! */}
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-3">Om mig</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-px w-8 bg-foreground/40" />
+                <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Om mig</span>
+              </div>
               <p className="text-muted-foreground leading-relaxed">
                 {profile.bio ? (
                   showFullBio || profile.bio.length <= 200 
@@ -267,7 +270,10 @@ const UserProfile = () => {
             {/* Personality */}
             {personality.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.personality")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.personality")}</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {personality.map((item) => (
                     <span 
@@ -285,7 +291,10 @@ const UserProfile = () => {
             {/* Lifestyle */}
             {lifestyle.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.lifestyle")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.lifestyle")}</span>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {lifestyle.map((item) => (
                     <span 
@@ -303,7 +312,10 @@ const UserProfile = () => {
             {/* Languages */}
             {languages.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.languages")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.languages")}</span>
+                </div>
                 <p className="text-muted-foreground">{languages.join(", ")}</p>
               </div>
             )}
@@ -311,7 +323,10 @@ const UserProfile = () => {
             {/* Nationality */}
             {profile.nationality && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.nationality")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.nationality")}</span>
+                </div>
                 <p className="text-muted-foreground">{profile.nationality}</p>
               </div>
             )}
@@ -319,16 +334,19 @@ const UserProfile = () => {
             {/* Rent Preferences */}
             {isRoomie && (profile.monthly_budget || profile.rental_period) && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-3">{t("userProfile.rentalPreferences")}</h2>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.rentalPreferences")}</span>
+                </div>
                 <div className="space-y-1">
                   {profile.monthly_budget && (
                     <p className="text-muted-foreground">
-                      {t("userProfile.monthlyBudget")} <span className="font-semibold text-foreground">{profile.monthly_budget.toLocaleString()} kr.</span>
+                      {t("userProfile.monthlyBudget")} <span className="font-medium text-foreground">{profile.monthly_budget.toLocaleString()} kr.</span>
                     </p>
                   )}
                   {profile.rental_period && (
                     <p className="text-muted-foreground">
-                      {t("userProfile.rentalPeriod")} <span className="font-semibold text-foreground">
+                      {t("userProfile.rentalPeriod")} <span className="font-medium text-foreground">
                         {rentalPeriodOptions.find(o => o.value === profile.rental_period)?.label || profile.rental_period}
                       </span>
                     </p>
@@ -340,7 +358,10 @@ const UserProfile = () => {
             {/* Landlord Listings */}
             {!isRoomie && landlordProperties.length > 0 && (
               <div>
-                <h2 className="text-xl font-semibold text-foreground mb-4">{t("userProfile.listings")}</h2>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("userProfile.listings")}</span>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   {landlordProperties.map((property) => (
                     <div 
@@ -350,10 +371,10 @@ const UserProfile = () => {
                     >
                       <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted">
                         {property.images && property.images.length > 0 ? (
-                          <img 
-                            src={property.images[0]} 
-                            alt={property.title} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                          <img
+                            src={property.images[0]}
+                            alt={property.title}
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -377,7 +398,7 @@ const UserProfile = () => {
                               </div>
                             )}
                           </div>
-                          <span className="text-xs text-white font-medium drop-shadow-lg">{profile.name}</span>
+                          <span className="text-xs text-white font-medium">{profile.name}</span>
                         </div>
                         {/* Image dots indicator */}
                         {property.images && property.images.length > 1 && (
@@ -390,16 +411,13 @@ const UserProfile = () => {
                       </div>
                       <div className="mt-2 flex justify-between items-start">
                         <div>
-                          <h3 className="font-semibold text-foreground text-sm">{property.title}</h3>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Star className="w-3 h-3 fill-current text-foreground" />
-                            <span className="text-foreground">4.5 (63)</span>
-                            <span className="mx-0.5">•</span>
+                          <h3 className="font-medium tracking-tight text-foreground text-sm">{property.title}</h3>
+                          <div className="flex items-center gap-1 text-xs text-foreground/60">
                             <span>{property.is_furnished ? t("userProfile.furnished") : t("userProfile.unfurnished")}</span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="font-semibold text-foreground text-sm">{property.monthly_rent.toLocaleString()} kr</span>
+                          <span className="font-medium text-foreground text-sm">{property.monthly_rent.toLocaleString()} kr</span>
                         </div>
                       </div>
                     </div>

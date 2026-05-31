@@ -6,7 +6,9 @@ import { Home, Star, Send, Check, Wallet, Sparkles, User, MapPin } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Property {
@@ -46,6 +48,7 @@ const GroupPropertiesFeed = ({
   sentRequestPropertyIds,
 }: GroupPropertiesFeedProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [matchingProperties, setMatchingProperties] = useState<Property[]>([]);
   const [recommendations, setRecommendations] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,74 +147,71 @@ const GroupPropertiesFeed = ({
     const alreadySent = sentRequestPropertyIds.includes(property.id);
 
     return (
-      <div className="group relative aspect-[3/4] sm:aspect-[4/5] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl">
-        {/* Full-bleed background image */}
-        <div 
-          className="absolute inset-0"
+      <div className="group flex flex-col rounded-2xl border border-border/60 bg-background overflow-hidden">
+        {/* Image */}
+        <div
+          className="relative aspect-[4/3] cursor-pointer overflow-hidden"
           onClick={() => navigate(`/property/${property.id}`)}
         >
           {property.images?.[0] ? (
             <img
               src={property.images[0]}
               alt={property.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+            <div className="w-full h-full flex items-center justify-center bg-muted">
               <Home className="w-12 h-12 text-muted-foreground/50" />
             </div>
           )}
-        </div>
-        
-        {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent pointer-events-none" />
-        
-        {/* Top badges */}
-        <div className="absolute top-2 left-2 right-2 flex items-start justify-between z-10">
-          <div className="flex items-center gap-1.5">
-            {isRecommendation ? (
-              <Badge className="bg-secondary text-secondary-foreground gap-1 text-xs">
-                <Sparkles className="w-3 h-3" />
-                {getRecommendationReason(property)}
-              </Badge>
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-green-500/90 flex items-center justify-center shadow-lg">
-                <Check className="w-4 h-4 text-white" />
+
+          {/* Top badges */}
+          <div className="absolute top-2 left-2 right-2 flex items-start justify-between z-10">
+            <div className="flex items-center gap-1.5">
+              {isRecommendation ? (
+                <Badge className="bg-secondary text-secondary-foreground gap-1 text-xs">
+                  <Sparkles className="w-3 h-3" />
+                  {getRecommendationReason(property)}
+                </Badge>
+              ) : (
+                <Badge className="bg-foreground text-background gap-1 text-xs">
+                  <Check className="w-3 h-3" />
+                  Match
+                </Badge>
+              )}
+            </div>
+            {property.rating_average && (
+              <div className="flex items-center gap-1 bg-background/90 backdrop-blur-sm rounded-full px-2 py-1">
+                <Star className="w-3 h-3 fill-foreground text-foreground" />
+                <span className="text-xs font-medium text-foreground">{property.rating_average.toFixed(1)}</span>
               </div>
             )}
           </div>
-          {property.rating_average && (
-            <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm rounded-lg px-2 py-1">
-              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              <span className="text-xs font-semibold text-white">{property.rating_average.toFixed(1)}</span>
-            </div>
-          )}
         </div>
 
-        {/* Bottom content overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
-          <h3 
-            className="font-bold text-base text-white truncate mb-0.5 cursor-pointer"
+        {/* Content */}
+        <div className="flex flex-col p-3">
+          <h3
+            className="font-medium tracking-tight text-base text-foreground truncate mb-0.5 cursor-pointer"
             onClick={() => navigate(`/property/${property.id}`)}
           >
             {property.title}
           </h3>
 
-          <p className="text-xs text-white/80 flex items-center gap-1 mb-2">
+          <p className="text-xs text-foreground/60 flex items-center gap-1 mb-2">
             <MapPin className="w-3 h-3 flex-shrink-0" />
             <span className="truncate">{property.address}, {property.city}</span>
-            <span className="text-white/50 mx-1">•</span>
+            <span className="text-foreground/40 mx-1">•</span>
             <span>{property.available_rooms || property.room_count} vær.</span>
           </p>
 
           <div className="flex items-center gap-2 mb-3">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1 shadow-lg">
-              <span className="font-bold text-sm text-foreground">{property.monthly_rent.toLocaleString()} kr</span>
-              <span className="text-xs text-muted-foreground">/md</span>
+            <div className="rounded-full bg-secondary/20 border border-border/60 px-2 py-1">
+              <span className="font-medium text-sm text-foreground">{property.monthly_rent.toLocaleString()} kr</span>
+              <span className="text-xs text-foreground/60">/md</span>
             </div>
             {property.is_furnished && (
-              <span className="text-xs text-white/70 bg-white/10 px-2 py-1 rounded-lg">Møbleret</span>
+              <span className="text-xs text-foreground/70 bg-secondary/20 border border-border/60 px-2 py-1 rounded-full">Møbleret</span>
             )}
           </div>
 
@@ -245,10 +245,10 @@ const GroupPropertiesFeed = ({
   if (loading) {
     return (
       <div className="space-y-4">
-        <h3 className="font-semibold">Boliger</h3>
+        <h3 className="font-medium tracking-tight">Boliger</h3>
         <div className="grid gap-4 md:grid-cols-2">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-64 bg-muted rounded-xl animate-pulse" />
+            <div key={i} className="h-64 bg-muted rounded-2xl" />
           ))}
         </div>
       </div>
@@ -259,27 +259,31 @@ const GroupPropertiesFeed = ({
     <div className="space-y-6">
       {/* Header with filters */}
       <div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-px w-8 bg-foreground/40" />
+          <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Boliger</span>
+        </div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold">Boliger til jer</h3>
+          <h3 className="text-xl font-medium tracking-tight">Boliger til jer</h3>
           <Badge variant="secondary">
             {matchingProperties.length + recommendations.length} boliger
           </Badge>
         </div>
         <div className="flex flex-wrap gap-2">
           {group.budget_per_person && (
-            <Badge variant="outline" className="gap-1">
+            <Badge variant="outline" className="gap-1 border-border/60">
               <Wallet className="w-3 h-3" />
               Max {group.budget_per_person.toLocaleString()} kr/md
             </Badge>
           )}
           {group.desired_rooms && (
-            <Badge variant="outline" className="gap-1">
+            <Badge variant="outline" className="gap-1 border-border/60">
               <Home className="w-3 h-3" />
               Min {group.desired_rooms} værelser
             </Badge>
           )}
           {group.city && (
-            <Badge variant="outline">{group.city}</Badge>
+            <Badge variant="outline" className="border-border/60">{group.city}</Badge>
           )}
         </div>
       </div>
@@ -292,9 +296,9 @@ const GroupPropertiesFeed = ({
           ))}
         </div>
       ) : (
-        <div className="text-center py-8 bg-muted/30 rounded-xl">
-          <Home className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <p className="text-muted-foreground text-sm">
+        <div className="text-center py-8 bg-secondary/20 border border-border/60 rounded-2xl">
+          <Home className="w-10 h-10 text-foreground/40 mx-auto mb-3" />
+          <p className="text-foreground/60 text-sm">
             Ingen boliger matcher jeres krav lige nu
           </p>
         </div>
@@ -304,12 +308,12 @@ const GroupPropertiesFeed = ({
       {recommendations.length > 0 && (
         <>
           <div className="flex items-center gap-3 py-2">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-sm text-muted-foreground flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-secondary" />
+            <div className="h-px flex-1 bg-border/60" />
+            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-secondary" />
               Flere forslag
             </span>
-            <div className="h-px flex-1 bg-border" />
+            <div className="h-px flex-1 bg-border/60" />
           </div>
 
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -321,35 +325,49 @@ const GroupPropertiesFeed = ({
       )}
 
       {matchingProperties.length === 0 && recommendations.length === 0 && (
-        <div className="text-center py-12 bg-muted/30 rounded-xl">
-          <Home className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="font-semibold mb-2">Ingen boliger fundet</h3>
-          <p className="text-muted-foreground text-sm">
+        <div className="text-center py-12 bg-secondary/20 border border-border/60 rounded-2xl">
+          <Home className="w-16 h-16 text-foreground/40 mx-auto mb-4" />
+          <h3 className="font-medium tracking-tight mb-2">Ingen boliger fundet</h3>
+          <p className="text-foreground/60 text-sm">
             Prøv at justere gruppens krav
           </p>
         </div>
       )}
 
-      {/* Send request modal */}
-      <Dialog open={!!selectedProperty} onOpenChange={() => setSelectedProperty(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Send gruppe-anmodning</DialogTitle>
-          </DialogHeader>
+      {/* Send request sheet */}
+      <Sheet open={!!selectedProperty} onOpenChange={() => setSelectedProperty(null)}>
+        <SheetContent
+          side={isMobile ? "bottom" : "right"}
+          className={cn(
+            "p-0 gap-0 bg-background flex flex-col",
+            isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+          )}
+        >
+          {/* Header */}
+          <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-px w-8 bg-foreground/40" />
+              <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Anmodning</span>
+            </div>
+            <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+              Send gruppe-anmodning.
+            </SheetTitle>
+          </SheetHeader>
 
-          <div className="py-4 space-y-4">
+          {/* Scrollable content */}
+          <div className="overflow-y-auto px-6 py-6 flex-1 space-y-4">
             {selectedProperty && (
-              <div className="flex gap-3 p-3 bg-muted/50 rounded-lg">
+              <div className="flex gap-3 p-3 bg-secondary/20 border border-border/60 rounded-2xl">
                 {selectedProperty.images?.[0] && (
                   <img
                     src={selectedProperty.images[0]}
                     alt={selectedProperty.title}
-                    className="w-16 h-16 rounded-lg object-cover"
+                    className="w-16 h-16 rounded-xl object-cover"
                   />
                 )}
                 <div>
                   <p className="font-medium">{selectedProperty.title}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground/60">
                     {selectedProperty.address}, {selectedProperty.city}
                   </p>
                   <Badge variant="secondary" className="mt-1">
@@ -359,7 +377,7 @@ const GroupPropertiesFeed = ({
               </div>
             )}
 
-            <div className="flex gap-3 p-3 bg-primary/5 rounded-lg">
+            <div className="flex gap-3 p-3 bg-secondary/20 border border-border/60 rounded-2xl">
               <div className="flex -space-x-2">
                 {acceptedMembers.slice(0, 3).map((member) => (
                   <div
@@ -382,7 +400,7 @@ const GroupPropertiesFeed = ({
               </div>
               <div>
                 <p className="font-medium text-sm">{group.name}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-foreground/60">
                   {acceptedMembers.length} {acceptedMembers.length === 1 ? "medlem" : "medlemmer"}
                   {group.desired_rooms && ` · Søger ${group.desired_rooms} værelser`}
                 </p>
@@ -390,7 +408,7 @@ const GroupPropertiesFeed = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
                 Besked til udlejer (valgfri)
               </label>
               <Textarea
@@ -398,20 +416,30 @@ const GroupPropertiesFeed = ({
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={3}
+                className="rounded-xl border-border/60"
               />
             </div>
           </div>
 
-          <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={() => setSelectedProperty(null)}>
+          {/* Sticky footer */}
+          <div className="border-t border-border/60 px-6 py-4 flex gap-3 justify-end bg-background">
+            <Button
+              variant="ghost"
+              onClick={() => setSelectedProperty(null)}
+              className="rounded-full text-foreground/70"
+            >
               Annuller
             </Button>
-            <Button onClick={handleSendRequest} disabled={isSending}>
+            <Button
+              onClick={handleSendRequest}
+              disabled={isSending}
+              className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold px-5"
+            >
               {isSending ? "Sender..." : "Send anmodning"}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

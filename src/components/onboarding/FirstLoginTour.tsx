@@ -43,8 +43,8 @@ const FirstLoginTour = () => {
   const isLast = index === steps.length - 1;
 
   return (
-    <div className="fixed inset-0 z-[120] bg-foreground/80 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-6 animate-fade-in">
-      <div className="bg-background w-full md:max-w-md rounded-t-3xl md:rounded-3xl p-6 md:p-8 relative animate-slide-in-from-bottom">
+    <div className="fixed inset-0 z-[120] bg-foreground/60 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-6">
+      <div className="bg-background w-full md:max-w-md rounded-t-3xl md:rounded-3xl border border-border/60 p-6 md:p-8 relative">
         <button
           onClick={close}
           aria-label="Skip"
@@ -53,11 +53,11 @@ const FirstLoginTour = () => {
           <X className="w-4 h-4" />
         </button>
 
-        <div className="w-14 h-14 rounded-2xl bg-secondary/15 flex items-center justify-center mb-5">
-          <Icon className="w-7 h-7 text-secondary" />
+        <div className="w-14 h-14 rounded-2xl bg-secondary/20 border border-border/60 flex items-center justify-center mb-5">
+          <Icon className="w-7 h-7 text-foreground/70" />
         </div>
 
-        <h2 className="text-2xl font-bold text-foreground mb-2">{t(step.titleKey)}</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-2">{t(step.titleKey)}</h2>
         <p className="text-muted-foreground leading-relaxed mb-8">{t(step.bodyKey)}</p>
 
         {/* Step dots */}

@@ -276,7 +276,7 @@ export default function ContractWizard() {
                   )}>
                     {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.id}
                   </div>
-                  <span className="text-[10px] mt-1 text-muted-foreground hidden sm:block">{t(s.key)}</span>
+                  <span className="text-[11px] mt-1 text-muted-foreground hidden sm:block">{t(s.key)}</span>
                 </div>
                 {i < STEP_KEYS.length - 1 && (
                   <div className={cn("h-px w-6 md:w-10 flex-shrink-0", step > s.id ? "bg-foreground" : "bg-border")} />
@@ -292,12 +292,15 @@ export default function ContractWizard() {
               {step === 1 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">{t("contract.step1Heading")}</h2>
+                    <h2 className="text-lg font-medium tracking-tight mb-1">{t("contract.step1Heading")}</h2>
                     <p className="text-sm text-muted-foreground">{t("contract.step1Sub")}</p>
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t("contract.step1Home")}</h3>
+                    <div className="flex items-center gap-3">
+                      <div className="h-px w-8 bg-foreground/40" />
+                      <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("contract.step1Home")}</h3>
+                    </div>
                     <div>
                       <Label>{t("contract.step1AddressLabel")}</Label>
                       <Input className="mt-1" value={data.property_address}
@@ -326,7 +329,10 @@ export default function ContractWizard() {
                   </div>
 
                   <div className="border-t border-border pt-5 space-y-4">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t("contract.step1Tenant")}</h3>
+                    <div className="flex items-center gap-3">
+                      <div className="h-px w-8 bg-foreground/40" />
+                      <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("contract.step1Tenant")}</h3>
+                    </div>
                     <div>
                       <Label>{t("contract.step1NameStar")}</Label>
                       <Input className="mt-1" value={data.tenant_name}
@@ -350,7 +356,10 @@ export default function ContractWizard() {
                   </div>
 
                   <div className="border-t border-border pt-5 space-y-4">
-                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t("contract.step1Author")}</h3>
+                    <div className="flex items-center gap-3">
+                      <div className="h-px w-8 bg-foreground/40" />
+                      <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("contract.step1Author")}</h3>
+                    </div>
                     <div>
                       <Label>{t("contract.step1Name")}</Label>
                       <Input className="mt-1" value={data.landlord_name}
@@ -376,7 +385,7 @@ export default function ContractWizard() {
               {step === 2 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">{t("contract.step2Heading")}</h2>
+                    <h2 className="text-lg font-medium tracking-tight mb-1">{t("contract.step2Heading")}</h2>
                     <p className="text-sm text-muted-foreground">{t("contract.step2Sub")}</p>
                   </div>
                   <div>
@@ -398,7 +407,7 @@ export default function ContractWizard() {
               {step === 3 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">{t("contract.step3Heading")}</h2>
+                    <h2 className="text-lg font-medium tracking-tight mb-1">{t("contract.step3Heading")}</h2>
                     <p className="text-sm text-muted-foreground">{t("contract.step3Sub")}</p>
                   </div>
                   <div>
@@ -420,7 +429,7 @@ export default function ContractWizard() {
               {step === 4 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">{t("contract.step4Heading")}</h2>
+                    <h2 className="text-lg font-medium tracking-tight mb-1">{t("contract.step4Heading")}</h2>
                     <p className="text-sm text-muted-foreground">{t("contract.step4Sub")}</p>
                   </div>
                   <div>
@@ -462,7 +471,7 @@ export default function ContractWizard() {
               {step === 5 && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-lg font-semibold mb-1">{t("contract.step5Heading")}</h2>
+                    <h2 className="text-lg font-medium tracking-tight mb-1">{t("contract.step5Heading")}</h2>
                     <p className="text-sm text-muted-foreground">{t("contract.step5Sub")}</p>
                   </div>
                   <div>
@@ -472,8 +481,8 @@ export default function ContractWizard() {
                   </div>
 
                   {/* Summary */}
-                  <div className="rounded-xl bg-muted/40 border border-border p-5 space-y-2 text-sm">
-                    <p className="font-semibold text-foreground mb-3">{t("contract.summary")}</p>
+                  <div className="rounded-2xl bg-secondary/20 border border-border/60 p-5 space-y-2 text-sm">
+                    <p className="font-medium tracking-tight text-foreground mb-3">{t("contract.summary")}</p>
                     <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summaryAddress")}</span><span className="font-medium">{data.property_address || "–"}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summaryTenant")}</span><span className="font-medium">{data.tenant_name || "–"}</span></div>
                     <div className="flex justify-between"><span className="text-muted-foreground">{t("contract.summaryValidFrom")}</span><span className="font-medium">{data.effective_date ? format(new Date(data.effective_date), "d. MMM yyyy", { locale: da }) : "–"}</span></div>
@@ -510,7 +519,7 @@ export default function ContractWizard() {
                   {t("contract.next")} <ChevronRight className="w-4 h-4" />
                 </Button>
               ) : (
-                <Button onClick={handleFinish} disabled={saving} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+                <Button onClick={handleFinish} disabled={saving} className="gap-2 bg-foreground text-background hover:bg-foreground/90">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   {t("contract.sendForSig")}
                 </Button>

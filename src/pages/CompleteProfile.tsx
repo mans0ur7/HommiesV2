@@ -237,11 +237,14 @@ const CompleteProfile = () => {
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">{t("profile.completeTitle")}</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {t("profile.tellAboutYou")}
-          </p>
+        <div className="mb-6 sm:mb-8">
+          <span className="inline-flex items-center gap-2 mb-4">
+            <span className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
+              {t("profile.tellAboutYou")}
+            </span>
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">{t("profile.completeTitle")}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

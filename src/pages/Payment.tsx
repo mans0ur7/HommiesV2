@@ -111,11 +111,11 @@ const Payment = () => {
               <ArrowLeft className="w-4 h-4" />
               Tilbage
             </button>
-            <div className="rounded-2xl border border-border bg-muted/30 p-8 text-center">
-              <div className="w-12 h-12 rounded-full bg-secondary/15 flex items-center justify-center mx-auto mb-5">
+            <div className="rounded-2xl border border-border/60 bg-muted/30 p-8 text-center">
+              <div className="w-12 h-12 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center mx-auto mb-5">
                 <ShieldCheck className="w-6 h-6 text-secondary" />
               </div>
-              <h1 className="text-2xl font-semibold text-foreground mb-2">Premium-opgraderinger ikke tilgængelige</h1>
+              <h1 className="text-2xl font-medium tracking-tight text-foreground mb-2">Premium-opgraderinger ikke tilgængelige</h1>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 Du kan stadig oprette din første søgeagent og bruge gratis-perioden direkte i appen.
                 Kontakt info@hommies.dk hvis du har spørgsmål.
@@ -144,7 +144,7 @@ const Payment = () => {
             </button>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-px w-8 bg-foreground/40" />
-              <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">Konto</span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Konto</span>
             </div>
             <h1 className="text-3xl md:text-5xl font-medium tracking-tight text-foreground leading-[1.05]">
               Betaling og priser.
@@ -158,18 +158,18 @@ const Payment = () => {
 
             {/* Gratis prøveperiode banner — udlejere */}
             {isLandlord && (
-              <Card className={`border-2 overflow-hidden ${freeTrialInfo.active ? "border-green-500/50 bg-green-500/5" : "border-border"}`}>
+              <Card className={`overflow-hidden ${freeTrialInfo.active ? "border border-border/60 bg-secondary/20" : "border border-border/60"}`}>
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${freeTrialInfo.active ? "bg-green-500/20" : "bg-muted"}`}>
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${freeTrialInfo.active ? "bg-secondary/20 border border-border/60" : "bg-muted"}`}>
                       {freeTrialInfo.active
-                        ? <Gift className="w-5 h-5 text-green-600" />
+                        ? <Gift className="w-5 h-5 text-foreground/70" />
                         : <Clock className="w-5 h-5 text-muted-foreground" />}
                     </div>
                     <div className="flex-1">
                       {freeTrialInfo.active ? (
                         <>
-                          <h3 className="font-semibold text-foreground">
+                          <h3 className="font-medium tracking-tight text-foreground">
                             Gratis periode — {freeTrialInfo.daysLeft} dage tilbage
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
@@ -177,7 +177,7 @@ const Payment = () => {
                           </p>
                           <div className="mt-3 w-full bg-muted rounded-full h-2">
                             <div
-                              className="bg-green-500 h-2 rounded-full transition-all"
+                              className="bg-foreground/70 h-2 rounded-full transition-all"
                               style={{ width: `${(freeTrialInfo.daysUsed / FREE_TRIAL_DAYS) * 100}%` }}
                             />
                           </div>
@@ -187,7 +187,7 @@ const Payment = () => {
                         </>
                       ) : (
                         <>
-                          <h3 className="font-semibold text-foreground">Gratis periode udløbet</h3>
+                          <h3 className="font-medium tracking-tight text-foreground">Gratis periode udløbet</h3>
                           <p className="text-sm text-muted-foreground mt-1">
                             Køb en annonceperiode nedenfor for at fortsætte med at vise dine annoncer.
                           </p>
@@ -201,15 +201,15 @@ const Payment = () => {
 
             {/* Vælg annonce (hvis udlejer og har annoncer) */}
             {isLandlord && landlordProperties.length > 0 && (
-              <Card>
+              <Card className="border border-border/60">
                 <CardHeader>
-                  <CardTitle className="text-base">Vælg annonce</CardTitle>
+                  <CardTitle className="text-base font-medium tracking-tight">Vælg annonce</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <select
                     value={selectedPropertyId}
                     onChange={(e) => setSelectedPropertyId(e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full rounded-xl border border-border/60 bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40"
                   >
                     {landlordProperties.map((p) => (
                       <option key={p.id} value={p.id}>{p.title}</option>
@@ -224,16 +224,16 @@ const Payment = () => {
 
             {/* Annonceperioder — udlejere */}
             {isLandlord && (
-              <Card>
+              <Card className="border border-border/60">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 font-medium tracking-tight">
                     <Clock className="w-5 h-5 text-secondary" />
                     Annonceperioder
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {freeTrialInfo.active && (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm text-green-700">
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/20 border border-border/60 text-sm text-foreground/70">
                       <CheckCircle className="w-4 h-4 flex-shrink-0" />
                       Du er i din gratis periode — annoncer er gratis at offentliggøre.
                     </div>
@@ -246,14 +246,14 @@ const Payment = () => {
                   ].map((item) => (
                     <div
                       key={item.type}
-                      className={`flex items-center justify-between p-4 rounded-xl border ${item.popular ? "border-2 border-secondary bg-secondary/5" : "border-border bg-muted/30"}`}
+                      className={`flex items-center justify-between p-4 rounded-xl border ${item.popular ? "border-secondary bg-secondary/20" : "border-border/60 bg-muted/30"}`}
                     >
                       <div>
                         <p className="font-medium">{item.label}</p>
                         <p className="text-sm text-muted-foreground">{item.sub}</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-lg font-bold">{item.price}</span>
+                        <span className="text-lg font-medium tracking-tight">{item.price}</span>
                         <Button
                           size="sm"
                           variant={item.popular ? "default" : "outline"}
@@ -272,10 +272,10 @@ const Payment = () => {
 
             {/* Boost — udlejere */}
             {isLandlord && (
-              <Card>
+              <Card className="border border-border/60">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-500" />
+                  <CardTitle className="flex items-center gap-2 font-medium tracking-tight">
+                    <Sparkles className="w-5 h-5 text-secondary" />
                     Boost din annonce
                   </CardTitle>
                 </CardHeader>
@@ -290,20 +290,20 @@ const Payment = () => {
                   ].map((item) => (
                     <div
                       key={item.type}
-                      className={`flex items-center justify-between p-4 rounded-xl border ${item.popular ? "border-2 border-amber-500 bg-amber-500/5" : "border-border bg-muted/30"}`}
+                      className={`flex items-center justify-between p-4 rounded-xl border ${item.popular ? "border-secondary bg-secondary/20" : "border-border/60 bg-muted/30"}`}
                     >
                       <div>
                         <p className="font-medium">{item.label}</p>
                         <p className="text-sm text-muted-foreground">{item.sub}</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`text-lg font-bold ${item.popular ? "text-amber-500" : ""}`}>{item.price}</span>
+                        <span className={`text-lg font-medium tracking-tight ${item.popular ? "text-foreground" : ""}`}>{item.price}</span>
                         <Button
                           size="sm"
                           variant="outline"
                           disabled={!!purchasing}
                           onClick={() => handlePurchase(item.type)}
-                          className="min-w-[80px] border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+                          className="min-w-[80px]"
                         >
                           {purchasing === item.type ? <Loader2 className="w-4 h-4 animate-spin" /> : "Køb"}
                         </Button>
@@ -316,9 +316,9 @@ const Payment = () => {
 
             {/* Søgeagenter — roomies */}
             {isRoomie && (
-              <Card>
+              <Card className="border border-border/60">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 font-medium tracking-tight">
                     <Search className="w-5 h-5 text-secondary" />
                     Søgeagenter
                   </CardTitle>
@@ -329,23 +329,23 @@ const Payment = () => {
                   </p>
 
                   {/* Første gratis */}
-                  <div className="flex items-center justify-between p-4 rounded-xl border-2 border-green-500 bg-green-500/5">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-secondary/20">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                        <Gift className="w-5 h-5 text-green-600" />
+                      <div className="w-10 h-10 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center">
+                        <Gift className="w-5 h-5 text-foreground/70" />
                       </div>
                       <div>
                         <p className="font-medium">Din første søgeagent</p>
                         <p className="text-sm text-muted-foreground">Altid gratis</p>
                       </div>
                     </div>
-                    <span className="text-lg font-bold text-green-600">Gratis</span>
+                    <span className="text-lg font-medium tracking-tight text-foreground/70">Gratis</span>
                   </div>
 
                   {/* Ekstra plads */}
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-border/60 bg-muted/30">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center">
                         <Search className="w-5 h-5 text-secondary" />
                       </div>
                       <div>
@@ -354,7 +354,7 @@ const Payment = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-lg font-bold">29 kr</span>
+                      <span className="text-lg font-medium tracking-tight">29 kr</span>
                       <Button
                         size="sm"
                         variant="outline"

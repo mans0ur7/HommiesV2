@@ -314,7 +314,7 @@ const PropertyDetail = () => {
               onClick={() => toggleFavorite(property.id)}
               aria-label={isFavorite(property.id) ? t("property.removeFavorite") : t("property.addFavorite")}
               className={`w-10 h-10 rounded-full border border-border flex items-center justify-center transition-colors ${
-                isFavorite(property.id) ? "bg-red-500 text-white border-red-500" : "hover:bg-muted"
+                isFavorite(property.id) ? "bg-secondary text-secondary-foreground border-transparent" : "hover:bg-muted"
               }`}
             >
               <Heart className={`w-5 h-5 ${isFavorite(property.id) ? "fill-current" : ""}`} />
@@ -505,7 +505,7 @@ const PropertyDetail = () => {
                 <span>{property.address}, {property.postal_code} {property.city}</span>
               </div>
               {viewStats && viewStats.today_count >= 3 && (
-                <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-700 text-xs font-medium">
+                <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/30 text-foreground/70 text-xs font-medium">
                   <Eye className="w-3.5 h-3.5" />
                   {t("property.viewedToday", { count: viewStats.today_count })}
                 </div>
@@ -574,7 +574,7 @@ const PropertyDetail = () => {
             {/* About */}
             {property.description && (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">{t("property.aboutHome")}</h2>
+                <h2 className="text-xl font-medium tracking-tight text-foreground mb-4">{t("property.aboutHome")}</h2>
                 <p className="text-muted-foreground leading-relaxed">
                   {showAllAbout || property.description.length <= 300 
                     ? property.description 
@@ -596,7 +596,7 @@ const PropertyDetail = () => {
             {/* Amenities */}
             {amenities.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">{t("property.amenities")}</h2>
+                <h2 className="text-xl font-medium tracking-tight text-foreground mb-4">{t("property.amenities")}</h2>
                 <div className="grid grid-cols-3 gap-4">
                   {displayedAmenities.map((amenity, index) => {
                     const IconComponent = amenityIcons[amenity] || Zap;
@@ -623,7 +623,7 @@ const PropertyDetail = () => {
 
             {/* Location */}
             <div>
-              <h2 className="text-xl font-bold text-foreground mb-4">{t("property.location")}</h2>
+              <h2 className="text-xl font-medium tracking-tight text-foreground mb-4">{t("property.location")}</h2>
               <div className="bg-muted rounded-2xl h-[300px] relative overflow-hidden mb-4">
                 <PropertyLocationMap
                   city={property.city}
@@ -641,7 +641,7 @@ const PropertyDetail = () => {
                   <Button 
                     variant="secondary" 
                     size="sm" 
-                    className="gap-2 shadow-lg"
+                    className="gap-2"
                   >
                     <MapPin className="w-4 h-4" />
                     Få rutevejledning
@@ -677,7 +677,7 @@ const PropertyDetail = () => {
 
             {/* Reviews Section */}
             <div className="mt-8">
-              <h2 className="text-xl font-bold text-foreground mb-4">{t("property.reviews")}</h2>
+              <h2 className="text-xl font-medium tracking-tight text-foreground mb-4">{t("property.reviews")}</h2>
               
               {/* Average Rating Display */}
               {property.rating_count && property.rating_count > 0 ? (
@@ -773,7 +773,7 @@ const PropertyDetail = () => {
               </div>
 
               <Button 
-                className="w-full h-14 text-lg font-semibold mb-4 bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full h-14 text-lg font-semibold mb-4 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-colors"
                 onClick={handleSendRequest}
                 disabled={
                   sendingRequest ||

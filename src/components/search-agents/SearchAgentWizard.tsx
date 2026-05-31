@@ -1,7 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
-import { X, MapPin, Home, Bell, CreditCard, Check, ChevronRight, ChevronLeft, Sparkles, Search, Loader2 } from "lucide-react";
+import { MapPin, Home, Bell, CreditCard, Check, ChevronRight, ChevronLeft, Sparkles, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +17,7 @@ import { Slider } from "@/components/ui/slider";
 import { danishCities } from "@/data/danishCities";
 import { universityAreas } from "@/data/universityAreas";
 import { CreateSearchAgentData, SearchAgent } from "@/hooks/useSearchAgents";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { isNativeApp } from "@/lib/native";
 
@@ -49,6 +56,7 @@ const SearchAgentWizard = ({
 }: SearchAgentWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const native = isNativeApp();
+  const isMobile = useIsMobile();
 
   // Form state
   const [citySearch, setCitySearch] = useState("");
@@ -169,28 +177,26 @@ const SearchAgentWizard = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-background rounded-2xl border border-border/60 w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col">
+    <Sheet open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={cn(
+          "p-0 gap-0 bg-background flex flex-col",
+          isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+        )}
+      >
         {/* Header */}
-        <div className="border-b border-border/60 p-5 flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-px w-6 bg-foreground/40" />
-              <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
-                Trin {currentStep} / {STEPS.length}
-              </span>
-            </div>
-            <h2 className="text-2xl font-medium tracking-tight">
-              {isEditing ? "Redigér søgeagent." : "Opret søgeagent."}
-            </h2>
+        <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">
+              Trin {currentStep} / {STEPS.length}
+            </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-muted rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+          <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+            {isEditing ? "Redigér søgeagent." : "Opret søgeagent."}
+          </SheetTitle>
+        </SheetHeader>
 
         {/* Progress Steps */}
         <div className="px-6 py-4 border-b border-border/60">
@@ -212,7 +218,7 @@ const SearchAgentWizard = ({
                       {isCompleted ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                     </div>
                     <span className={cn(
-                      "text-[10px] uppercase tracking-wider mt-1.5",
+                      "text-[11px] uppercase tracking-wider mt-1.5",
                       isActive ? "text-foreground font-medium" : "text-foreground/50"
                     )}>
                       {step.title}
@@ -231,12 +237,12 @@ const SearchAgentWizard = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="overflow-y-auto px-6 py-6 flex-1">
           {/* Step 1: Area */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Vælg område</h3>
+                <h3 className="text-lg font-medium tracking-tight mb-2">Vælg område</h3>
                 <p className="text-sm text-muted-foreground">
                   Vælg by og eventuelle områder du vil overvåge
                 </p>
@@ -261,13 +267,13 @@ const SearchAgentWizard = ({
                 {/* City Selection */}
                 <div className="space-y-2">
                   <Label>Vælg by</Label>
-                  <div className="max-h-48 overflow-y-auto border rounded-lg divide-y">
+                  <div className="max-h-48 overflow-y-auto border border-border/60 rounded-2xl divide-y divide-border/60">
                     <button
                       type="button"
                       onClick={() => setCity("")}
                       className={cn(
                         "w-full px-4 py-2.5 text-left text-sm transition-colors",
-                        !city ? "bg-secondary/10 text-secondary font-medium" : "hover:bg-muted"
+                        !city ? "bg-secondary/20 text-foreground font-medium" : "hover:bg-muted"
                       )}
                     >
                       Alle byer
@@ -279,7 +285,7 @@ const SearchAgentWizard = ({
                         onClick={() => setCity(c)}
                         className={cn(
                           "w-full px-4 py-2.5 text-left text-sm transition-colors",
-                          city === c ? "bg-secondary/10 text-secondary font-medium" : "hover:bg-muted"
+                          city === c ? "bg-secondary/20 text-foreground font-medium" : "hover:bg-muted"
                         )}
                       >
                         {c}
@@ -301,10 +307,10 @@ const SearchAgentWizard = ({
                         <label
                           key={area}
                           className={cn(
-                            "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all",
-                            selectedAreas.includes(area) 
-                              ? "border-secondary bg-secondary/10" 
-                              : "border-border hover:border-muted-foreground"
+                            "flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-colors",
+                            selectedAreas.includes(area)
+                              ? "border-border/60 bg-secondary/20"
+                              : "border-border/60 hover:bg-muted"
                           )}
                         >
                           <Checkbox
@@ -331,7 +337,7 @@ const SearchAgentWizard = ({
           {currentStep === 2 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Filtre (valgfrit)</h3>
+                <h3 className="text-lg font-medium tracking-tight mb-2">Filtre (valgfrit)</h3>
                 <p className="text-sm text-muted-foreground">
                   Tilpas din søgning med pris og boligtype
                 </p>
@@ -407,17 +413,17 @@ const SearchAgentWizard = ({
           {currentStep === 3 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Notifikationer</h3>
+                <h3 className="text-lg font-medium tracking-tight mb-2">Notifikationer</h3>
                 <p className="text-sm text-muted-foreground">
                   Vælg hvordan du vil modtage besked om nye værelser
                 </p>
               </div>
 
               <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-secondary/10 border border-secondary/20">
+                <div className="p-4 rounded-2xl bg-secondary/20 border border-border/60">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-secondary" />
+                      <Bell className="w-5 h-5 text-foreground/70" />
                     </div>
                     <div>
                       <p className="font-medium">Øjeblikkelige notifikationer</p>
@@ -439,14 +445,14 @@ const SearchAgentWizard = ({
           {currentStep === 4 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Bekræft søgeagent</h3>
+                <h3 className="text-lg font-medium tracking-tight mb-2">Bekræft søgeagent</h3>
                 <p className="text-sm text-muted-foreground">
                   Gennemgå din søgeagent før oprettelse
                 </p>
               </div>
 
               {/* Summary */}
-              <div className="space-y-3 p-4 bg-muted/50 rounded-xl">
+              <div className="space-y-3 p-4 bg-muted rounded-2xl border border-border/60">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Navn:</span>
                   <span className="font-medium">{generateAgentName()}</span>
@@ -483,28 +489,28 @@ const SearchAgentWizard = ({
               {/* Payment Info */}
               {requiresPayment ? (
                 native ? (
-                  <div className="p-4 rounded-xl border border-border bg-muted/30">
-                    <p className="font-semibold text-foreground mb-1">Maks. antal nået</p>
+                  <div className="p-4 rounded-2xl border border-border/60 bg-muted">
+                    <p className="font-medium text-foreground mb-1">Maks. antal nået</p>
                     <p className="text-sm text-muted-foreground">
                       Du har allerede {existingAgentsCount} søgeagent{existingAgentsCount > 1 ? 'er' : ''}. Slet en eksisterende for at oprette en ny.
                     </p>
                   </div>
                 ) : (
-                <div className="p-4 rounded-xl border-2 border-secondary bg-secondary/5">
+                <div className="p-4 rounded-2xl border border-border/60 bg-secondary/20">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
-                      <CreditCard className="w-5 h-5 text-secondary" />
+                      <CreditCard className="w-5 h-5 text-foreground/70" />
                     </div>
                     <div>
-                      <p className="font-semibold">Opgrader til flere søgeagenter</p>
+                      <p className="font-medium">Opgrader til flere søgeagenter</p>
                       <p className="text-sm text-muted-foreground">
                         Du har allerede {existingAgentsCount} søgeagent{existingAgentsCount > 1 ? 'er' : ''}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between py-3 border-t border-border">
+                  <div className="flex items-center justify-between py-3 border-t border-border/60">
                     <span>Ekstra søgeagent-slot</span>
-                    <span className="text-xl font-bold text-secondary">{pricePerSlot} kr</span>
+                    <span className="text-xl font-medium tracking-tight text-foreground">{pricePerSlot} kr</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Engangsbetaling. Sletning frigør pladsen til ny agent.
@@ -512,13 +518,13 @@ const SearchAgentWizard = ({
                 </div>
                 )
               ) : (!isEditing && existingAgentsCount === 0) ? (
-                <div className="p-4 rounded-xl border-2 border-green-500/30 bg-green-500/5">
+                <div className="p-4 rounded-2xl border border-border/60 bg-secondary/20">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                      <Sparkles className="w-5 h-5 text-green-600" />
+                    <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-foreground/70" />
                     </div>
                     <div>
-                      <p className="font-semibold text-green-700">Din første søgeagent er gratis! 🎉</p>
+                      <p className="font-medium text-foreground">Din første søgeagent er gratis</p>
                       <p className="text-sm text-muted-foreground">
                         Betal kun for ekstra søgeagenter
                       </p>
@@ -531,7 +537,7 @@ const SearchAgentWizard = ({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-border/60 p-4 flex items-center justify-between">
+        <div className="border-t border-border/60 px-6 py-4 flex items-center justify-between bg-background">
           <Button
             variant="ghost"
             onClick={currentStep === 1 ? onClose : prevStep}
@@ -558,8 +564,8 @@ const SearchAgentWizard = ({
             </Button>
           )}
         </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 

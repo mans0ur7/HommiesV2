@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Home, DollarSign, Bell, Mail } from "lucide-react";
+import { MapPin, Home, Wallet, Bell, Mail } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { danishCities } from "@/data/danishCities";
 import { universityAreas } from "@/data/universityAreas";
 import { CreateSearchAgentData, SearchAgent } from "@/hooks/useSearchAgents";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface SearchAgentModalProps {
   agent?: SearchAgent | null;
@@ -29,7 +37,10 @@ const frequencyOptions = [
   { value: "weekly", label: "Ugentligt sammendrag" },
 ];
 
+const sectionLabel = "text-[11px] uppercase tracking-[0.18em] text-foreground/60";
+
 const SearchAgentModal = ({ agent, onClose, onSave, isLoading }: SearchAgentModalProps) => {
+  const isMobile = useIsMobile();
   const [name, setName] = useState(agent?.name || "");
   const [city, setCity] = useState(agent?.city || "all");
   const [area, setArea] = useState(agent?.area || "all");
@@ -53,7 +64,7 @@ const SearchAgentModal = ({ agent, onClose, onSave, isLoading }: SearchAgentModa
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const data: CreateSearchAgentData & { id?: string } = {
       name: name || `Søgning i ${city !== "all" ? city : 'Danmark'}`,
       city: city !== "all" ? city : null,
@@ -75,198 +86,203 @@ const SearchAgentModal = ({ agent, onClose, onSave, isLoading }: SearchAgentModa
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-background rounded-2xl border border-border/60 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <SheetContent
+        side={isMobile ? "bottom" : "right"}
+        className={cn(
+          "p-0 gap-0 bg-background flex flex-col",
+          isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+        )}
+      >
         {/* Header */}
-        <div className="sticky top-0 bg-background border-b border-border/60 p-5 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-px w-6 bg-foreground/40" />
-              <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">Søgeagent</span>
-            </div>
-            <h2 className="text-2xl font-medium tracking-tight">
-              {agent ? "Redigér." : "Opret."}
-            </h2>
+        <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">Søgeagent</span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-muted rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+          <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+            {agent ? "Redigér." : "Opret."}
+          </SheetTitle>
+        </SheetHeader>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-6">
-          {/* Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name">Navn på søgeagent</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="F.eks. 'Lejlighed på Nørrebro'"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="overflow-y-auto px-6 py-6 flex-1 space-y-6">
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name" className={sectionLabel}>Navn på søgeagent</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="F.eks. 'Lejlighed på Nørrebro'"
+                className="rounded-xl border-border/60 h-11"
+              />
+            </div>
 
-          {/* Location */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-primary">
-              <MapPin className="w-4 h-4 text-secondary" />
-              Lokation
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="city">By</Label>
-                <Select value={city} onValueChange={setCity}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Vælg by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle byer</SelectItem>
-                    {danishCities.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="area">Område</Label>
-                <Select value={area} onValueChange={setArea} disabled={!city || city === "all" || availableAreas.length === 0}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={availableAreas.length > 0 ? "Vælg område" : "Ingen områder"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle områder</SelectItem>
-                    {availableAreas.map((a) => (
-                      <SelectItem key={a} value={a}>{a}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          {/* Price */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-primary">
-              <DollarSign className="w-4 h-4 text-secondary" />
-              Pris
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="minRent">Min. leje/md</Label>
-                <Input
-                  id="minRent"
-                  type="number"
-                  value={minRent}
-                  onChange={(e) => setMinRent(e.target.value)}
-                  placeholder="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="maxRent">Max. leje/md</Label>
-                <Input
-                  id="maxRent"
-                  type="number"
-                  value={maxRent}
-                  onChange={(e) => setMaxRent(e.target.value)}
-                  placeholder="20000"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Property Type & Rooms */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-primary">
-              <Home className="w-4 h-4 text-secondary" />
-              Bolig
-            </div>
-            
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor="propertyType">Boligtype</Label>
-                <Select value={propertyType} onValueChange={setPropertyType}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Alle typer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle typer</SelectItem>
-                    {propertyTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* Location */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-foreground/60" />
+                <span className={sectionLabel}>Lokation</span>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="minRooms">Min. værelser</Label>
+                  <Label htmlFor="city" className={sectionLabel}>By</Label>
+                  <Select value={city} onValueChange={setCity}>
+                    <SelectTrigger className="rounded-xl border-border/60 h-11">
+                      <SelectValue placeholder="Vælg by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle byer</SelectItem>
+                      {danishCities.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="area" className={sectionLabel}>Område</Label>
+                  <Select value={area} onValueChange={setArea} disabled={!city || city === "all" || availableAreas.length === 0}>
+                    <SelectTrigger className="rounded-xl border-border/60 h-11">
+                      <SelectValue placeholder={availableAreas.length > 0 ? "Vælg område" : "Ingen områder"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle områder</SelectItem>
+                      {availableAreas.map((a) => (
+                        <SelectItem key={a} value={a}>{a}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Price */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-4 h-4 text-foreground/60" />
+                <span className={sectionLabel}>Pris</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="minRent" className={sectionLabel}>Min. leje/md</Label>
                   <Input
-                    id="minRooms"
+                    id="minRent"
                     type="number"
-                    min="1"
-                    value={minRooms}
-                    onChange={(e) => setMinRooms(e.target.value)}
-                    placeholder="1"
+                    value={minRent}
+                    onChange={(e) => setMinRent(e.target.value)}
+                    placeholder="0"
+                    className="rounded-xl border-border/60 h-11"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="maxRooms">Max. værelser</Label>
+                  <Label htmlFor="maxRent" className={sectionLabel}>Max. leje/md</Label>
                   <Input
-                    id="maxRooms"
+                    id="maxRent"
                     type="number"
-                    min="1"
-                    value={maxRooms}
-                    onChange={(e) => setMaxRooms(e.target.value)}
-                    placeholder="10"
+                    value={maxRent}
+                    onChange={(e) => setMaxRent(e.target.value)}
+                    placeholder="20000"
+                    className="rounded-xl border-border/60 h-11"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Property Type & Rooms */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Home className="w-4 h-4 text-foreground/60" />
+                <span className={sectionLabel}>Bolig</span>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="propertyType" className={sectionLabel}>Boligtype</Label>
+                  <Select value={propertyType} onValueChange={setPropertyType}>
+                    <SelectTrigger className="rounded-xl border-border/60 h-11">
+                      <SelectValue placeholder="Alle typer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle typer</SelectItem>
+                      {propertyTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="minRooms" className={sectionLabel}>Min. værelser</Label>
+                    <Input
+                      id="minRooms"
+                      type="number"
+                      min="1"
+                      value={minRooms}
+                      onChange={(e) => setMinRooms(e.target.value)}
+                      placeholder="1"
+                      className="rounded-xl border-border/60 h-11"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="maxRooms" className={sectionLabel}>Max. værelser</Label>
+                    <Input
+                      id="maxRooms"
+                      type="number"
+                      min="1"
+                      value={maxRooms}
+                      onChange={(e) => setMaxRooms(e.target.value)}
+                      placeholder="10"
+                      className="rounded-xl border-border/60 h-11"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notifications */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4 text-foreground/60" />
+                <span className={sectionLabel}>Notifikationer</span>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="frequency" className={sectionLabel}>Frekvens</Label>
+                  <Select value={frequency} onValueChange={setFrequency}>
+                    <SelectTrigger className="rounded-xl border-border/60 h-11">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {frequencyOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-2xl border border-border/60 bg-secondary/20">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-foreground/60" />
+                    <span className="text-sm">E-mail notifikationer</span>
+                  </div>
+                  <Switch
+                    checked={emailNotifications}
+                    onCheckedChange={setEmailNotifications}
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Notifications */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium text-primary">
-              <Bell className="w-4 h-4 text-secondary" />
-              Notifikationer
-            </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="frequency">Frekvens</Label>
-                <Select value={frequency} onValueChange={setFrequency}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {frequencyOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-secondary" />
-                  <span className="text-sm">E-mail notifikationer</span>
-                </div>
-                <Switch
-                  checked={emailNotifications}
-                  onCheckedChange={setEmailNotifications}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 pt-4 border-t border-border/60">
+          {/* Sticky footer */}
+          <div className="border-t border-border/60 px-6 py-4 flex gap-3 bg-background">
             <Button type="button" variant="outline" onClick={onClose} className="flex-1 rounded-full border-border/60 h-11">
               Annullér
             </Button>
@@ -275,8 +291,8 @@ const SearchAgentModal = ({ agent, onClose, onSave, isLoading }: SearchAgentModa
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 

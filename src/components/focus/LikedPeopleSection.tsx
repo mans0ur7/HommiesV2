@@ -65,13 +65,14 @@ const LikedPeopleSection = () => {
   if (loading) {
     return (
       <section className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Personer du matcher med</h2>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-px w-8 bg-foreground/40" />
+          <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Personer du matcher med</h2>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex-shrink-0 w-32">
-              <div className="aspect-[3/4] rounded-xl bg-muted animate-pulse" />
+              <div className="aspect-[3/4] rounded-2xl bg-muted" />
               <div className="h-4 bg-muted rounded mt-2 w-20" />
             </div>
           ))}
@@ -86,10 +87,11 @@ const LikedPeopleSection = () => {
 
   return (
     <section className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Personer du matcher med</h2>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="h-px w-8 bg-foreground/40" />
+        <h2 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Personer du matcher med</h2>
       </div>
-      
+
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
         {likedPeople.map((person) => (
           <div
@@ -97,15 +99,15 @@ const LikedPeopleSection = () => {
             className="flex-shrink-0 w-32 cursor-pointer group"
             onClick={() => navigate(`/user/${person.user_id}`)}
           >
-            <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-muted">
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-muted border border-border/60">
               {person.avatar_url ? (
                 <img
                   src={person.avatar_url}
                   alt={person.name}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                <div className="w-full h-full flex items-center justify-center bg-muted">
                   <User className="w-12 h-12 text-muted-foreground/50" />
                 </div>
               )}

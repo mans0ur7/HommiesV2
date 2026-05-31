@@ -10,13 +10,17 @@ const LikedPropertiesSection = () => {
   if (isLoading) {
     return (
       <section className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Boliger du har liket</h2>
+        <div className="mb-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-px w-8 bg-foreground/40" />
+            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Favoritter</span>
+          </div>
+          <h2 className="text-xl font-medium tracking-tight text-foreground">Boliger du har liket</h2>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex-shrink-0 w-40">
-              <div className="aspect-[4/3] rounded-xl bg-muted animate-pulse" />
+              <div className="aspect-[4/3] rounded-2xl bg-muted" />
               <div className="h-4 bg-muted rounded mt-2 w-28" />
             </div>
           ))}
@@ -31,10 +35,14 @@ const LikedPropertiesSection = () => {
 
   return (
     <section className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Boliger du har liket</h2>
+      <div className="mb-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-px w-8 bg-foreground/40" />
+          <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Favoritter</span>
+        </div>
+        <h2 className="text-xl font-medium tracking-tight text-foreground">Boliger du har liket</h2>
       </div>
-      
+
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
         {properties.map((property) => (
           <div
@@ -42,15 +50,15 @@ const LikedPropertiesSection = () => {
             className="flex-shrink-0 w-40 cursor-pointer group"
             onClick={() => navigate(`/property/${property.id}`)}
           >
-            <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-muted">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted border border-border/60">
               {property.images && property.images.length > 0 ? (
                 <img
                   src={property.images[0]}
                   alt={property.title}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                <div className="w-full h-full flex items-center justify-center bg-muted">
                   <Home className="w-10 h-10 text-muted-foreground/50" />
                 </div>
               )}
@@ -61,7 +69,7 @@ const LikedPropertiesSection = () => {
                   <img
                     src={property.landlord.avatar_url}
                     alt={property.landlord.name}
-                    className="w-6 h-6 rounded-full border-2 border-white object-cover"
+                    className="w-6 h-6 rounded-full border-2 border-background object-cover"
                   />
                 </div>
               )}

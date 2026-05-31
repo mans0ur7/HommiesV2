@@ -34,21 +34,23 @@ const PendingGroupInvitations = ({
 
   return (
     <>
-      <div className="mb-6 p-4 bg-gradient-to-r from-secondary/10 via-secondary/15 to-secondary/10 rounded-xl border border-secondary/20">
-        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <span className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
-          Gruppe-invitationer ({invitations.length})
-        </h3>
+      <div className="mb-6 p-4 bg-secondary/10 rounded-2xl border border-border/60">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="h-px w-8 bg-foreground/40" />
+          <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
+            Gruppe-invitationer ({invitations.length})
+          </span>
+        </div>
 
         <div className="space-y-3">
           {invitations.map((inv) => (
             <div
               key={inv.id}
-              className="flex items-center gap-3 p-3 bg-background rounded-lg border border-border/50 hover:border-primary/30 transition-colors cursor-pointer group"
+              className="flex items-center gap-3 p-3 bg-background rounded-2xl border border-border/60 hover:border-border transition-colors cursor-pointer group"
               onClick={() => setSelectedInvitation(inv)}
             >
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Users className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center">
+                <Users className="w-5 h-5 text-foreground/70" />
               </div>
 
               <div className="flex-1 min-w-0">
@@ -85,7 +87,7 @@ const PendingGroupInvitations = ({
                   <Check className="w-4 h-4" />
                 </Button>
                 {/* Arrow to indicate clickable */}
-                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
               </div>
             </div>
           ))}

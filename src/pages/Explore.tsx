@@ -350,10 +350,10 @@ const Explore = () => {
                   {t("explore.back")}
                 </button>
 
-                <h1 className="font-bold tracking-tight text-foreground leading-[1.05]"
+                <h1 className="font-medium tracking-tight text-foreground leading-[1.05]"
                     style={{ fontSize: 'clamp(2rem, 5vw, 3.75rem)' }}>
                   {t("explore.title1")}
-                  <span className="block text-secondary italic font-serif">{t("explore.titleHome")}</span>
+                  <span className="block text-secondary">{t("explore.titleHome")}</span>
                 </h1>
                 <p className="text-sm md:text-lg text-muted-foreground max-w-xl">
                   {t("explore.subtitle")}
@@ -361,7 +361,7 @@ const Explore = () => {
 
                 {/* Search bar — large, ground-level, single field */}
                 <div className="relative max-w-2xl" ref={searchRef}>
-                  <div className="flex items-center gap-2 rounded-2xl border border-border bg-card shadow-[0_8px_30px_-12px_hsl(var(--foreground)/0.15)] p-1.5 focus-within:border-foreground/40 transition-colors">
+                  <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card p-1.5 focus-within:border-foreground/40 transition-colors">
                     <div className="relative flex-1">
                       <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                       <Input
@@ -394,7 +394,7 @@ const Explore = () => {
 
                   {/* Suggestions */}
                   {showSuggestions && searchQuery.trim() && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-2xl shadow-xl border border-border overflow-hidden z-50">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-2xl shadow-sm border border-border/60 overflow-hidden z-50">
                       {searchSuggestions.length > 0 ? (
                         <ul className="py-1 md:py-2 max-h-80 overflow-y-auto">
                           {searchSuggestions.map((suggestion, index) => (
@@ -467,7 +467,7 @@ const Explore = () => {
                   {propertiesLoaded >= 50 ? (
                     <div className="col-span-3 row-span-2 rounded-2xl overflow-hidden bg-secondary/20 flex items-center justify-center text-center p-3">
                       <div>
-                        <p className="text-2xl font-bold text-foreground">{propertiesLoaded}{hasMoreProperties ? '+' : ''}</p>
+                        <p className="text-2xl font-medium tracking-tight text-foreground">{propertiesLoaded}{hasMoreProperties ? '+' : ''}</p>
                         <p className="text-xs text-muted-foreground mt-1">{t("explore.activeProperties")}</p>
                       </div>
                     </div>
@@ -495,10 +495,13 @@ const Explore = () => {
                 </button>
               )}
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-                  {selectedStudyCity ? t("explore.areas") : t("explore.studyCities")}
-                </p>
-                <h2 className="text-xl md:text-3xl font-bold tracking-tight text-foreground">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
+                    {selectedStudyCity ? t("explore.areas") : t("explore.studyCities")}
+                  </span>
+                </div>
+                <h2 className="text-xl md:text-3xl font-medium tracking-tight text-foreground">
                   {selectedStudyCity ? selectedStudyCity : t("explore.whereLive")}
                 </h2>
               </div>
@@ -627,7 +630,7 @@ const Explore = () => {
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
                     </button>
                     {showSortDropdown && (
-                      <div className="absolute top-full right-0 mt-1.5 bg-card rounded-xl shadow-lg border border-border z-50 min-w-[160px] overflow-hidden">
+                      <div className="absolute top-full right-0 mt-1.5 bg-card rounded-2xl shadow-sm border border-border/60 z-50 min-w-[160px] overflow-hidden">
                         {propertySortOptions.map((option) => (
                           <button
                             key={option.value}
@@ -736,8 +739,11 @@ const Explore = () => {
               {/* Editorial result header */}
               <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6 md:mb-8">
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">{t("explore.results")}</p>
-                  <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-px w-8 bg-foreground/40" />
+                    <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">{t("explore.results")}</span>
+                  </div>
+                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground leading-tight">
                     {propertiesLoaded}{hasMoreProperties ? '+' : ''} {propertiesLoaded === 1 ? t("explore.home") : t("explore.homes")}
                     {selectedArea && <span className="text-muted-foreground font-normal"> · {selectedArea}</span>}
                     {!selectedArea && selectedStudyCity && <span className="text-muted-foreground font-normal"> · {selectedStudyCity}</span>}
@@ -788,12 +794,8 @@ const Explore = () => {
                 ) : (
                   <>
                     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5">
-                      {displayProperties.map((property, index) => (
-                        <div
-                          key={property.id}
-                          className="animate-fade-in"
-                          style={{ animationDelay: `${Math.min(index, 9) * 40}ms`, animationFillMode: 'both' }}
-                        >
+                      {displayProperties.map((property) => (
+                        <div key={property.id}>
                           <ExplorePropertyCard
                             id={property.id}
                             title={property.title}
@@ -844,8 +846,11 @@ const Explore = () => {
           ) : (
             <>
               <div className="mb-6 md:mb-8">
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1.5">{t("explore.people")}</p>
-                <h2 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">{t("explore.people")}</span>
+                </div>
+                <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground leading-tight">
                   {roomiesLoaded}{hasMoreRoomies ? '+' : ''} {roomiesLoaded === 1 ? t("explore.roomie") : t("explore.roomies")}
                   {roomieFiltersCount > 0 && <span className="text-muted-foreground font-normal text-base md:text-lg ml-2">{t("explore.withFilters")}</span>}
                 </h2>
@@ -871,12 +876,8 @@ const Explore = () => {
               ) : (
                 <>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-8">
-                    {roomies.map((roomie, index) => (
-                      <div
-                        key={roomie.id}
-                        className="animate-fade-in"
-                        style={{ animationDelay: `${Math.min(index, 15) * 30}ms`, animationFillMode: 'both' }}
-                      >
+                    {roomies.map((roomie) => (
+                      <div key={roomie.id}>
                         <ExploreRoomieCard
                           id={roomie.user_id}
                           name={roomie.name}

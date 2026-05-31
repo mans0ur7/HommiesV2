@@ -14,12 +14,12 @@ import { useDawaAutocomplete } from "@/hooks/useDawaAutocomplete";
 import { format, differenceInDays } from "date-fns";
 import { da } from "date-fns/locale";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { addDays } from "date-fns";
@@ -920,21 +920,21 @@ const nextStep = () => {
     if (status === "active" && expiresAt) {
       const daysLeft = differenceInDays(new Date(expiresAt), new Date());
       if (daysLeft <= 0) {
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground shadow-md backdrop-blur-sm">{t("myListings.expired")}</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground backdrop-blur-sm">{t("myListings.expired")}</span>;
       }
       if (daysLeft <= 3) {
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-md backdrop-blur-sm">{t("myListings.expiringSoon", { days: daysLeft })}</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground backdrop-blur-sm">{t("myListings.expiringSoon", { days: daysLeft })}</span>;
       }
-      return <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-600 text-white shadow-md backdrop-blur-sm">{t("myListings.active", { days: daysLeft })}</span>;
+      return <span className="px-3 py-1 rounded-full text-xs font-medium bg-foreground text-background backdrop-blur-sm">{t("myListings.active", { days: daysLeft })}</span>;
     }
 
     switch (status) {
       case "draft":
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground shadow-md backdrop-blur-sm">{t("myListings.draft")}</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground backdrop-blur-sm">{t("myListings.draft")}</span>;
       case "pending_payment":
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-md backdrop-blur-sm">{t("myListings.pendingPayment")}</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-secondary text-secondary-foreground backdrop-blur-sm">{t("myListings.pendingPayment")}</span>;
       case "expired":
-        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground shadow-md backdrop-blur-sm">{t("myListings.expired")}</span>;
+        return <span className="px-3 py-1 rounded-full text-xs font-medium bg-destructive text-destructive-foreground backdrop-blur-sm">{t("myListings.expired")}</span>;
       default:
         return null;
     }
@@ -1102,13 +1102,13 @@ const nextStep = () => {
 
         {/* Launch Offer Banner - shown for first-time landlords on main page */}
         {!showForm && isLaunchOfferEligible && (
-          <div className="mb-6 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4 flex items-start gap-3 animate-fade-in">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-white" />
+          <div className="mb-6 bg-secondary/20 border border-border/60 rounded-2xl p-4 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-secondary-foreground" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">{t("myListings.launchOfferTitle")}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">{t("myListings.launchOfferTitle")}</p>
+              <p className="text-sm text-foreground/60">
                 {t("myListings.launchOfferBody")}
               </p>
             </div>
@@ -1124,7 +1124,7 @@ const nextStep = () => {
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <div className="h-px w-6 bg-foreground/40" />
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-foreground/60">
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
                       {t("myListings.stepXofY", { current: currentStep, total: stepKeys.length })}
                     </span>
                   </div>
@@ -1156,7 +1156,7 @@ const nextStep = () => {
                       }`}>
                         {currentStep > step.id ? <Check className="w-3.5 h-3.5 md:w-4 md:h-4" /> : step.id}
                       </div>
-                      <span className={`text-[8px] md:text-xs mt-1.5 md:mt-2 font-medium truncate max-w-[45px] md:max-w-none text-center ${
+                      <span className={`text-[10px] md:text-xs mt-1.5 md:mt-2 font-medium truncate max-w-[45px] md:max-w-none text-center ${
                         currentStep >= step.id ? 'text-foreground' : 'text-foreground/50'
                       }`}>
                         {t(`myListings.${step.titleKey}`)}
@@ -1176,7 +1176,7 @@ const nextStep = () => {
             <CardContent className="p-8">
               {/* Step 1: Basic Info */}
               {currentStep === 1 && (
-                <div className="space-y-6 animate-fade-in">
+                <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-primary mb-2">Titel *</label>
                     <input
@@ -1198,7 +1198,7 @@ const nextStep = () => {
                           onClick={() => setFormData({...formData, property_type: type.value})}
                           className={`px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
                             formData.property_type === type.value
-                              ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                              ? 'border-secondary bg-secondary text-secondary-foreground'
                               : 'border-border text-foreground hover:bg-muted'
                           }`}
                         >
@@ -1223,7 +1223,7 @@ const nextStep = () => {
 
               {/* Step 2: Location */}
               {currentStep === 2 && (
-                <div className="space-y-6 animate-fade-in">
+                <div className="space-y-6">
 
                   {/* Address search — always shown; confirmed address shows below */}
                   {!addressConfirmed ? (
@@ -1251,7 +1251,7 @@ const nextStep = () => {
                       </div>
 
                       {showAddressSuggestions && addressQuery.trim().length >= 2 && (
-                        <div className="absolute z-20 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-72 overflow-y-auto">
+                        <div className="absolute z-20 w-full mt-1 bg-background border border-border/60 rounded-lg shadow-sm max-h-72 overflow-y-auto">
                           {dawaLoading && (
                             <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
                               <Loader2 className="w-3 h-3 animate-spin" /> Søger…
@@ -1298,16 +1298,16 @@ const nextStep = () => {
                     </div>
                   ) : (
                     /* Confirmed address display */
-                    <div className="rounded-xl border border-green-500/40 bg-green-500/5 p-4">
+                    <div className="rounded-2xl border border-border/60 bg-secondary/20 p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
-                          <div className="w-9 h-9 rounded-full bg-green-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-4 h-4 text-green-600" />
+                          <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-4 h-4 text-secondary-foreground" />
                           </div>
                           <div>
                             <p className="text-sm font-medium text-foreground">{formData.address}</p>
                             <p className="text-sm text-muted-foreground">{formData.postal_code} {formData.city}</p>
-                            <p className="text-xs text-green-600 mt-1">Verificeret dansk adresse</p>
+                            <p className="text-xs text-foreground/70 mt-1">Verificeret dansk adresse</p>
                           </div>
                         </div>
                         <button
@@ -1393,7 +1393,7 @@ const nextStep = () => {
 
               {/* Step 3: Details */}
               {currentStep === 3 && (
-                <div className="space-y-8 animate-fade-in">
+                <div className="space-y-8">
                   <div>
                     <label className="block text-sm font-medium text-primary mb-2">Størrelse (m²) *</label>
                     <input
@@ -1465,7 +1465,7 @@ const nextStep = () => {
                           onClick={() => setFormData({...formData, has_private_bathroom: !formData.has_private_bathroom})}
                           className={`w-full px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                             formData.has_private_bathroom
-                              ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                              ? 'border-secondary bg-secondary text-secondary-foreground'
                               : 'border-border text-muted-foreground hover:bg-muted'
                           }`}
                         >
@@ -1482,7 +1482,7 @@ const nextStep = () => {
                           onClick={() => setFormData({...formData, has_private_kitchen: !formData.has_private_kitchen})}
                           className={`w-full px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                             formData.has_private_kitchen
-                              ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                              ? 'border-secondary bg-secondary text-secondary-foreground'
                               : 'border-border text-muted-foreground hover:bg-muted'
                           }`}
                         >
@@ -1504,7 +1504,7 @@ const nextStep = () => {
                         onClick={() => setFormData({...formData, is_furnished: !formData.is_furnished})}
                         className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
                           formData.is_furnished
-                            ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                            ? 'border-secondary bg-secondary text-secondary-foreground'
                             : 'border-border text-muted-foreground hover:bg-muted'
                         }`}
                       >
@@ -1516,7 +1516,7 @@ const nextStep = () => {
                         onClick={() => setFormData({...formData, bills_included: !formData.bills_included})}
                         className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
                           formData.bills_included
-                            ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                            ? 'border-secondary bg-secondary text-secondary-foreground'
                             : 'border-border text-muted-foreground hover:bg-muted'
                         }`}
                       >
@@ -1536,7 +1536,7 @@ const nextStep = () => {
                           onClick={() => toggleAmenity(amenity)}
                           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 text-sm transition-colors ${
                             formData.amenities.includes(amenity)
-                              ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                              ? 'border-secondary bg-secondary text-secondary-foreground'
                               : 'border-border text-muted-foreground hover:bg-muted'
                           }`}
                         >
@@ -1574,7 +1574,7 @@ const nextStep = () => {
                         onClick={() => setFormData({...formData, is_multi_room: false, available_rooms: 1})}
                         className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
                           !formData.is_multi_room
-                            ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                            ? 'border-secondary bg-secondary text-secondary-foreground'
                             : 'border-border text-muted-foreground hover:bg-muted'
                         }`}
                       >
@@ -1586,7 +1586,7 @@ const nextStep = () => {
                         onClick={() => setFormData({...formData, is_multi_room: true, available_rooms: 2})}
                         className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
                           formData.is_multi_room
-                            ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                            ? 'border-secondary bg-secondary text-secondary-foreground'
                             : 'border-border text-muted-foreground hover:bg-muted'
                         }`}
                       >
@@ -1623,7 +1623,7 @@ const nextStep = () => {
 
               {/* Step 4: Pricing */}
               {currentStep === 4 && (
-                <div className="space-y-6 animate-fade-in">
+                <div className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-primary mb-2">Månedlig leje (kr) *</label>
@@ -1664,10 +1664,10 @@ const nextStep = () => {
 
                   {/* Total monthly cost display */}
                   {formData.monthly_rent && (
-                    <div className="bg-secondary/10 rounded-xl p-4 border border-secondary/30">
+                    <div className="bg-secondary/20 rounded-2xl p-4 border border-border/60">
                       <div className="flex justify-between items-center">
-                        <span className="font-medium text-primary">Samlet månedlig omkostning</span>
-                        <span className="text-xl font-bold text-primary">
+                        <span className="font-medium text-foreground">Samlet månedlig omkostning</span>
+                        <span className="text-xl font-medium text-foreground">
                           {((parseInt(formData.monthly_rent) || 0) + (parseInt(formData.aconto) || 0)).toLocaleString()} kr
                         </span>
                       </div>
@@ -1687,7 +1687,7 @@ const nextStep = () => {
                           onClick={() => setFormData({...formData, min_stay: option.value})}
                           className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
                             formData.min_stay === option.value
-                              ? 'border-secondary bg-secondary text-secondary-foreground shadow-md'
+                              ? 'border-secondary bg-secondary text-secondary-foreground'
                               : 'border-border text-foreground hover:bg-muted'
                           }`}
                         >
@@ -1711,10 +1711,10 @@ const nextStep = () => {
 
               {/* Step 5: Images */}
               {currentStep === 5 && (
-                <div className="space-y-6 animate-fade-in">
+                <div className="space-y-6">
                   <div className="text-center mb-6">
                     <ImageIcon className="w-12 h-12 mx-auto text-secondary mb-4" />
-                    <h3 className="text-xl font-semibold text-primary mb-2">Upload billeder</h3>
+                    <h3 className="text-xl font-medium tracking-tight text-foreground mb-2">Upload billeder</h3>
                     <p className="text-muted-foreground">
                       Tilføj billeder af boligen. Gode billeder øger chancen for at finde den rette roomie.
                     </p>
@@ -1800,8 +1800,8 @@ const nextStep = () => {
                   )}
 
                   {uploadedImages.length === 0 && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                      <p className="text-sm text-amber-800">
+                    <div className="bg-secondary/20 border border-border/60 rounded-2xl p-4">
+                      <p className="text-sm text-foreground/70">
                         Du skal uploade mindst ét billede for at fortsætte
                       </p>
                     </div>
@@ -1894,10 +1894,10 @@ const nextStep = () => {
 
               {/* Step 6: Payment */}
               {currentStep === 6 && (
-                <div className="space-y-6 animate-fade-in">
+                <div className="space-y-6">
                   <div className="text-center mb-6">
                     <CreditCard className="w-12 h-12 mx-auto text-secondary mb-4" />
-                    <h3 className="text-xl font-semibold text-primary mb-2">{t("myListings.choosePeriod")}</h3>
+                    <h3 className="text-xl font-medium tracking-tight text-foreground mb-2">{t("myListings.choosePeriod")}</h3>
                     <p className="text-muted-foreground">
                       {freeTrialInfo.active && !editingProperty
                         ? t("myListings.freeTrialPublish")
@@ -1908,42 +1908,42 @@ const nextStep = () => {
                   {/* Free trial banner */}
                   {freeTrialInfo.active && !editingProperty ? (
                     <>
-                      <div className="bg-green-500/10 border-2 border-green-500/40 rounded-xl p-5 flex items-start gap-4">
-                        <div className="w-11 h-11 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                          <Gift className="w-5 h-5 text-green-600" />
+                      <div className="bg-secondary/20 border border-border/60 rounded-2xl p-5 flex items-start gap-4">
+                        <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                          <Gift className="w-5 h-5 text-secondary-foreground" />
                         </div>
                         <div>
-                          <p className="font-semibold text-foreground">{t("myListings.freeTrialBanner", { days: freeTrialInfo.daysLeft })}</p>
+                          <p className="font-medium text-foreground">{t("myListings.freeTrialBanner", { days: freeTrialInfo.daysLeft })}</p>
                           <p className="text-sm text-muted-foreground mt-1">
                             {t("myListings.freeTrialBannerBody", { used: freeTrialInfo.daysUsed, total: FREE_TRIAL_DAYS })}
                           </p>
                           <div className="mt-3 w-full bg-muted rounded-full h-1.5">
                             <div
-                              className="bg-green-500 h-1.5 rounded-full"
+                              className="bg-foreground h-1.5 rounded-full"
                               style={{ width: `${Math.min(100, (freeTrialInfo.daysUsed / FREE_TRIAL_DAYS) * 100)}%` }}
                             />
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between p-6 rounded-xl border-2 border-green-500 bg-green-500/5">
+                      <div className="flex items-center justify-between p-6 rounded-2xl border border-border/60 bg-secondary/20">
                         <div>
-                          <p className="font-semibold text-lg text-foreground">{t("myListings.manyDays", { count: 30 })}</p>
+                          <p className="font-medium text-lg text-foreground">{t("myListings.manyDays", { count: 30 })}</p>
                           <p className="text-sm text-muted-foreground">{t("myListings.thirtyDaysVisible")}</p>
                         </div>
-                        <p className="text-2xl font-bold text-green-600">{t("myListings.free")}</p>
+                        <p className="text-2xl font-medium text-foreground">{t("myListings.free")}</p>
                       </div>
                     </>
                   ) : (
                     <>
                       {/* Launch offer banner */}
                       {isLaunchOfferEligible && (
-                        <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4 flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-                            <Sparkles className="w-5 h-5 text-white" />
+                        <div className="bg-secondary/20 border border-border/60 rounded-2xl p-4 flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+                            <Sparkles className="w-5 h-5 text-secondary-foreground" />
                           </div>
                           <div>
-                            <p className="font-semibold text-foreground">{t("myListings.launchOfferShort")}</p>
+                            <p className="font-medium text-foreground">{t("myListings.launchOfferShort")}</p>
                             <p className="text-sm text-muted-foreground">{t("myListings.launchOfferShortBody")}</p>
                           </div>
                         </div>
@@ -1959,10 +1959,10 @@ const nextStep = () => {
                               key={period.days}
                               type="button"
                               onClick={() => setSelectedListingPeriod(period.days)}
-                              className={`relative flex items-center justify-between p-6 rounded-xl border-2 transition-all ${
+                              className={`relative flex items-center justify-between p-6 rounded-2xl border transition-all ${
                                 selectedListingPeriod === period.days
-                                  ? 'border-secondary bg-secondary/10 shadow-md'
-                                  : 'border-border hover:border-secondary/50 hover:bg-muted/50'
+                                  ? 'border-secondary bg-secondary/20'
+                                  : 'border-border/60 hover:border-secondary/50 hover:bg-muted/50'
                               }`}
                             >
                               {period.popular && (
@@ -1971,22 +1971,22 @@ const nextStep = () => {
                                 </span>
                               )}
                               {period.bestValue && (
-                                <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-green-500 text-white rounded-full">
+                                <span className="absolute -top-2 left-4 px-2 py-0.5 text-xs font-medium bg-foreground text-background rounded-full">
                                   {t("myListings.bestValue")}
                                 </span>
                               )}
                               <div className="text-left">
-                                <p className="font-semibold text-lg text-foreground">{t("myListings.manyDays", { count: period.days })}</p>
+                                <p className="font-medium text-lg text-foreground">{t("myListings.manyDays", { count: period.days })}</p>
                                 <p className="text-sm text-muted-foreground">{t("myListings.thirtyDaysVisible")}</p>
                               </div>
                               <div className="text-right">
                                 {showDiscount ? (
                                   <div className="flex flex-col items-end">
                                     <p className="text-sm text-muted-foreground line-through">{period.price} kr</p>
-                                    <p className="text-2xl font-bold text-green-600">{discountedPrice} kr</p>
+                                    <p className="text-2xl font-medium text-foreground">{discountedPrice} kr</p>
                                   </div>
                                 ) : (
-                                  <p className="text-2xl font-bold text-secondary">{period.price} kr</p>
+                                  <p className="text-2xl font-medium text-secondary">{period.price} kr</p>
                                 )}
                               </div>
                             </button>
@@ -2030,7 +2030,7 @@ const nextStep = () => {
                             <span>{t("myListings.summaryNormalPrice")}</span>
                             <span className="line-through">{listingPeriods.find(p => p.days === selectedListingPeriod)?.price} kr</span>
                           </div>
-                          <div className="flex justify-between text-green-600">
+                          <div className="flex justify-between text-foreground/70">
                             <span className="flex items-center gap-1">
                               <Sparkles className="w-3 h-3" />
                               {t("myListings.summaryDiscount")}
@@ -2043,7 +2043,7 @@ const nextStep = () => {
                       <div className="border-t border-border pt-2 mt-2">
                         <div className="flex justify-between text-base">
                           <span className="font-medium text-primary">{t("myListings.summaryTotal")}</span>
-                          <span className={`font-bold ${freeTrialInfo.active && !editingProperty ? 'text-green-600' : isLaunchOfferEligible ? 'text-green-600' : 'text-secondary'}`}>
+                          <span className={`font-medium ${freeTrialInfo.active && !editingProperty ? 'text-foreground' : isLaunchOfferEligible ? 'text-foreground' : 'text-secondary'}`}>
                             {freeTrialInfo.active && !editingProperty
                               ? t("myListings.summaryFree")
                               : `${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr`}
@@ -2083,7 +2083,7 @@ const nextStep = () => {
                     type="button"
                     onClick={handlePaymentAndSubmit}
                     disabled={isPublishing || !canProceed() || (native && !freeTrialInfo.active && !editingProperty)}
-                    className={`${freeTrialInfo.active && !editingProperty ? 'bg-green-600 hover:bg-green-700' : isLaunchOfferEligible && !editingProperty ? 'bg-green-600 hover:bg-green-700' : 'bg-secondary hover:bg-secondary/90'} text-secondary-foreground w-full sm:w-auto order-1 sm:order-2`}
+                    className={`${freeTrialInfo.active && !editingProperty ? 'bg-foreground text-background hover:bg-foreground/90' : isLaunchOfferEligible && !editingProperty ? 'bg-foreground text-background hover:bg-foreground/90' : 'bg-secondary text-secondary-foreground hover:bg-secondary/90'} w-full sm:w-auto order-1 sm:order-2`}
                   >
                     {freeTrialInfo.active && !editingProperty
                       ? <Gift className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -2109,16 +2109,16 @@ const nextStep = () => {
         {!showForm && (
           <>
             {properties.length === 0 ? (
-              <Card className="border-dashed border-2 border-border">
+              <Card className="border-dashed border border-border/60 rounded-2xl shadow-none">
                 <CardContent className="p-12 text-center">
                   <Home className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold text-primary mb-2">{t("myListings.noneYet")}</h3>
+                  <h3 className="text-xl font-medium tracking-tight text-foreground mb-2">{t("myListings.noneYet")}</h3>
                   <p className="text-muted-foreground mb-4">{t("myListings.noneYetBody")}</p>
 
                   {/* Launch offer promotion */}
                   {isLaunchPeriodActive() && (
-                    <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4 mb-6 inline-flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-amber-500" />
+                    <div className="bg-secondary/20 border border-border/60 rounded-2xl p-4 mb-6 inline-flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-secondary" />
                       <span className="font-medium text-foreground">{t("myListings.launchOfferShort")}</span>
                     </div>
                   )}
@@ -2135,7 +2135,7 @@ const nextStep = () => {
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                 {properties.map((property) => (
-                  <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <Card key={property.id} className="overflow-hidden rounded-2xl border border-border/60 shadow-none transition-shadow">
                     <div className="aspect-[4/3] md:aspect-video bg-muted relative">
                       {property.images?.[0] ? (
                         <img 
@@ -2150,7 +2150,7 @@ const nextStep = () => {
                       )}
                       <div className="absolute top-1.5 right-1.5 md:top-3 md:right-3 flex flex-col md:flex-row items-end md:items-center gap-1 md:gap-2">
                         {isPropertyBoosted(property.id) && (
-                          <span className="px-1.5 py-0.5 md:px-3 md:py-1 rounded-full text-[9px] md:text-xs font-medium bg-gradient-to-r from-amber-400 to-orange-500 text-white flex items-center gap-0.5 md:gap-1 shadow-md">
+                          <span className="px-1.5 py-0.5 md:px-3 md:py-1 rounded-full text-[11px] md:text-xs font-medium bg-secondary text-secondary-foreground flex items-center gap-0.5 md:gap-1">
                             <Sparkles className="w-2.5 h-2.5 md:w-3 md:h-3" />
                             <span className="hidden md:inline">{t("myListings.boostedLabel")}</span>
                             {getBoostDaysLeft(property.id) && (
@@ -2162,8 +2162,8 @@ const nextStep = () => {
                       </div>
                     </div>
                     <CardContent className="p-2.5 md:p-4">
-                      <h3 className="font-semibold text-primary text-xs md:text-lg mb-0.5 md:mb-1 line-clamp-1">{property.title}</h3>
-                      <div className="flex items-center text-muted-foreground text-[10px] md:text-sm mb-1 md:mb-2">
+                      <h3 className="font-medium tracking-tight text-foreground text-xs md:text-lg mb-0.5 md:mb-1 line-clamp-1">{property.title}</h3>
+                      <div className="flex items-center text-muted-foreground text-[11px] md:text-sm mb-1 md:mb-2">
                         <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-0.5 md:mr-1 flex-shrink-0" />
                         <span className="truncate">{property.city}</span>
                       </div>
@@ -2177,8 +2177,8 @@ const nextStep = () => {
                       )}
                       
                       <div className="flex items-center justify-between mb-2 md:mb-4">
-                        <span className="text-sm md:text-xl font-bold text-secondary">{property.monthly_rent.toLocaleString()} kr</span>
-                        <span className="text-[10px] md:text-sm text-muted-foreground">
+                        <span className="text-sm md:text-xl font-medium text-secondary">{property.monthly_rent.toLocaleString()} kr</span>
+                        <span className="text-[11px] md:text-sm text-muted-foreground">
                           {property.room_count} {t("myListings.rooms")}
                         </span>
                       </div>
@@ -2193,7 +2193,7 @@ const nextStep = () => {
                             setSelectedPeriod(14);
                             setRenewDialog(property);
                           }}
-                          className="flex-1 h-7 md:h-9 text-[10px] md:text-sm px-1.5 md:px-3"
+                          className="flex-1 h-7 md:h-9 text-[11px] md:text-sm px-1.5 md:px-3"
                         >
                           <RefreshCw className="w-3 h-3 md:w-4 md:h-4 md:mr-1" />
                           <span className="hidden md:inline">{(property as any).status === "active" ? t("myListings.extend") : t("myListings.renew")}</span>
@@ -2205,7 +2205,7 @@ const nextStep = () => {
                             setSelectedBoost(1);
                             setBoostDialog(property);
                           }}
-                          className="flex-1 h-7 md:h-9 text-[10px] md:text-sm px-1.5 md:px-3"
+                          className="flex-1 h-7 md:h-9 text-[11px] md:text-sm px-1.5 md:px-3"
                         >
                           <Sparkles className="w-3 h-3 md:w-4 md:h-4 md:mr-1" />
                           <span className="hidden md:inline">{t("myListings.boost")}</span>
@@ -2218,7 +2218,7 @@ const nextStep = () => {
                           size="sm" 
                           variant="ghost"
                           onClick={() => togglePublish(property.id, property.is_published)}
-                          className="flex-1 h-7 md:h-9 text-[10px] md:text-sm px-1 md:px-3"
+                          className="flex-1 h-7 md:h-9 text-[11px] md:text-sm px-1 md:px-3"
                         >
                           {property.is_published ? (
                             <><EyeOff className="w-3 h-3 md:w-4 md:h-4 md:mr-1" /><span className="hidden md:inline">{t("myListings.hide")}</span></>
@@ -2275,83 +2275,109 @@ const nextStep = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Renew Dialog */}
-      <Dialog open={!!renewDialog} onOpenChange={() => setRenewDialog(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("myListings.renewTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("myListings.renewBody")}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
+      {/* Renew Sheet */}
+      <Sheet open={!!renewDialog} onOpenChange={() => setRenewDialog(null)}>
+        <SheetContent
+          side={isMobile ? "bottom" : "right"}
+          className={cn(
+            "p-0 gap-0 bg-background flex flex-col",
+            isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+          )}
+        >
+          <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-px w-8 bg-foreground/40" />
+              <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">{t("myListings.renewBody")}</span>
+            </div>
+            <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+              {t("myListings.renewTitle")}
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="overflow-y-auto px-6 py-6 flex-1 space-y-4">
             <p className="font-medium text-foreground">{renewDialog?.title}</p>
             <div className="grid gap-3">
               {listingPeriods.map((period) => (
                 <button
                   key={period.days}
                   onClick={() => setSelectedPeriod(period.days)}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                     selectedPeriod === period.days
-                      ? "border-secondary bg-secondary/10"
-                      : "border-border hover:border-secondary/50"
+                      ? "border-secondary bg-secondary/20"
+                      : "border-border/60 hover:border-secondary/50"
                   }`}
                 >
                   <span className="font-medium">{t("myListings.manyDays", { count: period.days })}</span>
-                  <span className="font-bold text-secondary">{period.price} kr</span>
+                  <span className="font-medium text-secondary">{period.price} kr</span>
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="border-t border-border/60 px-6 py-4 bg-background">
             <Button
               onClick={handleRenewListing}
               disabled={renewPurchasing}
-              className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
+              className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
             >
               {renewPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               {t("myListings.payAndActivate", { price: listingPeriods.find(p => p.days === selectedPeriod)?.price })}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
-      {/* Boost Dialog */}
-      <Dialog open={!!boostDialog} onOpenChange={() => setBoostDialog(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("myListings.boostTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("myListings.boostBody")}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
+      {/* Boost Sheet */}
+      <Sheet open={!!boostDialog} onOpenChange={() => setBoostDialog(null)}>
+        <SheetContent
+          side={isMobile ? "bottom" : "right"}
+          className={cn(
+            "p-0 gap-0 bg-background flex flex-col",
+            isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+          )}
+        >
+          <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-px w-8 bg-foreground/40" />
+              <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">{t("myListings.boostBody")}</span>
+            </div>
+            <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+              {t("myListings.boostTitle")}
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="overflow-y-auto px-6 py-6 flex-1 space-y-4">
             <p className="font-medium text-foreground">{boostDialog?.title}</p>
             <div className="grid gap-3">
               {boostOptions.map((boost) => (
                 <button
                   key={boost.days}
                   onClick={() => setSelectedBoost(boost.days)}
-                  className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                     selectedBoost === boost.days
-                      ? "border-secondary bg-secondary/10"
-                      : "border-border hover:border-secondary/50"
+                      ? "border-secondary bg-secondary/20"
+                      : "border-border/60 hover:border-secondary/50"
                   }`}
                 >
                   <span className="font-medium">{boost.days === 1 ? "24h" : t("myListings.manyDays", { count: boost.days })}</span>
-                  <span className="font-bold text-secondary">{boost.price} kr</span>
+                  <span className="font-medium text-secondary">{boost.price} kr</span>
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="border-t border-border/60 px-6 py-4 bg-background">
             <Button
               onClick={handleBoostListing}
               disabled={boostPurchasing}
-              className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
+              className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
             >
               {boostPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               {t("myListings.payAndBoost", { price: boostOptions.find(b => b.days === selectedBoost)?.price })}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
     </AppLayout>
   );

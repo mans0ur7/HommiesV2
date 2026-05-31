@@ -70,7 +70,31 @@
       "PowerShell(nslookup -type=NS hommies.dk 8.8.8.8 2>&1)",
       "PowerShell(nslookup -type=SOA hommies.dk 8.8.8.8 2>&1)",
       "Bash(curl -sS -X POST \"https://nsqirjpcrgapbifvqzln.supabase.co/functions/v1/send-bug-report\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zcWlyanBjcmdhcGJpZnZxemxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMDY5OTUsImV4cCI6MjA5NDc4Mjk5NX0.elNQXfqTQvldeliv8KAQ45LvQ7xrCZQPEFUz5r20nJ4\" -d '{\"description\":\"test fra Claude\",\"kind\":\"problem\",\"userEmail\":\"test@example.com\",\"page\":\"/test\",\"platform\":\"Web\",\"appVersion\":\"1.0.0\",\"userAgent\":\"curl\"}')",
-      "Bash(git commit -m 'Add standalone '\\\\''Block user'\\\\'' alongside Report *)"
+      "Bash(git commit -m 'Add standalone '\\\\''Block user'\\\\'' alongside Report *)",
+      "Bash(xcodebuild -version)",
+      "Bash(xcodebuild -checkFirstLaunchStatus)",
+      "Bash(/usr/bin/gem --version)",
+      "Bash(sudo -n true)",
+      "Bash(curl -sI --max-time 8 https://nodejs.org/dist/index.json)",
+      "Bash(curl -sI --max-time 8 https://raw.githubusercontent.com)",
+      "Bash(/usr/bin/ruby -e 'puts Gem.user_dir')",
+      "Bash(curl -fsSL -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh)",
+      "Bash(bash)",
+      "Bash(/usr/bin/gem install *)",
+      "Bash(set -e)",
+      "Bash(perl -pi -e 's/MARKETING_VERSION = 1\\\\.0;/MARKETING_VERSION = 1.0.0;/g' ios/App/App.xcodeproj/project.pbxproj)",
+      "Bash(xcodebuild -project ios/App/App.xcodeproj -list)",
+      "Bash(kill -0 71109)",
+      "Bash(xcrun simctl *)",
+      "Bash(curl -s -o /tmp/cg-resp.txt -w 'HTTP %{http_code}\\\\n' -X POST https://nsqirjpcrgapbifvqzln.supabase.co/functions/v1/create-housing-group -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zcWlyanBjcmdhcGJpZnZxemxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMDY5OTUsImV4cCI6MjA5NDc4Mjk5NX0.elNQXfqTQvldeliv8KAQ45LvQ7xrCZQPEFUz5r20nJ4' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zcWlyanBjcmdhcGJpZnZxemxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMDY5OTUsImV4cCI6MjA5NDc4Mjk5NX0.elNQXfqTQvldeliv8KAQ45LvQ7xrCZQPEFUz5r20nJ4' -H 'Content-Type: application/json' -d '{\"name\":\"test\"}')",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' -X POST https://nsqirjpcrgapbifvqzln.supabase.co/functions/v1/__TRACKED_VAR__ -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zcWlyanBjcmdhcGJpZnZxemxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMDY5OTUsImV4cCI6MjA5NDc4Mjk5NX0.elNQXfqTQvldeliv8KAQ45LvQ7xrCZQPEFUz5r20nJ4' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zcWlyanBjcmdhcGJpZnZxemxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMDY5OTUsImV4cCI6MjA5NDc4Mjk5NX0.elNQXfqTQvldeliv8KAQ45LvQ7xrCZQPEFUz5r20nJ4' -H 'Content-Type: application/json' -d '{}')",
+      "Bash(git checkout *)",
+      "Bash(git check-ignore *)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(gh auth *)",
+      "Read(//Users/mariawajedi/**)",
+      "Bash(ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=8 -T git@github.com)",
+      "Bash(git ls-remote *)"
     ]
   }
 }

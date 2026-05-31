@@ -28,18 +28,18 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
       case "message":
       case "inbox":
       case "new_message":
-        return <MessageCircle className="w-4 h-4 text-blue-500" />;
+        return <MessageCircle className="w-4 h-4 text-foreground/60" />;
       case "match":
       case "match_request":
-        return <Heart className="w-4 h-4 text-rose-500" />;
+        return <Heart className="w-4 h-4 text-foreground/60" />;
       case "group":
       case "focus":
-        return <Users className="w-4 h-4 text-purple-500" />;
+        return <Users className="w-4 h-4 text-foreground/60" />;
       case "property":
       case "new_property":
-        return <Home className="w-4 h-4 text-secondary" />;
+        return <Home className="w-4 h-4 text-foreground/60" />;
       default:
-        return <Bell className="w-4 h-4 text-muted-foreground" />;
+        return <Bell className="w-4 h-4 text-foreground/60" />;
     }
   };
 
@@ -88,24 +88,24 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
   return (
     <>
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 z-[55] bg-black/20 backdrop-blur-sm"
+      <div
+        className="fixed inset-0 z-[55] bg-foreground/20 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Popover */}
-      <div className="fixed top-16 right-4 left-4 md:left-auto md:w-[400px] z-[60] animate-fade-in" style={{ bottom: isExpanded ? '5rem' : 'auto' }}>
+      <div className="fixed top-16 right-4 left-4 md:left-auto md:w-[400px] z-[60]" style={{ bottom: isExpanded ? '5rem' : 'auto' }}>
         <div className={cn(
-          "bg-background rounded-2xl shadow-2xl border border-border overflow-hidden flex flex-col",
+          "bg-background rounded-2xl shadow-sm border border-border/60 overflow-hidden flex flex-col",
           isExpanded ? "h-full" : "max-h-[70vh]"
         )}>
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-background">
             <div className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-foreground" />
-              <span className="font-semibold text-foreground">Notifikationer</span>
+              <span className="font-medium tracking-tight text-foreground">Notifikationer</span>
               {notifUnreadCount > 0 && (
-                <span className="min-w-[20px] h-[20px] flex items-center justify-center bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-1.5">
+                <span className="min-w-[20px] h-[20px] flex items-center justify-center bg-secondary text-secondary-foreground text-xs font-medium rounded-full px-1.5">
                   {notifUnreadCount > 99 ? "99+" : notifUnreadCount}
                 </span>
               )}
@@ -119,11 +119,11 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
                   Marker alle læst
                 </button>
               )}
-              <button 
+              <button
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary/20 transition-colors"
               >
-                <X className="w-4 h-4 text-muted-foreground" />
+                <X className="w-4 h-4 text-foreground/60" />
               </button>
             </div>
           </div>
@@ -136,18 +136,18 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
                 <p className="text-sm">Ingen notifikationer</p>
               </div>
             ) : (
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-border/60">
                 {displayedNotifications.map((notification) => (
                   <Link
                     key={notification.id}
                     to={getNotificationLink(notification)}
                     onClick={() => handleNotificationClick(notification.id, notification.is_read)}
                     className={cn(
-                      "flex items-start gap-3 px-4 py-3 hover:bg-muted/50 transition-colors",
-                      !notification.is_read && "bg-secondary/5"
+                      "flex items-start gap-3 px-4 py-3 hover:bg-secondary/10 transition-colors",
+                      !notification.is_read && "bg-secondary/10"
                     )}
                   >
-                    <div className="mt-0.5 w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                    <div className="mt-0.5 w-8 h-8 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center flex-shrink-0">
                       {getNotificationIcon(notification.type)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -167,7 +167,7 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
                           {notification.message}
                         </p>
                       )}
-                      <p className="text-[10px] text-muted-foreground mt-1">
+                      <p className="text-[11px] text-muted-foreground mt-1">
                         {formatDistanceToNow(new Date(notification.created_at), { 
                           addSuffix: true, 
                           locale: da 
@@ -181,7 +181,7 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-border p-3 bg-muted/20 space-y-2">
+          <div className="border-t border-border/60 p-3 bg-background space-y-2">
             {allNotifications.length > 5 && (
               <button 
                 onClick={handleToggleExpand}
