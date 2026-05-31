@@ -431,22 +431,6 @@ const Explore = () => {
                   )}
                 </div>
 
-                {/* Quick city chips */}
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {studyCities.slice(0, 6).map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => handleStudyCityClick(c.name)}
-                      className={`px-3.5 py-1.5 rounded-full text-xs md:text-sm font-medium border transition-all ${
-                        selectedStudyCity === c.name
-                          ? 'bg-foreground text-background border-foreground'
-                          : 'bg-card hover:bg-muted border-border text-foreground'
-                      }`}
-                    >
-                      {c.name}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               {/* Right: image bento collage (desktop only) */}
