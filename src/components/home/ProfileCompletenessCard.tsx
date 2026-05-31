@@ -15,7 +15,7 @@ const ProfileCompletenessCard = () => {
   if (percent >= 90) return null;
   if (!profile) return null;
 
-  const nextSuggestion = missing[0]?.label;
+  const nextSuggestion = missing[0] ? t(missing[0].labelKey) : undefined;
 
   return (
     <button

@@ -25,22 +25,24 @@ interface Step {
   weight: number;
   /** Returns true if this field is considered "done" */
   done: (p: ProfileLike) => boolean;
-  /** Label for UX nudges */
+  /** Danish fallback label for UX nudges */
   label: string;
+  /** i18n key (translate in the consuming component via t(labelKey)) */
+  labelKey: string;
 }
 
 const steps: Step[] = [
-  { key: "name",        weight: 10, done: (p) => !!p.name?.trim(),                    label: "Tilføj dit navn" },
-  { key: "age",         weight: 8,  done: (p) => !!p.age,                              label: "Tilføj din alder" },
-  { key: "avatar",      weight: 15, done: (p) => !!p.avatar_url,                       label: "Tilføj et profilbillede" },
-  { key: "extraPhotos", weight: 10, done: (p) => (p.images?.length ?? 0) >= 1,         label: "Tilføj flere billeder" },
-  { key: "bio",         weight: 12, done: (p) => (p.bio?.trim().length ?? 0) >= 30,    label: "Skriv en kort \"om mig\"" },
-  { key: "personality", weight: 10, done: (p) => (p.personality?.length ?? 0) >= 3,    label: "Vælg personlighedstags" },
-  { key: "lifestyle",   weight: 10, done: (p) => (p.lifestyle?.length ?? 0) >= 3,      label: "Vælg livsstilstags" },
-  { key: "languages",   weight: 5,  done: (p) => (p.languages?.length ?? 0) >= 1,      label: "Tilføj sprog du taler" },
-  { key: "nationality", weight: 5,  done: (p) => !!p.nationality,                     label: "Tilføj nationalitet" },
-  { key: "occupation",  weight: 10, done: (p) => !!p.work?.trim() || !!p.study?.trim(), label: "Tilføj beskæftigelse" },
-  { key: "budget",      weight: 5,  done: (p) => !!p.monthly_budget,                  label: "Tilføj månedligt budget" },
+  { key: "name",        weight: 10, done: (p) => !!p.name?.trim(),                    label: "Tilføj dit navn",            labelKey: "home.step.name" },
+  { key: "age",         weight: 8,  done: (p) => !!p.age,                              label: "Tilføj din alder",           labelKey: "home.step.age" },
+  { key: "avatar",      weight: 15, done: (p) => !!p.avatar_url,                       label: "Tilføj et profilbillede",    labelKey: "home.step.avatar" },
+  { key: "extraPhotos", weight: 10, done: (p) => (p.images?.length ?? 0) >= 1,         label: "Tilføj flere billeder",      labelKey: "home.step.extraPhotos" },
+  { key: "bio",         weight: 12, done: (p) => (p.bio?.trim().length ?? 0) >= 30,    label: "Skriv en kort \"om mig\"",   labelKey: "home.step.bio" },
+  { key: "personality", weight: 10, done: (p) => (p.personality?.length ?? 0) >= 3,    label: "Vælg personlighedstags",     labelKey: "home.step.personality" },
+  { key: "lifestyle",   weight: 10, done: (p) => (p.lifestyle?.length ?? 0) >= 3,      label: "Vælg livsstilstags",         labelKey: "home.step.lifestyle" },
+  { key: "languages",   weight: 5,  done: (p) => (p.languages?.length ?? 0) >= 1,      label: "Tilføj sprog du taler",      labelKey: "home.step.languages" },
+  { key: "nationality", weight: 5,  done: (p) => !!p.nationality,                     label: "Tilføj nationalitet",        labelKey: "home.step.nationality" },
+  { key: "occupation",  weight: 10, done: (p) => !!p.work?.trim() || !!p.study?.trim(), label: "Tilføj beskæftigelse",      labelKey: "home.step.occupation" },
+  { key: "budget",      weight: 5,  done: (p) => !!p.monthly_budget,                  label: "Tilføj månedligt budget",    labelKey: "home.step.budget" },
 ];
 
 export interface CompletenessResult {
