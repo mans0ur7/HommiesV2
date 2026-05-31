@@ -777,7 +777,13 @@ const Explore = () => {
                 isLoading ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5">
                     {Array.from({ length: 8 }).map((_, i) => (
-                      <div key={i} className="aspect-[4/5] rounded-2xl bg-muted animate-pulse" />
+                      <div key={i} className="rounded-2xl border border-border/60 overflow-hidden">
+                        <div className="aspect-[4/3] bg-muted animate-pulse" />
+                        <div className="p-3 space-y-2">
+                          <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+                          <div className="h-3 w-28 bg-muted/60 rounded animate-pulse" />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : displayProperties.length === 0 ? (
