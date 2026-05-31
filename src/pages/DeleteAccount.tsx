@@ -84,11 +84,7 @@ const DeleteAccount = () => {
                 <p className="text-muted-foreground mb-4">{t("deleteAccount.contactBody")}</p>
                 <div className="bg-accent rounded-xl p-6">
                   <p className="text-foreground font-medium">{t("deleteAccount.company")}</p>
-                  <p className="text-muted-foreground">{t("deleteAccount.address1")}</p>
-                  <p className="text-muted-foreground">{t("deleteAccount.address2")}</p>
-                  <p className="text-muted-foreground">{t("deleteAccount.address3")}</p>
                   <p className="text-muted-foreground mt-2">{t("deleteAccount.email")}</p>
-                  <p className="text-muted-foreground">{t("deleteAccount.phone")}</p>
                 </div>
                 <p className="mt-6 text-muted-foreground">
                   <Link to="/privacy" className="underline text-foreground hover:text-primary">

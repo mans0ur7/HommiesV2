@@ -788,7 +788,7 @@
     "lastUpdated": "Last updated: May 2026",
     "s1Title": "1. Introduction",
     "s1Body1": "At Hommies (Danish business reg. CVR 43244590) we take your privacy seriously. This privacy policy explains how we collect, use and protect your personal data when you use our platform (web and mobile apps for Android and iOS).",
-    "s1Body2": "Data controller is Hommies, C/O Human Davari, Randbølvej 73, 3. th, 2720 Vanløse, Denmark. By using Hommies you accept this privacy policy. You can always reach us at info@hommies.dk.",
+    "s1Body2": "Data controller is Hommies (CVR 43244590). By using Hommies you accept this privacy policy. You can always reach us at info@hommies.dk.",
     "s2Title": "2. What data do we collect?",
     "s2Intro": "We collect the following types of personal data:",
     "s2Item1Label": "Account info:",
@@ -1079,11 +1079,7 @@
     "h4": "Contact",
     "contactBody": "Questions about deletion or how we handle your data? Contact:",
     "company": "Hommies (CVR 43244590)",
-    "address1": "C/O Human Davari",
-    "address2": "Randbølvej 73, 3. th",
-    "address3": "2720 Vanløse, Denmark",
     "email": "Email: info@hommies.dk",
-    "phone": "Phone: +45 31 21 74 17",
     "policyLink": "Read the full privacy policy"
   },
   "tour": {

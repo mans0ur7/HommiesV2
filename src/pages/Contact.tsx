@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Mail, Phone, MapPin, Send, ArrowUpRight } from "lucide-react";
+import { Mail, Send, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,22 +38,9 @@ const Contact = () => {
     {
       icon: Mail,
       title: t("contact.channelEmail"),
-      value: "Info@hommies.dk",
+      value: "info@hommies.dk",
       meta: t("contact.channelEmailMeta"),
-      href: "mailto:Info@hommies.dk",
-    },
-    {
-      icon: Phone,
-      title: t("contact.channelPhone"),
-      value: "+45 42 31 82 06",
-      meta: t("contact.channelPhoneMeta"),
-      href: "tel:+4542318206",
-    },
-    {
-      icon: MapPin,
-      title: t("contact.channelAddress"),
-      value: "Vestergade 42, 3.",
-      meta: "1456 København K",
+      href: "mailto:info@hommies.dk",
     },
   ];
 

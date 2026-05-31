@@ -87,11 +87,7 @@ const Terms = () => {
                 <p className="text-muted-foreground leading-relaxed mb-4">{t("terms.s9Body")}</p>
                 <div className="bg-accent rounded-xl p-6 mt-4">
                   <p className="text-foreground font-medium">Hommies (CVR 43244590)</p>
-                  <p className="text-muted-foreground">C/O Human Davari</p>
-                  <p className="text-muted-foreground">Randbølvej 73, 3. th</p>
-                  <p className="text-muted-foreground">2720 Vanløse</p>
                   <p className="text-muted-foreground mt-2">Email: info@hommies.dk</p>
-                  <p className="text-muted-foreground">Telefon: +45 31 21 74 17</p>
                 </div>
                 <p className="mt-6 text-muted-foreground">
                   <Link to="/privacy" className="underline text-foreground hover:text-primary">
