@@ -462,7 +462,7 @@ const Inbox = () => {
         {!isMobile && <Navbar />}
 
         <main className="flex-1 flex flex-col" style={{ height: 'calc(100vh - 48px)', minHeight: 0 }}>
-          <div className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-12 py-4 sm:py-8 flex flex-col flex-1 min-h-0">
+          <div className={`max-w-7xl mx-auto w-full flex flex-col flex-1 min-h-0 ${isMobile && showMobileChat ? "" : "px-3 sm:px-6 lg:px-12 py-4 sm:py-8"}`}>
 
             {/* Editorial Header */}
             <div className={`mb-5 md:mb-8 ${showMobileChat ? "hidden md:block" : "block"}`}>
@@ -510,8 +510,9 @@ const Inbox = () => {
               />
             </div>
 
-            {/* Main Chat Layout */}
-            <div className="flex bg-background rounded-2xl border border-border/60 overflow-hidden flex-1 min-h-0">
+            {/* Main Chat Layout — full-bleed on mobile when a chat is open so it
+                isn't visually "boxed in"; bordered split card otherwise. */}
+            <div className={`flex bg-background overflow-hidden flex-1 min-h-0 ${isMobile && showMobileChat ? "" : "rounded-2xl border border-border/60"}`}>
               {/* Left side: Toggle + Conversation Lists */}
               <div className={`${showMobileChat ? 'hidden' : 'flex'} md:flex w-full md:w-[340px] lg:w-[380px] flex-col border-r border-border/60`}>
                 {/* Toggle: Udlejer / Roomies */}

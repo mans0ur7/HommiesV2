@@ -139,7 +139,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden max-h-[90vh]" aria-describedby={undefined}>
+      <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden max-h-[90vh] [&>button.absolute]:hidden" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>{roomie.name}</DialogTitle>
         </VisuallyHidden>
@@ -210,7 +210,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* Personality */}
             {roomie.personality && roomie.personality.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Personlighed</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Personlighed</h3>
                 <div className="flex flex-wrap gap-2">
                   {roomie.personality.map((trait) => (
                     <Badge
@@ -228,7 +228,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* Lifestyle */}
             {roomie.lifestyle && roomie.lifestyle.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Livsstil</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Livsstil</h3>
                 <div className="flex flex-wrap gap-2">
                   {roomie.lifestyle.map((item) => (
                     <Badge
@@ -246,7 +246,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* Languages */}
             {roomie.languages && roomie.languages.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Sprog</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Sprog</h3>
                 <p className="text-muted-foreground">{roomie.languages.join(", ")}</p>
               </div>
             )}
@@ -254,7 +254,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* About */}
             {roomie.bio && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Om mig</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Om mig</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{roomie.bio}</p>
               </div>
             )}
@@ -374,7 +374,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* Personality */}
             {roomie.personality && roomie.personality.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Personlighed</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Personlighed</h3>
                 <div className="flex flex-wrap gap-2">
                   {roomie.personality.map((trait) => (
                     <Badge
@@ -392,7 +392,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* Lifestyle */}
             {roomie.lifestyle && roomie.lifestyle.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Livsstil</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Livsstil</h3>
                 <div className="flex flex-wrap gap-2">
                   {roomie.lifestyle.map((item) => (
                     <Badge
@@ -410,7 +410,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* Languages */}
             {roomie.languages && roomie.languages.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Sprog</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Sprog</h3>
                 <p className="text-muted-foreground">{roomie.languages.join(", ")}</p>
               </div>
             )}
@@ -418,7 +418,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
             {/* About */}
             {roomie.bio && (
               <div className="mb-6">
-                <h3 className="text-sm font-semibold text-foreground mb-3">Om mig</h3>
+                <h3 className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-3">Om mig</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{roomie.bio}</p>
               </div>
             )}

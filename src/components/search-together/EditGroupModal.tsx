@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,12 +16,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { danishCities } from "@/data/danishCities";
 import { HousingGroup } from "@/hooks/useHousingGroups";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { X, User, UserPlus, LogOut, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -51,18 +52,11 @@ interface EditGroupModalProps {
   onGroupUpdated: () => void;
   connectedRoomies?: ConnectedRoomie[];
   onInvite?: (groupId: string, userIds: string[]) => Promise<void>;
-}
-
-interface EditGroupModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  group: HousingGroup | null;
-  onGroupUpdated: () => void;
-  connectedRoomies?: ConnectedRoomie[];
-  onInvite?: (groupId: string, userIds: string[]) => Promise<void>;
   onLeaveGroup?: (groupId: string) => Promise<boolean>;
   onDeleteGroup?: (groupId: string) => Promise<boolean>;
 }
+
+const fieldLabel = "text-[11px] uppercase tracking-[0.18em] text-foreground/60";
 
 const EditGroupModal = ({
   open,
@@ -75,6 +69,7 @@ const EditGroupModal = ({
   onDeleteGroup,
 }: EditGroupModalProps) => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [budgetPerPerson, setBudgetPerPerson] = useState("");
@@ -86,8 +81,8 @@ const EditGroupModal = ({
   const [leavingGroup, setLeavingGroup] = useState(false);
 
   const isCreator = group?.created_by === user?.id;
-  const acceptedMembers = group?.members?.filter(m => m.status === "accepted") || [];
-  const pendingMembers = group?.members?.filter(m => m.status === "pending") || [];
+  const acceptedMembers = group?.members?.filter((m) => m.status === "accepted") || [];
+  const pendingMembers = group?.members?.filter((m) => m.status === "pending") || [];
 
   useEffect(() => {
     if (group) {
@@ -100,7 +95,7 @@ const EditGroupModal = ({
 
   const handleRemoveMember = async (memberId: string, memberUserId: string) => {
     if (!group || !isCreator) return;
-    
+
     // Can't remove the creator
     if (memberUserId === group.created_by) {
       toast.error("Du kan ikke fjerne gruppens opretteren");
@@ -127,7 +122,7 @@ const EditGroupModal = ({
   };
 
   const handleSave = async () => {
-    if (!group || !name.trim() || !isCreator) return;
+    if (!group || !name.trim() || !isCreator || saving) return;
 
     setSaving(true);
     try {
@@ -195,99 +190,113 @@ const EditGroupModal = ({
 
   return (
     <>
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{isCreator ? "Rediger gruppe" : "Gruppeindstillinger"}</DialogTitle>
-        </DialogHeader>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent
+          side={isMobile ? "bottom" : "right"}
+          className={cn(
+            "p-0 gap-0 bg-background flex flex-col",
+            isMobile ? "h-[88vh] rounded-t-3xl" : "w-full sm:max-w-md border-l border-border/60"
+          )}
+        >
+          {/* Header */}
+          <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 text-left space-y-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-px w-8 bg-foreground/40" />
+              <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">Gruppe</span>
+            </div>
+            <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+              {isCreator ? "Rediger gruppe." : "Gruppeindstillinger."}
+            </SheetTitle>
+          </SheetHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="group-name">Gruppenavn</Label>
-            <Input
-              id="group-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Fx 'Studiebolig 2025'"
-              disabled={!isCreator}
-            />
-          </div>
+          {/* Scrollable content */}
+          <div className="overflow-y-auto px-6 py-6 flex-1 space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="group-name" className={fieldLabel}>Gruppenavn</Label>
+              <Input
+                id="group-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Fx 'Studiebolig 2025'"
+                disabled={!isCreator}
+                className="rounded-xl border-border/60 h-11"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="city">By</Label>
-            <Select value={city} onValueChange={setCity} disabled={!isCreator}>
-              <SelectTrigger>
-                <SelectValue placeholder="Vælg by" />
-              </SelectTrigger>
-              <SelectContent>
-                {danishCities.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="city" className={fieldLabel}>By</Label>
+              <Select value={city} onValueChange={setCity} disabled={!isCreator}>
+                <SelectTrigger className="rounded-xl border-border/60 h-11">
+                  <SelectValue placeholder="Vælg by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {danishCities.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="budget">Budget pr. person (kr/md)</Label>
-            <Input
-              id="budget"
-              type="number"
-              value={budgetPerPerson}
-              onChange={(e) => setBudgetPerPerson(e.target.value)}
-              placeholder="Fx 5000"
-              disabled={!isCreator}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="budget" className={fieldLabel}>Budget pr. person (kr/md)</Label>
+              <Input
+                id="budget"
+                type="number"
+                value={budgetPerPerson}
+                onChange={(e) => setBudgetPerPerson(e.target.value)}
+                placeholder="Fx 5000"
+                disabled={!isCreator}
+                className="rounded-xl border-border/60 h-11"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="rooms">Antal værelser</Label>
-            <Select value={desiredRooms} onValueChange={setDesiredRooms} disabled={!isCreator}>
-              <SelectTrigger>
-                <SelectValue placeholder="Vælg antal" />
-              </SelectTrigger>
-              <SelectContent>
-                {[2, 3, 4, 5, 6].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num} værelser
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="rooms" className={fieldLabel}>Antal værelser</Label>
+              <Select value={desiredRooms} onValueChange={setDesiredRooms} disabled={!isCreator}>
+                <SelectTrigger className="rounded-xl border-border/60 h-11">
+                  <SelectValue placeholder="Vælg antal" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[2, 3, 4, 5, 6].map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num} værelser
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Members section - only show for creator */}
-          {isCreator && (
-            <>
-              <Separator className="my-4" />
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>Medlemmer</Label>
+            {/* Members section - only show for creator */}
+            {isCreator && (
+              <div className="space-y-3 pt-2 border-t border-border/60">
+                <div className="flex items-center justify-between pt-4">
+                  <Label className={fieldLabel}>Medlemmer</Label>
                   {onInvite && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setShowInviteModal(true)}
-                      className="gap-1.5"
+                      className="gap-1.5 rounded-full border-border/60"
                     >
                       <UserPlus className="h-4 w-4" />
                       Tilføj
                     </Button>
                   )}
                 </div>
-                
+
                 {/* Pending invitations */}
                 {pendingMembers.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground">Afventer svar:</p>
+                    <p className="text-xs text-foreground/50">Afventer svar</p>
                     {pendingMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="flex items-center justify-between p-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800"
+                        className="flex items-center justify-between p-3 rounded-2xl border border-dashed border-border/70"
                       >
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
+                          <Avatar className="h-9 w-9">
                             <AvatarImage src={member.profile?.avatar_url || undefined} />
                             <AvatarFallback>
                               {member.profile?.name?.charAt(0) || <User className="h-4 w-4" />}
@@ -295,7 +304,7 @@ const EditGroupModal = ({
                           </Avatar>
                           <p className="text-sm font-medium">{member.profile?.name || "Ukendt"}</p>
                         </div>
-                        <span className="text-xs text-amber-600 dark:text-amber-400">Afventer</span>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-foreground/60">Afventer</span>
                       </div>
                     ))}
                   </div>
@@ -303,37 +312,36 @@ const EditGroupModal = ({
 
                 {/* Accepted members */}
                 {acceptedMembers.length > 0 && (
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                  <div className="space-y-2">
                     {acceptedMembers.map((member) => {
                       const isGroupCreator = member.user_id === group?.created_by;
                       return (
                         <div
                           key={member.id}
-                          className="flex items-center justify-between p-2 rounded-lg bg-muted/50"
+                          className="flex items-center justify-between p-3 rounded-2xl border border-border/60"
                         >
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
+                            <Avatar className="h-9 w-9">
                               <AvatarImage src={member.profile?.avatar_url || undefined} />
                               <AvatarFallback>
                                 {member.profile?.name?.charAt(0) || <User className="h-4 w-4" />}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
-                              <p className="text-sm font-medium">
-                                {member.profile?.name || "Ukendt"}
-                                {isGroupCreator && (
-                                  <span className="ml-2 text-xs text-muted-foreground">(opretteren)</span>
-                                )}
-                              </p>
-                            </div>
+                            <p className="text-sm font-medium">
+                              {member.profile?.name || "Ukendt"}
+                              {isGroupCreator && (
+                                <span className="ml-2 text-xs text-foreground/50">(opretteren)</span>
+                              )}
+                            </p>
                           </div>
                           {!isGroupCreator && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full"
                               onClick={() => handleRemoveMember(member.id, member.user_id)}
                               disabled={removingMemberId === member.id}
+                              aria-label="Fjern medlem"
                             >
                               <X className="h-4 w-4" />
                             </Button>
@@ -345,81 +353,92 @@ const EditGroupModal = ({
                 )}
 
                 {acceptedMembers.length === 0 && pendingMembers.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-sm text-foreground/50 text-center py-4">
                     Ingen medlemmer endnu. Tilføj roomies til gruppen.
                   </p>
                 )}
               </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex justify-between gap-2">
-          {/* Left: leave (non-creator) or delete (creator) */}
-          {!isCreator && onLeaveGroup ? (
-            <Button
-              variant="destructive"
-              onClick={handleLeaveGroup}
-              disabled={leavingGroup}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              {leavingGroup ? "Forlader..." : "Forlad gruppe"}
-            </Button>
-          ) : isCreator && onDeleteGroup ? (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={deleting} className="gap-2">
-                  <Trash2 className="h-4 w-4" />
-                  {deleting ? "Sletter..." : "Slet gruppe"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Slet gruppen?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Gruppen og alle dens beskeder slettes permanent. Denne handling kan ikke fortrydes.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annuller</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteGroup}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Slet permanent
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          ) : (
-            <div />
-          )}
-          
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              {isCreator ? "Annuller" : "Luk"}
-            </Button>
-            {isCreator && (
-              <Button onClick={handleSave} disabled={saving || !name.trim()}>
-                {saving ? "Gemmer..." : "Gem ændringer"}
-              </Button>
             )}
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
 
-    {/* Invite Members Modal */}
-    {onInvite && (
-      <InviteMemberModal
-        open={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        group={group}
-        connectedRoomies={connectedRoomies}
-        onInvite={onInvite}
-      />
-    )}
+          {/* Sticky footer */}
+          <div className="border-t border-border/60 px-6 py-4 flex items-center justify-between gap-3 bg-background">
+            {!isCreator && onLeaveGroup ? (
+              <Button
+                variant="ghost"
+                onClick={handleLeaveGroup}
+                disabled={leavingGroup}
+                className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full"
+              >
+                <LogOut className="h-4 w-4" />
+                {leavingGroup ? "Forlader..." : "Forlad"}
+              </Button>
+            ) : isCreator && onDeleteGroup ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    disabled={deleting}
+                    className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {deleting ? "Sletter..." : "Slet"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Slet gruppen?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Gruppen og alle dens beskeder slettes permanent. Denne handling kan ikke fortrydes.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuller</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteGroup}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Slet permanent
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+                className="rounded-full text-foreground/70"
+              >
+                {isCreator ? "Annuller" : "Luk"}
+              </Button>
+              {isCreator && (
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || !name.trim()}
+                  className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-semibold px-5"
+                >
+                  {saving ? "Gemmer..." : "Gem ændringer"}
+                </Button>
+              )}
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Invite Members Modal */}
+      {onInvite && (
+        <InviteMemberModal
+          open={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+          group={group}
+          connectedRoomies={connectedRoomies}
+          onInvite={onInvite}
+        />
+      )}
     </>
   );
 };
