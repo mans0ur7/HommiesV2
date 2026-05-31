@@ -170,14 +170,12 @@ const PendingRequests = ({
           <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">Anmodninger</span>
           <span className="text-[11px] text-foreground/40">{totalRequests}</span>
         </div>
-        {totalRequests > MAX_VISIBLE && (
-          <button
-            onClick={() => setShowAllSheet(true)}
-            className="text-xs font-medium text-foreground/60 hover:text-foreground transition-colors"
-          >
-            Se alle
-          </button>
-        )}
+        <button
+          onClick={() => setShowAllSheet(true)}
+          className="text-xs font-medium text-foreground/60 hover:text-foreground transition-colors"
+        >
+          Se alle anmodninger
+        </button>
       </div>
 
       {/* Horizontal strip of circular avatars */}
@@ -225,28 +223,45 @@ const PendingRequests = ({
               Alle anmodninger.
             </SheetTitle>
           </SheetHeader>
-          <div className="overflow-y-auto px-4 py-4 flex-1 space-y-1">
-            {unifiedRequests.map((request) => {
-              const meta = TYPE_META[request.type];
-              return (
-                <button
-                  key={`${request.type}-${request.id}`}
-                  onClick={() => handleRequestClick(request)}
-                  className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/60 transition-colors text-left group"
-                >
-                  <RequestAvatar request={request} />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-foreground truncate">{request.name}</p>
-                    {request.study && (
-                      <p className="text-xs text-foreground/50 truncate">{request.study}</p>
-                    )}
+          <div className="overflow-y-auto px-4 py-4 flex-1 space-y-6">
+            {([
+              { key: "roomie", label: "Roomies", items: unifiedRequests.filter((r) => r.type === "roomie") },
+              { key: "landlord", label: "Udlejere", items: unifiedRequests.filter((r) => r.type === "landlord") },
+              { key: "group", label: "Grupper", items: unifiedRequests.filter((r) => r.type === "group") },
+            ] as const)
+              .filter((section) => section.items.length > 0)
+              .map((section) => (
+                <div key={section.key}>
+                  <div className="flex items-center gap-3 px-2 mb-2">
+                    <div className="h-px w-8 bg-foreground/40" />
+                    <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">{section.label}</span>
+                    <span className="text-[11px] text-foreground/40">{section.items.length}</span>
                   </div>
-                  <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0", meta.chip)}>
-                    {meta.label}
-                  </span>
-                </button>
-              );
-            })}
+                  <div className="space-y-1">
+                    {section.items.map((request) => {
+                      const meta = TYPE_META[request.type];
+                      return (
+                        <button
+                          key={`${request.type}-${request.id}`}
+                          onClick={() => handleRequestClick(request)}
+                          className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-muted/60 transition-colors text-left group"
+                        >
+                          <RequestAvatar request={request} />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm text-foreground truncate">{request.name}</p>
+                            {request.study && (
+                              <p className="text-xs text-foreground/50 truncate">{request.study}</p>
+                            )}
+                          </div>
+                          <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0", meta.chip)}>
+                            {meta.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
           </div>
         </SheetContent>
       </Sheet>

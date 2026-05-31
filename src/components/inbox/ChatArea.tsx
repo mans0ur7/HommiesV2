@@ -522,9 +522,10 @@ const ChatArea = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-b from-muted/20 to-background min-h-0">
-      {/* Chat Header - Mobile optimized */}
-      <div className="flex-shrink-0 bg-background/80 backdrop-blur-lg border-b">
+    <div className="flex-1 flex flex-col bg-background min-h-0">
+      {/* Chat Header - Mobile optimized. safe-area-top keeps it clear of the
+          iOS status bar / Dynamic Island when AppLayout's header is hidden. */}
+      <div className="flex-shrink-0 bg-background/80 backdrop-blur-lg border-b border-border/60 safe-area-top">
         {/* Main header row */}
         <div className="flex items-center px-3 md:px-6 py-2 md:py-3 gap-2 md:gap-4">
           {/* Mobile back button */}
@@ -542,7 +543,7 @@ const ChatArea = ({
           {/* Avatar */}
           <div className="relative flex-shrink-0">
             {conversation.groupInfo ? (
-              <div className="relative w-9 h-9 md:w-11 md:h-11 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 ring-2 ring-secondary/50 overflow-hidden">
+              <div className="relative w-9 h-9 md:w-11 md:h-11 rounded-full bg-muted border border-border/60 overflow-hidden">
                 {conversation.groupInfo.memberAvatars.slice(0, 3).map((avatar, idx) => (
                   <img
                     key={idx}
@@ -563,10 +564,10 @@ const ChatArea = ({
               <img
                 src={conversation.otherUser.avatar_url}
                 alt={conversation.otherUser.name}
-                className="w-9 h-9 md:w-11 md:h-11 rounded-full object-cover ring-2 ring-secondary/50"
+                className="w-9 h-9 md:w-11 md:h-11 rounded-full object-cover border border-border/60"
               />
             ) : (
-              <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center ring-2 ring-secondary/50">
+              <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-muted flex items-center justify-center border border-border/60">
                 <User className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
               </div>
             )}
@@ -586,10 +587,10 @@ const ChatArea = ({
               </span>
               {/* Type badge - shows if it's a landlord or roomie conversation */}
               {!conversation.groupInfo && (
-                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold shadow-sm ${
-                  conversation.type === "landlord" 
-                    ? "bg-amber-500 text-white"
-                    : "bg-teal-500 text-white"
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-semibold ${
+                  conversation.type === "landlord"
+                    ? "bg-foreground text-background"
+                    : "bg-secondary text-secondary-foreground"
                 }`}>
                   {conversation.type === "landlord" ? (
                     <>
