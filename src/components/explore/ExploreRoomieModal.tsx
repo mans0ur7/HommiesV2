@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { getTraitBadgeClass } from "@/lib/traits";
 
 interface RoomieProfile {
   id: string;
@@ -36,28 +37,6 @@ interface ExploreRoomieModalProps {
   open: boolean;
   onClose: () => void;
 }
-
-const personalityColors: Record<string, string> = {
-  "Rolig": "bg-blue-100 text-blue-700",
-  "Introvert": "bg-purple-100 text-purple-700",
-  "Venlig": "bg-green-100 text-green-700",
-  "Optimistisk": "bg-yellow-100 text-yellow-700",
-  "Kreativ": "bg-pink-100 text-pink-700",
-  "Udadvendt": "bg-orange-100 text-orange-700",
-  "Eventyrlysten": "bg-red-100 text-red-700",
-  "Tænksom": "bg-indigo-100 text-indigo-700",
-};
-
-const lifestyleColors: Record<string, string> = {
-  "Morgenmenneske": "bg-amber-100 text-amber-700",
-  "Natmenneske": "bg-slate-100 text-slate-700",
-  "Motionist": "bg-emerald-100 text-emerald-700",
-  "Bogorm": "bg-cyan-100 text-cyan-700",
-  "Eventyrlysten": "bg-rose-100 text-rose-700",
-  "Hjemmetype": "bg-violet-100 text-violet-700",
-  "Social": "bg-teal-100 text-teal-700",
-  "Rolig": "bg-sky-100 text-sky-700",
-};
 
 const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) => {
   const { user } = useAuth();
@@ -237,7 +216,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
                     <Badge
                       key={trait}
                       variant="secondary"
-                      className={`${personalityColors[trait] || "bg-muted text-muted-foreground"} border-none`}
+                      className={`${getTraitBadgeClass(trait)} border-none`}
                     >
                       <span className="mr-1">●</span> {trait}
                     </Badge>
@@ -255,7 +234,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
                     <Badge
                       key={item}
                       variant="secondary"
-                      className={`${lifestyleColors[item] || "bg-muted text-muted-foreground"} border-none`}
+                      className={`${getTraitBadgeClass(item)} border-none`}
                     >
                       <span className="mr-1">●</span> {item}
                     </Badge>
@@ -401,7 +380,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
                     <Badge
                       key={trait}
                       variant="secondary"
-                      className={`${personalityColors[trait] || "bg-muted text-muted-foreground"} border-none`}
+                      className={`${getTraitBadgeClass(trait)} border-none`}
                     >
                       <span className="mr-1">●</span> {trait}
                     </Badge>
@@ -419,7 +398,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
                     <Badge
                       key={item}
                       variant="secondary"
-                      className={`${lifestyleColors[item] || "bg-muted text-muted-foreground"} border-none`}
+                      className={`${getTraitBadgeClass(item)} border-none`}
                     >
                       <span className="mr-1">●</span> {item}
                     </Badge>

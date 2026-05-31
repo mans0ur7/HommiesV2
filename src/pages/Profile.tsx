@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { checkFields } from "@/lib/contentFilter";
 import { Upload, User, ChevronLeft, ChevronRight, Pencil, X, Check, ArrowRight, ArrowLeft, Star, Heart, UserCircle, Settings, Sparkles, Plus, Trash2 } from "lucide-react";
 import { pickImage } from "@/lib/camera";
+import { personalityOptions, lifestyleOptions } from "@/lib/traits";
 
 interface Property {
   id: string;
@@ -44,40 +45,6 @@ const genderOptions = [
   { value: "male", label: "Mand" },
   { value: "female", label: "Kvinde" },
   { value: "other", label: "Andet" },
-];
-
-const personalityOptions = [
-  { label: "Rolig", color: "bg-green-500" },
-  { label: "Introvert", color: "bg-pink-500" },
-  { label: "Ekstrovert", color: "bg-orange-500" },
-  { label: "Venlig", color: "bg-cyan-500" },
-  { label: "Optimistisk", color: "bg-blue-500" },
-  { label: "Kreativ", color: "bg-purple-500" },
-  { label: "Analytisk", color: "bg-indigo-500" },
-  { label: "Social", color: "bg-yellow-500" },
-  { label: "Tålmodig", color: "bg-teal-500" },
-  { label: "Eventyrlysten", color: "bg-rose-500" },
-  { label: "Omsorgsfuld", color: "bg-emerald-500" },
-  { label: "Åben", color: "bg-amber-500" },
-];
-
-const lifestyleOptions = [
-  { label: "Eventyrer", color: "bg-blue-500" },
-  { label: "Atlet", color: "bg-pink-500" },
-  { label: "Bogorm", color: "bg-yellow-500" },
-  { label: "Morgenfugl", color: "bg-orange-500" },
-  { label: "Natugel", color: "bg-purple-500" },
-  { label: "Fitness", color: "bg-green-500" },
-  { label: "Ikke-ryger", color: "bg-cyan-500" },
-  { label: "Dyreelsker", color: "bg-red-500" },
-  { label: "Drikker ikke", color: "bg-emerald-500" },
-  { label: "Fester ikke", color: "bg-indigo-500" },
-  { label: "Veganer", color: "bg-lime-500" },
-  { label: "Vegetar", color: "bg-teal-500" },
-  { label: "Renlighed", color: "bg-sky-500" },
-  { label: "Hjemme-hygge", color: "bg-amber-500" },
-  { label: "Studerende", color: "bg-violet-500" },
-  { label: "Arbejdende", color: "bg-slate-500" },
 ];
 
 const rentalPeriodOptions = [

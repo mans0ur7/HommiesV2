@@ -189,14 +189,18 @@ const SearchTogether = () => {
               onRespond={handleRespondToInvitation}
             />
 
-            {/* Dine grupper - always show with create button */}
-            <YourGroupsSection
-              groups={groups}
-              loading={groupsLoading}
-              onSelectGroup={setSelectedGroup}
-              onEditGroup={handleEditGroup}
-              onCreateGroup={() => setShowCreateWizard(true)}
-            />
+            {/* Dine grupper - shown once the user actually has groups (or while
+                loading). When empty, the hero banner above is the single CTA so
+                we don't stack three "Opret gruppe" buttons. */}
+            {(groupsLoading || groups.length > 0) && (
+              <YourGroupsSection
+                groups={groups}
+                loading={groupsLoading}
+                onSelectGroup={setSelectedGroup}
+                onEditGroup={handleEditGroup}
+                onCreateGroup={() => setShowCreateWizard(true)}
+              />
+            )}
 
             {/* Personer du har liket */}
             <LikedPeopleSection />
