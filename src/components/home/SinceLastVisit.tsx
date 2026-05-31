@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowRight } from "lucide-react";
 import { useHomeBriefing } from "@/hooks/useHomeBriefing";
 
@@ -8,6 +9,7 @@ import { useHomeBriefing } from "@/hooks/useHomeBriefing";
  */
 const SinceLastVisit = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { action, chips } = useHomeBriefing();
 
   return (
@@ -16,7 +18,7 @@ const SinceLastVisit = () => {
       <div className="flex items-center gap-3 mb-3">
         <div className="h-px w-8 bg-foreground/40" />
         <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
-          Siden sidst
+          {t("home.sinceLastVisit")}
         </span>
       </div>
 

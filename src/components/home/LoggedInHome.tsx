@@ -8,7 +8,9 @@ import {
   ArrowRight,
   Sparkles,
   Home as HomeIcon,
+  User,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +29,9 @@ import FirstLoginTour from "@/components/onboarding/FirstLoginTour";
 import { useFavoriteProperties } from "@/hooks/useFavoriteProperties";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useRecommendedHomes } from "@/hooks/useRecommendedHomes";
+import { useSimilarHomes } from "@/hooks/useSimilarHomes";
+import { useCompatibleRoomies } from "@/hooks/useCompatibleRoomies";
+import { getTraitBadgeClass } from "@/lib/traits";
 
 const LoggedInHome = () => {
   const navigate = useNavigate();
@@ -39,6 +44,10 @@ const LoggedInHome = () => {
   const { properties: favoriteProperties } = useFavoriteProperties();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { homes: recommendedHomes } = useRecommendedHomes(!isLandlord);
+  const { compatible: compatibleRoomies, hasTraits } = useCompatibleRoomies(
+    !isLandlord
+  );
+  const { homes: similarHomes, anchorTitle } = useSimilarHomes(!isLandlord);
 
   const [searchQuery, setSearchQuery] = useState("");
   const firstName = profile?.name?.split(" ")[0];
@@ -67,7 +76,7 @@ const LoggedInHome = () => {
 
   // Adaptive top-right CTA
   const cta = isLandlord
-    ? { label: "Se din annonce", to: "/my-listings" }
+    ? { label: t("home.seeYourListing"), to: "/my-listings" }
     : { label: t("home.seeMatches"), to: "/matches" };
 
   return (
@@ -152,11 +161,11 @@ const LoggedInHome = () => {
                   <div className="flex items-center gap-3 mb-2">
                     <div className="h-px w-8 bg-foreground/40" />
                     <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
-                      For dig
+                      {t("home.recommendedEyebrow")}
                     </span>
                   </div>
                   <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
-                    Anbefalet til dig
+                    {t("home.recommendedTitle")}
                   </h2>
                 </div>
                 <button
@@ -174,6 +183,153 @@ const LoggedInHome = () => {
                   style={{ minWidth: "max-content" }}
                 >
                   {recommendedHomes.map((property) => (
+                    <div key={property.id} className="w-60 md:w-64 shrink-0">
+                      <PropertyCard
+                        id={property.id}
+                        title={property.title}
+                        location={`${property.size_sqm || 0} m² • ${
+                          property.is_furnished ? "Møbleret" : "Umøbleret"
+                        }`}
+                        price={property.monthly_rent}
+                        image={property.images?.[0] || ""}
+                        landlordName={property.landlord?.name || "Ukendt"}
+                        landlordImage={property.landlord?.avatar_url || undefined}
+                        isLiked={isFavorite(property.id)}
+                        onHeartClick={toggleFavorite}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ───────── ROOMIE: compatibility roomies rail ───────── */}
+        {!isLandlord && hasTraits && compatibleRoomies.length > 0 && (
+          <section className="px-4 md:px-6 lg:px-12 py-8 md:py-12">
+            <div className="container mx-auto max-w-7xl">
+              <div className="flex items-end justify-between mb-8">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-px w-8 bg-foreground/40" />
+                    <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
+                      {t("home.compatibleEyebrow")}
+                    </span>
+                  </div>
+                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+                    {t("home.compatibleTitle")}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => navigate("/explore")}
+                  className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  {t("home.seeAll")}
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                <div
+                  className="flex gap-4 md:gap-5 pb-2"
+                  style={{ minWidth: "max-content" }}
+                >
+                  {compatibleRoomies.map(({ roomie, sharedTags }) => {
+                    const firstName = roomie.name?.split(" ")[0] ?? roomie.name;
+                    const subline = [
+                      roomie.age ? `${roomie.age}` : null,
+                      roomie.study,
+                    ]
+                      .filter(Boolean)
+                      .join(" • ");
+                    return (
+                      <button
+                        key={roomie.user_id}
+                        onClick={() => navigate(`/user/${roomie.user_id}`)}
+                        className="w-56 md:w-60 shrink-0 text-left rounded-2xl border border-border/60 bg-background p-4 hover:border-foreground/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full overflow-hidden border border-border/60 bg-muted shrink-0">
+                            {roomie.avatar_url ? (
+                              <img
+                                src={roomie.avatar_url}
+                                alt={roomie.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-foreground/40" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {firstName}
+                            </p>
+                            {subline && (
+                              <p className="text-xs text-foreground/50 truncate mt-0.5">
+                                {subline}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {sharedTags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-4">
+                            {sharedTags.slice(0, 3).map((tag) => (
+                              <Badge
+                                key={tag}
+                                variant="secondary"
+                                className={`${getTraitBadgeClass(
+                                  tag
+                                )} border-none text-[11px]`}
+                              >
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ───────── ROOMIE: "fordi du kunne lide" similar homes rail ───────── */}
+        {!isLandlord && anchorTitle && similarHomes.length > 0 && (
+          <section className="px-4 md:px-6 lg:px-12 py-8 md:py-12">
+            <div className="container mx-auto max-w-7xl">
+              <div className="flex items-end justify-between mb-8">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-px w-8 bg-foreground/40" />
+                    <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
+                      {t("home.similarEyebrow")}
+                    </span>
+                  </div>
+                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+                    {t("home.similarTitle", { title: anchorTitle })}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => navigate("/explore")}
+                  className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  {t("home.seeAll")}
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+                <div
+                  className="flex gap-4 md:gap-5 pb-2"
+                  style={{ minWidth: "max-content" }}
+                >
+                  {similarHomes.map((property) => (
                     <div key={property.id} className="w-60 md:w-64 shrink-0">
                       <PropertyCard
                         id={property.id}
@@ -246,14 +402,14 @@ const LoggedInHome = () => {
                 <div className="rounded-3xl border border-dashed border-border/60 px-6 py-14 text-center">
                   <Heart className="w-8 h-8 mx-auto mb-3 text-foreground/30" />
                   <p className="text-sm text-foreground/60 mb-4">
-                    Du har ingen favoritboliger endnu.
+                    {t("home.noFavorites")}
                   </p>
                   <Button
                     onClick={() => navigate("/explore")}
                     variant="outline"
                     className="rounded-full"
                   >
-                    Udforsk boliger
+                    {t("home.exploreHomes")}
                   </Button>
                 </div>
               )}
@@ -273,9 +429,11 @@ const LoggedInHome = () => {
                   <HomeIcon className="w-5 h-5 text-foreground/70" />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-foreground">Udforsk byer</p>
+                  <p className="font-medium text-foreground">
+                    {t("home.exploreCitiesTitle")}
+                  </p>
                   <p className="text-sm text-foreground/60">
-                    Find boliger i hele Danmark.
+                    {t("home.exploreCitiesDescription")}
                   </p>
                 </div>
               </div>

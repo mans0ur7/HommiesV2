@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { calcProfileCompleteness } from "@/lib/profileCompleteness";
 import { usePendingContracts } from "@/hooks/usePendingContracts";
@@ -31,10 +32,12 @@ export interface HomeChip {
  * the rest of the app.
  */
 export const useHomeBriefing = () => {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const isLandlord = profile?.user_type === "landlord";
 
-  const { percent: profilePercent } = calcProfileCompleteness(profile as any);
+  const { percent: profilePercent, missing: missingSteps } =
+    calcProfileCompleteness(profile as any);
   const { pendingCount: pendingContracts } = usePendingContracts();
   const { unreadCount } = useUnreadMessages();
   const { unreadSearchAgentCount } = useSearchAgentNotifications();
@@ -50,11 +53,16 @@ export const useHomeBriefing = () => {
   const action = useMemo<HomeAction>(() => {
     // First match wins — order encodes priority.
     if (profilePercent < 60) {
+      // Payoff-framed sub-copy: lead with the photo's outcome when it's the
+      // missing step, otherwise a general matches payoff.
+      const photoMissing = missingSteps.some((s) => s.key === "avatar");
       return {
         key: "profile",
-        title: "Færdiggør din profil",
-        description: "En komplet profil giver dig markant bedre matches.",
-        cta: "Gør profilen færdig",
+        title: t("home.briefing.profileTitle"),
+        description: photoMissing
+          ? t("home.briefing.profilePhotoDescription")
+          : t("home.briefing.profileDescription"),
+        cta: t("home.briefing.profileCta"),
         to: "/profile",
       };
     }
@@ -62,9 +70,9 @@ export const useHomeBriefing = () => {
     if (pendingContracts > 0) {
       return {
         key: "contract",
-        title: "Du har en kontrakt klar til underskrift",
-        description: "Gennemse og underskriv, så I begge er sikret.",
-        cta: "Se kontrakt",
+        title: t("home.briefing.contractTitle"),
+        description: t("home.briefing.contractDescription"),
+        cta: t("home.briefing.contractCta"),
         to: "/documents",
       };
     }
@@ -72,9 +80,9 @@ export const useHomeBriefing = () => {
     if (!isLandlord && groupInvites > 0) {
       return {
         key: "group-invite",
-        title: "Du er inviteret til en gruppe",
-        description: "Slå jer sammen og søg bolig sammen.",
-        cta: "Se invitation",
+        title: t("home.briefing.groupInviteTitle"),
+        description: t("home.briefing.groupInviteDescription"),
+        cta: t("home.briefing.groupInviteCta"),
         to: "/focus",
       };
     }
@@ -82,9 +90,9 @@ export const useHomeBriefing = () => {
     if (isLandlord && pendingGroupApplications > 0) {
       return {
         key: "group-application",
-        title: "Nogen vil søge din bolig",
-        description: "En gruppe har sendt en ansøgning til din annonce.",
-        cta: "Se ansøgning",
+        title: t("home.briefing.groupApplicationTitle"),
+        description: t("home.briefing.groupApplicationDescription"),
+        cta: t("home.briefing.groupApplicationCta"),
         to: "/focus",
       };
     }
@@ -92,9 +100,11 @@ export const useHomeBriefing = () => {
     if (inboundConnections > 0) {
       return {
         key: "connections",
-        title: `${inboundConnections} vil forbinde med dig`,
-        description: "Sig ja og start en samtale.",
-        cta: "Se anmodninger",
+        title: t("home.briefing.connectionsTitle", {
+          count: inboundConnections,
+        }),
+        description: t("home.briefing.connectionsDescription"),
+        cta: t("home.briefing.connectionsCta"),
         to: "/inbox",
       };
     }
@@ -102,9 +112,9 @@ export const useHomeBriefing = () => {
     if (unreadCount > 0) {
       return {
         key: "messages",
-        title: "Du har ulæste beskeder",
-        description: "Hold samtalen i gang — svar tilbage.",
-        cta: "Åbn indbakke",
+        title: t("home.briefing.messagesTitle"),
+        description: t("home.briefing.messagesDescription"),
+        cta: t("home.briefing.messagesCta"),
         to: "/inbox",
       };
     }
@@ -112,9 +122,9 @@ export const useHomeBriefing = () => {
     if (!isLandlord && unreadSearchAgentCount > 0) {
       return {
         key: "search-agent",
-        title: "Nye boliger matcher din søgning",
-        description: "Din søgeagent har fundet noget nyt til dig.",
-        cta: "Se boliger",
+        title: t("home.briefing.searchAgentTitle"),
+        description: t("home.briefing.searchAgentDescription"),
+        cta: t("home.briefing.searchAgentCta"),
         to: "/explore",
       };
     }
@@ -123,20 +133,22 @@ export const useHomeBriefing = () => {
     return isLandlord
       ? {
           key: "discover-landlord",
-          title: "Alt er up to date",
-          description: "Hold din annonce skarp, så de rette roomies finder dig.",
-          cta: "Se din annonce",
+          title: t("home.briefing.discoverLandlordTitle"),
+          description: t("home.briefing.discoverLandlordDescription"),
+          cta: t("home.briefing.discoverLandlordCta"),
           to: "/my-listings",
         }
       : {
           key: "discover-roomie",
-          title: "Klar til at finde dit næste hjem?",
-          description: "Udforsk nye boliger og roomies, der passer til dig.",
-          cta: "Udforsk boliger",
+          title: t("home.briefing.discoverRoomieTitle"),
+          description: t("home.briefing.discoverRoomieDescription"),
+          cta: t("home.briefing.discoverRoomieCta"),
           to: "/explore",
         };
   }, [
+    t,
     profilePercent,
+    missingSteps,
     pendingContracts,
     isLandlord,
     groupInvites,
@@ -148,34 +160,40 @@ export const useHomeBriefing = () => {
 
   const chips = useMemo<HomeChip[]>(() => {
     const all: HomeChip[] = [
-      { key: "messages", label: "Indbakke", count: unreadCount, to: "/inbox" },
+      {
+        key: "messages",
+        label: t("home.briefing.chipInbox"),
+        count: unreadCount,
+        to: "/inbox",
+      },
       {
         key: "connections",
-        label: "Anmodninger",
+        label: t("home.briefing.chipRequests"),
         count: inboundConnections,
         to: "/inbox",
       },
       {
         key: "group-invite",
-        label: "Gruppe",
+        label: t("home.briefing.chipGroup"),
         count: isLandlord ? pendingGroupApplications : groupInvites,
         to: "/focus",
       },
       {
         key: "contract",
-        label: "Dokumenter",
+        label: t("home.briefing.chipDocuments"),
         count: pendingContracts,
         to: "/documents",
       },
       {
         key: "search-agent",
-        label: "Søgeagenter",
+        label: t("home.briefing.chipSearchAgents"),
         count: isLandlord ? 0 : unreadSearchAgentCount,
         to: "/search-agents",
       },
     ];
     return all.filter((c) => c.count > 0);
   }, [
+    t,
     unreadCount,
     inboundConnections,
     isLandlord,

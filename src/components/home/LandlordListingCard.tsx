@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Home, Plus, ArrowRight, Users } from "lucide-react";
 import { useLandlordHasPublishedProperty } from "@/hooks/useLandlordHasPublishedProperty";
 import { useGroupRequests } from "@/hooks/useGroupRequests";
@@ -10,6 +11,7 @@ import { useGroupRequests } from "@/hooks/useGroupRequests";
  */
 const LandlordListingCard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { hasPublishedProperty, isLoading } = useLandlordHasPublishedProperty();
   const { receivedRequests } = useGroupRequests();
 
@@ -23,7 +25,7 @@ const LandlordListingCard = () => {
       <div className="flex items-center gap-3 mb-6">
         <div className="h-px w-8 bg-foreground/40" />
         <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
-          Din annonce
+          {t("home.listingEyebrow")}
         </span>
       </div>
 
@@ -39,13 +41,13 @@ const LandlordListingCard = () => {
               </div>
               <div className="min-w-0">
                 <p className="text-lg md:text-xl font-medium text-foreground">
-                  Din annonce er live
+                  {t("home.listingLiveTitle")}
                 </p>
                 <p className="text-sm text-foreground/60 mt-0.5 inline-flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5" />
                   {interested > 0
-                    ? `${interested} interesserede`
-                    : "Ingen ansøgninger endnu"}
+                    ? t("home.interested", { count: interested })
+                    : t("home.noApplications")}
                 </p>
               </div>
             </div>
@@ -64,10 +66,10 @@ const LandlordListingCard = () => {
               </div>
               <div className="min-w-0">
                 <p className="text-lg md:text-xl font-medium text-foreground">
-                  Opret din første annonce
+                  {t("home.createFirstListingTitle")}
                 </p>
                 <p className="text-sm text-foreground/60 mt-0.5">
-                  Bliv synlig for tusindvis af roomies.
+                  {t("home.createFirstListingDescription")}
                 </p>
               </div>
             </div>

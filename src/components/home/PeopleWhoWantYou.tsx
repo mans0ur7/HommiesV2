@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { User, ArrowUpRight, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +19,7 @@ const MAX_VISIBLE = 6;
  */
 const PeopleWhoWantYou = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { isOnline } = usePresence();
   const { requests, refetch } = useReceivedConnectionRequests();
@@ -41,11 +43,11 @@ const PeopleWhoWantYou = () => {
         .eq("id", req.id);
       if (updateError) throw updateError;
 
-      toast.success("I er forbundet");
+      toast.success(t("home.connectedToast"));
       await refetch();
     } catch (e) {
       console.error("Error accepting connection request:", e);
-      toast.error("Kunne ikke acceptere anmodningen");
+      toast.error(t("home.acceptError"));
     } finally {
       setBusyId(null);
     }
@@ -63,7 +65,7 @@ const PeopleWhoWantYou = () => {
       await refetch();
     } catch (e) {
       console.error("Error skipping connection request:", e);
-      toast.error("Noget gik galt");
+      toast.error(t("home.skipError"));
     } finally {
       setBusyId(null);
     }
@@ -80,18 +82,18 @@ const PeopleWhoWantYou = () => {
           <div className="flex items-center gap-3 mb-2">
             <div className="h-px w-8 bg-foreground/40" />
             <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">
-              Anmodninger
+              {t("home.requestsEyebrow")}
             </span>
           </div>
           <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
-            Nogen vil møde dig
+            {t("home.peopleWhoWantYouTitle")}
           </h2>
         </div>
         <button
           onClick={() => navigate("/inbox")}
           className="hidden md:inline-flex items-center gap-1.5 text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
         >
-          Se alle i indbakken
+          {t("home.seeAllInInbox")}
           <ArrowUpRight className="w-4 h-4" />
         </button>
       </div>
@@ -113,7 +115,7 @@ const PeopleWhoWantYou = () => {
                 <button
                   onClick={() => navigate(`/profile/${req.sender.user_id}`)}
                   className="relative w-16 h-16 rounded-full overflow-hidden border border-border/60 bg-muted mb-3"
-                  aria-label={`Se ${firstName}s profil`}
+                  aria-label={t("home.viewProfileAria", { name: firstName })}
                 >
                   {req.sender.avatar_url ? (
                     <img
@@ -148,7 +150,7 @@ const PeopleWhoWantYou = () => {
                     className="flex-1 inline-flex items-center justify-center gap-1 h-9 rounded-full border border-border/60 text-xs font-medium text-foreground/60 hover:bg-muted disabled:opacity-50 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
-                    Spring over
+                    {t("home.skip")}
                   </button>
                   <button
                     onClick={() => handleAccept(req)}
@@ -156,7 +158,7 @@ const PeopleWhoWantYou = () => {
                     className="flex-1 inline-flex items-center justify-center gap-1 h-9 rounded-full bg-foreground text-background text-xs font-medium hover:bg-foreground/90 disabled:opacity-50 transition-colors"
                   >
                     <Check className="w-3.5 h-3.5" />
-                    Accepter
+                    {t("home.accept")}
                   </button>
                 </div>
               </div>
@@ -169,7 +171,7 @@ const PeopleWhoWantYou = () => {
               className="w-44 shrink-0 rounded-2xl border border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-sm font-medium text-foreground/60 hover:text-foreground hover:border-foreground/30 transition-colors"
             >
               <span>+{requests.length - MAX_VISIBLE}</span>
-              <span className="text-xs">Se alle i indbakken</span>
+              <span className="text-xs">{t("home.seeAllInInbox")}</span>
             </button>
           )}
         </div>
