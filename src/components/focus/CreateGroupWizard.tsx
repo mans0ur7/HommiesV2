@@ -12,6 +12,8 @@ import { Slider } from "@/components/ui/slider";
 import { ArrowLeft, Search, Check, User, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { shareLink } from "@/lib/share";
+import { toast } from "sonner";
 
 interface ConnectedRoomie {
   id: string;
@@ -217,7 +219,17 @@ const CreateGroupWizard = ({
           {step === 2 && (
             <div className="space-y-4">
               {/* Share link option */}
-              <button className="w-full flex items-center gap-3 p-3 rounded-2xl border border-border/60 hover:border-foreground/40 transition-colors text-left">
+              <button
+                onClick={async () => {
+                  const result = await shareLink({
+                    title: "Hommies",
+                    text: "Lad os finde en bolig sammen på Hommies!",
+                    url: "https://hommies.dk",
+                  });
+                  if (result === "copied") toast.success("Link kopieret");
+                }}
+                className="w-full flex items-center gap-3 p-3 rounded-2xl border border-border/60 hover:border-foreground/40 transition-colors text-left"
+              >
                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                   <Share2 className="w-4 h-4 text-foreground" />
                 </div>
