@@ -36,6 +36,7 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
   const [userType, setUserType] = useState<"roomie" | "landlord" | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string; userType?: string }>({});
 
@@ -137,6 +138,7 @@ const Auth = () => {
   };
 
   const handleForgotPassword = async () => {
+    if (sendingReset) return;
     const result = emailSchema.safeParse(email);
     if (!result.success) {
       setErrors({ email: t("auth.enterEmailFirst") });
@@ -144,14 +146,14 @@ const Auth = () => {
     }
 
     // Client-side rate limit: 3 reset attempts per 15 min per email/device.
-    // Supabase will rate-limit too, but throwing here gives a clearer toast
-    // and avoids burning a quota for a misclick.
+    // Supabase will rate-limit too, but checking here gives a clearer toast.
+    const key = "hommies_reset_attempts_v1";
+    const now = Date.now();
+    let fresh: { email: string; at: number }[] = [];
     try {
-      const key = "hommies_reset_attempts_v1";
-      const now = Date.now();
       const raw = localStorage.getItem(key);
       const log: { email: string; at: number }[] = raw ? JSON.parse(raw) : [];
-      const fresh = log.filter((e) => now - e.at < 15 * 60 * 1000);
+      fresh = log.filter((e) => now - e.at < 15 * 60 * 1000);
       const sameEmail = fresh.filter((e) => e.email === email.toLowerCase());
       if (sameEmail.length >= 3) {
         toast({
@@ -161,23 +163,34 @@ const Auth = () => {
         });
         return;
       }
-      fresh.push({ email: email.toLowerCase(), at: now });
-      localStorage.setItem(key, JSON.stringify(fresh));
     } catch {
       /* localStorage unavailable — let Supabase enforce its own limit */
     }
 
-    const redirectTo = isNativeApp()
-      ? "https://hommies.dk/reset-password"
-      : `${window.location.origin}/reset-password`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-    if (error) {
-      toast({ variant: "destructive", title: "Fejl", description: error.message });
-    } else {
-      toast({
-        title: t("auth.resetSentTitle"),
-        description: t("auth.resetSentBody"),
-      });
+    setSendingReset(true);
+    try {
+      const redirectTo = isNativeApp()
+        ? "https://hommies.dk/reset-password"
+        : `${window.location.origin}/reset-password`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) {
+        toast({ variant: "destructive", title: "Fejl", description: error.message });
+      } else {
+        // Only count the attempt once the email actually went out, so a
+        // transient failure doesn't burn the user's quota.
+        try {
+          fresh.push({ email: email.toLowerCase(), at: now });
+          localStorage.setItem(key, JSON.stringify(fresh));
+        } catch {
+          /* ignore */
+        }
+        toast({
+          title: t("auth.resetSentTitle"),
+          description: t("auth.resetSentBody"),
+        });
+      }
+    } finally {
+      setSendingReset(false);
     }
   };
 
@@ -272,10 +285,11 @@ const Auth = () => {
                   {isLogin && (
                     <button
                       type="button"
-                      className="text-xs text-foreground/60 hover:text-foreground transition-colors"
+                      disabled={sendingReset}
+                      className="text-xs text-foreground/60 hover:text-foreground transition-colors disabled:opacity-50"
                       onClick={handleForgotPassword}
                     >
-                      {t("auth.forgot")}
+                      {sendingReset ? t("auth.sending") : t("auth.forgot")}
                     </button>
                   )}
                 </div>

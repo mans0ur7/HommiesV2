@@ -491,6 +491,9 @@
     "alreadyRequested": "Du har allerede sendt en forespørgsel til denne bolig",
     "requestSent": "Forespørgsel sendt til udlejer!",
     "linkCopied": "Link kopieret til udklipsholder",
+    "addFavorite": "Gem som favorit",
+    "removeFavorite": "Fjern fra favoritter",
+    "share": "Del bolig",
     "viewedToday_one": "{{count}} har set boligen i dag",
     "viewedToday_other": "{{count}} har set boligen i dag",
     "kitchen": "Køkken",
@@ -761,6 +764,8 @@
   "contact": {
     "messageSent": "Besked sendt!",
     "messageSentBody": "Vi vender tilbage til dig hurtigst muligt.",
+    "messageFailed": "Kunne ikke sende",
+    "messageFailedBody": "Prøv igen, eller skriv direkte til info@hommies.dk.",
     "eyebrow": "Kontakt",
     "title": "Lad os snakke.",
     "subtitle": "Spørgsmål, feedback eller bare en idé? Skriv til os — vi læser alt og svarer typisk inden for 24 timer på hverdage.",

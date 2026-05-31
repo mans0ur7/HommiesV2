@@ -289,9 +289,6 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
                 <div className="mb-6">
                   <h3 className="text-sm font-semibold text-foreground mb-3">Om mig</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">{profile.bio}</p>
-                  <button className="text-primary text-sm font-medium mt-2 flex items-center gap-1 hover:underline">
-                    Læs mere <ArrowRight className="w-4 h-4" />
-                  </button>
                 </div>
               )}
 

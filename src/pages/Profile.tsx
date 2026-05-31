@@ -180,9 +180,12 @@ const Profile = () => {
   };
 
   const handleRemoveImage = (index: number) => {
+    // profileImages = [...existing URLs, ...new previews] where the new previews
+    // run parallel to newImageFiles. So the current count of existing images is
+    // profileImages.length - newImageFiles.length — this stays correct even
+    // after earlier removals (unlike the original DB images length, which is stale).
+    const existingImagesCount = profileImages.length - newImageFiles.length;
     setProfileImages(prev => prev.filter((_, i) => i !== index));
-    // Also remove from newImageFiles if it's a new file
-    const existingImagesCount = ((profile as any)?.images || []).length;
     if (index >= existingImagesCount) {
       const newFileIndex = index - existingImagesCount;
       setNewImageFiles(prev => prev.filter((_, i) => i !== newFileIndex));
@@ -1019,9 +1022,6 @@ const Profile = () => {
                         <div>
                           <h3 className="font-semibold text-foreground text-sm">{property.title}</h3>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Star className="w-3 h-3 fill-current text-foreground" />
-                            <span className="text-foreground">4.5 (63)</span>
-                            <span className="mx-0.5">•</span>
                             <span>{property.is_furnished ? t("userProfile.furnished") : t("userProfile.unfurnished")}</span>
                           </div>
                         </div>

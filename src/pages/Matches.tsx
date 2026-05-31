@@ -111,6 +111,8 @@ const Matches = () => {
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+  // Guards connect/ignore against a fast double-tap or swipe re-firing mid-animation.
+  const isActingRef = useRef(false);
   const [showMatchCelebration, setShowMatchCelebration] = useState(false);
   const [matchedProfile, setMatchedProfile] = useState<{ name: string; avatar: string | null; userId: string } | null>(null);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
@@ -301,8 +303,10 @@ const Matches = () => {
             const genderMap: Record<string, string> = { "male": t("matches.male"), "female": t("matches.female"), "other": t("matches.other") };
             if (p.gender !== genderMap[roomieFilters.gender]) return false;
           }
-          // Age filter
-          if (p.age !== null && (p.age < roomieFilters.minAge || p.age > roomieFilters.maxAge)) return false;
+          // Age filter — the slider maxes at 60, which means "60 and up", so
+          // don't apply an upper bound when it's pinned to the max.
+          const maxAgeFilter = roomieFilters.maxAge >= 60 ? Infinity : roomieFilters.maxAge;
+          if (p.age !== null && (p.age < roomieFilters.minAge || p.age > maxAgeFilter)) return false;
           return true;
         });
 
@@ -430,6 +434,8 @@ const Matches = () => {
 
     const currentItem = activeTab === "roomies" ? profiles[currentIndex] : properties[currentIndex];
     if (!currentItem) return;
+    if (isActingRef.current) return;
+    isActingRef.current = true;
 
     hapticSuccess();
     setSwipeDirection("right");
@@ -476,6 +482,7 @@ const Matches = () => {
       setTimeout(() => {
         setSwipeDirection(null);
         setCurrentIndex(prev => prev + 1);
+        isActingRef.current = false;
       }, 300);
     } catch (error: any) {
       console.error("Error connecting:", error);
@@ -486,6 +493,7 @@ const Matches = () => {
         toast.error(t("matches.connectionFailed"));
       }
       setSwipeDirection(null);
+      isActingRef.current = false;
     }
   };
 
@@ -494,6 +502,8 @@ const Matches = () => {
 
     const currentItem = activeTab === "roomies" ? profiles[currentIndex] : properties[currentIndex];
     if (!currentItem) return;
+    if (isActingRef.current) return;
+    isActingRef.current = true;
 
     hapticLight();
     setSwipeDirection("left");
@@ -516,6 +526,7 @@ const Matches = () => {
       setTimeout(() => {
         setSwipeDirection(null);
         setCurrentIndex(prev => prev + 1);
+        isActingRef.current = false;
       }, 300);
     } catch (error: any) {
       console.error("Error ignoring:", error);
@@ -524,6 +535,7 @@ const Matches = () => {
       }
       setSwipeDirection(null);
       setCurrentIndex(prev => prev + 1);
+      isActingRef.current = false;
     }
   };
 

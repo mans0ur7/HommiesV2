@@ -457,6 +457,7 @@ const Settings = () => {
   };
 
   const handleReportProblem = async () => {
+    if (isSaving) return;
     if (!problemDescription.trim()) {
       toast({
         variant: "destructive",
@@ -466,6 +467,7 @@ const Settings = () => {
       return;
     }
 
+    setIsSaving(true);
     try {
       await submitReport(problemDescription, "problem", user?.email);
       toast({
@@ -479,6 +481,8 @@ const Settings = () => {
         title: t("settings.reportFailed"),
         description: t("settings.reportRetry"),
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 

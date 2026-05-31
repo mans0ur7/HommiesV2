@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { da } from "date-fns/locale";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFavorites } from "@/hooks/useFavorites";
 import StarRating from "@/components/ratings/StarRating";
 import PropertyReviews from "@/components/ratings/PropertyReviews";
 import RatePropertyButton from "@/components/ratings/RatePropertyButton";
@@ -78,7 +79,7 @@ const PropertyDetail = () => {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { user, profile, loading: authLoading } = useAuth();
-  const [isLiked, setIsLiked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [showAllAbout, setShowAllAbout] = useState(false);
   const [showAllAmenities, setShowAllAmenities] = useState(false);
   const [reviewsKey, setReviewsKey] = useState(0);
@@ -309,13 +310,14 @@ const PropertyDetail = () => {
             <span className="hidden sm:inline">{property.city}</span>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button 
-              onClick={() => setIsLiked(!isLiked)}
+            <button
+              onClick={() => toggleFavorite(property.id)}
+              aria-label={isFavorite(property.id) ? t("property.removeFavorite") : t("property.addFavorite")}
               className={`w-10 h-10 rounded-full border border-border flex items-center justify-center transition-colors ${
-                isLiked ? "bg-red-500 text-white border-red-500" : "hover:bg-muted"
+                isFavorite(property.id) ? "bg-red-500 text-white border-red-500" : "hover:bg-muted"
               }`}
             >
-              <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
+              <Heart className={`w-5 h-5 ${isFavorite(property.id) ? "fill-current" : ""}`} />
             </button>
             <button
               onClick={async () => {
@@ -326,6 +328,7 @@ const PropertyDetail = () => {
                 });
                 if (result === "copied") toast.success(t("property.linkCopied"));
               }}
+              aria-label={t("property.share")}
               className="w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-muted"
             >
               <Share2 className="w-5 h-5" />

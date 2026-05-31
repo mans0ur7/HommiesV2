@@ -491,6 +491,9 @@
     "alreadyRequested": "You've already sent a request for this home",
     "requestSent": "Request sent to landlord!",
     "linkCopied": "Link copied to clipboard",
+    "addFavorite": "Save as favorite",
+    "removeFavorite": "Remove from favorites",
+    "share": "Share listing",
     "viewedToday_one": "{{count}} person viewed today",
     "viewedToday_other": "{{count}} people viewed today",
     "kitchen": "Kitchen",
@@ -761,6 +764,8 @@
   "contact": {
     "messageSent": "Message sent!",
     "messageSentBody": "We'll get back to you as soon as possible.",
+    "messageFailed": "Couldn't send",
+    "messageFailedBody": "Please try again, or email us directly at info@hommies.dk.",
     "eyebrow": "Contact",
     "title": "Let's talk.",
     "subtitle": "Questions, feedback or just an idea? Write to us — we read everything and usually reply within 24 hours on weekdays.",

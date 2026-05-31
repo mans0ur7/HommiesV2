@@ -946,7 +946,7 @@ const ChatArea = ({
             disabled={sending}
             onClick={() => setShowShareProperty(true)}
             aria-label={t("chat.shareProperty.title")}
-            className="flex-shrink-0 h-11 w-11 md:h-12 md:w-12 rounded-full text-muted-foreground hover:text-foreground hidden sm:inline-flex"
+            className="flex-shrink-0 h-11 w-11 md:h-12 md:w-12 rounded-full text-muted-foreground hover:text-foreground inline-flex"
           >
             <Home className="h-5 w-5" />
           </Button>

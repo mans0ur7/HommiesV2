@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
+import { submitContactMessage } from "@/lib/bugReport";
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -24,14 +25,29 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    toast({
-      title: t("contact.messageSent"),
-      description: t("contact.messageSentBody"),
-    });
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsSubmitting(false);
+    try {
+      await submitContactMessage({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      });
+      toast({
+        title: t("contact.messageSent"),
+        description: t("contact.messageSentBody"),
+      });
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch {
+      toast({
+        title: t("contact.messageFailed"),
+        description: t("contact.messageFailedBody"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const channels = [

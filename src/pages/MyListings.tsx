@@ -225,6 +225,7 @@ const MyListings = () => {
   const [loadingExistingImages, setLoadingExistingImages] = useState(false);
   const [floorPlanUrl, setFloorPlanUrl] = useState<string | null>(null);
   const [uploadingFloorPlan, setUploadingFloorPlan] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [hasExistingListings, setHasExistingListings] = useState<boolean | null>(null);
   const [addressQuery, setAddressQuery] = useState("");
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
@@ -382,6 +383,20 @@ const MyListings = () => {
     setAddressQuery("");
     setSelectedCoords(null);
     setAddressConfirmed(false);
+  };
+
+  // Cancel out of the edit form. openEditForm hides the listing while editing;
+  // if the user cancels without saving, restore its published state so it
+  // doesn't silently stay offline. (Save paths re-publish on their own.)
+  const cancelForm = async () => {
+    if (editingProperty && editingProperty.is_published) {
+      await supabase
+        .from("properties")
+        .update({ is_published: true })
+        .eq("id", editingProperty.id);
+      fetchProperties();
+    }
+    closeForm();
   };
 
   const handleSubmit = async () => {
@@ -926,6 +941,8 @@ const nextStep = () => {
   };
 
   const handlePaymentAndSubmit = async () => {
+    if (isPublishing) return;
+    setIsPublishing(true);
     try {
       const isFreeTrialListing = freeTrialInfo.active && !editingProperty;
 
@@ -1040,6 +1057,8 @@ const nextStep = () => {
         description: t("myListings.saveFailed"),
         variant: "destructive",
       });
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -1116,7 +1135,7 @@ const nextStep = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={closeForm}
+                  onClick={cancelForm}
                   className="h-9 w-9 md:h-10 md:w-10 rounded-full hover:bg-muted/60"
                 >
                   <X className="w-4 h-4 md:w-5 md:h-5" />
@@ -2063,7 +2082,7 @@ const nextStep = () => {
                   <Button
                     type="button"
                     onClick={handlePaymentAndSubmit}
-                    disabled={!canProceed() || (native && !freeTrialInfo.active && !editingProperty)}
+                    disabled={isPublishing || !canProceed() || (native && !freeTrialInfo.active && !editingProperty)}
                     className={`${freeTrialInfo.active && !editingProperty ? 'bg-green-600 hover:bg-green-700' : isLaunchOfferEligible && !editingProperty ? 'bg-green-600 hover:bg-green-700' : 'bg-secondary hover:bg-secondary/90'} text-secondary-foreground w-full sm:w-auto order-1 sm:order-2`}
                   >
                     {freeTrialInfo.active && !editingProperty

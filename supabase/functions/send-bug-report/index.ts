@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { description, kind, userEmail, page, platform, appVersion, userAgent } =
+    const { description, kind, userEmail, name, contactSubject, page, platform, appVersion, userAgent } =
       await req.json();
 
     if (!description || !String(description).trim()) {
@@ -41,12 +41,20 @@ Deno.serve(async (req) => {
       });
     }
 
-    const subject = kind === "bug" ? "🐞 Bug-rapport — Hommies" : "Problemrapport — Hommies";
+    const subject =
+      kind === "bug"
+        ? "🐞 Bug-rapport — Hommies"
+        : kind === "contact"
+          ? `✉️ Kontakt${contactSubject ? `: ${esc(String(contactSubject))}` : ""} — Hommies`
+          : kind === "rating"
+            ? "⭐ App-vurdering — Hommies"
+            : "Problemrapport — Hommies";
     const html = `
       <h2>${esc(subject)}</h2>
       <p style="white-space:pre-wrap;font-size:15px">${esc(description)}</p>
       <hr/>
       <table style="font-size:13px;color:#444">
+        ${name ? `<tr><td><b>Navn</b></td><td>${esc(name)}</td></tr>` : ""}
         <tr><td><b>Bruger</b></td><td>${esc(userEmail || "ikke logget ind")}</td></tr>
         <tr><td><b>Side</b></td><td>${esc(page || "-")}</td></tr>
         <tr><td><b>Platform</b></td><td>${esc(platform || "-")}</td></tr>

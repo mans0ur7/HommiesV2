@@ -9,6 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { submitAppRating } from "@/lib/bugReport";
+import { useAuth } from "@/contexts/AuthContext";
 
 const STORAGE_KEY = "hommies_experience_rating";
 const DISMISSED_KEY = "hommies_experience_dismissed";
@@ -16,6 +18,7 @@ const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
 
 const ExperienceRatingPrompt = () => {
+  const { user } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [overallRating, setOverallRating] = useState(0);
@@ -62,9 +65,19 @@ const ExperienceRatingPrompt = () => {
     setTimeout(() => setShowModal(true), 200);
   };
 
-  const handleDetailedSubmit = () => {
+  const handleDetailedSubmit = async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
-    
+
+    // Send the rating to the support inbox so the team actually receives it.
+    // A network failure shouldn't block the user — the local cooldown is still
+    // written so we don't nag them again immediately.
+    try {
+      await submitAppRating({ overallRating, detailedRatings, feedback, userEmail: user?.email });
+    } catch {
+      /* ignore — best effort */
+    }
+
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -75,10 +88,9 @@ const ExperienceRatingPrompt = () => {
       })
     );
 
-    setTimeout(() => {
-      setShowModal(false);
-      setIsVisible(false);
-    }, 300);
+    setShowModal(false);
+    setIsVisible(false);
+    setIsSubmitting(false);
   };
 
   const handleDismiss = () => {
