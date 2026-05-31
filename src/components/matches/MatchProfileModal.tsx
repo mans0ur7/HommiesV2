@@ -157,6 +157,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
             {/* Image section - scrolls with content on mobile */}
             <div className="relative bg-muted h-64">
               <button
+                aria-label="Luk"
                 onClick={handleClose}
                 className="absolute top-4 left-4 z-20 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
               >
@@ -197,13 +198,15 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={handlePrevImage}
+                    aria-label="Forrige billede"
+                onClick={handlePrevImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={handleNextImage}
+                    aria-label="Næste billede"
+                onClick={handleNextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -347,6 +350,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
             {/* Left: Image carousel */}
             <div className="relative bg-muted">
               <button
+                aria-label="Luk"
                 onClick={handleClose}
                 className="absolute top-4 left-4 z-20 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
               >
@@ -387,13 +391,15 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={handlePrevImage}
+                    aria-label="Forrige billede"
+                onClick={handlePrevImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={handleNextImage}
+                    aria-label="Næste billede"
+                onClick={handleNextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -575,6 +581,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
           <div className="md:hidden h-[90dvh] overflow-y-auto overscroll-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
             <div className="relative bg-muted h-64">
               <button
+                aria-label="Luk"
                 onClick={handleClose}
                 className="absolute top-4 left-4 z-20 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
               >
@@ -603,13 +610,15 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={handlePrevImage}
+                    aria-label="Forrige billede"
+                onClick={handlePrevImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={handleNextImage}
+                    aria-label="Næste billede"
+                onClick={handleNextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -730,6 +739,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
             {/* Left: Image carousel */}
             <div className="relative bg-muted">
               <button
+                aria-label="Luk"
                 onClick={handleClose}
                 className="absolute top-4 left-4 z-20 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
               >
@@ -759,13 +769,15 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={handlePrevImage}
+                    aria-label="Forrige billede"
+                onClick={handlePrevImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={handleNextImage}
+                    aria-label="Næste billede"
+                onClick={handleNextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
                   >
                     <ChevronRight className="w-5 h-5" />

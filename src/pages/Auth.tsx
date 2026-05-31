@@ -13,6 +13,9 @@ import {
   authenticateBiometric,
   isBiometricEnabled,
   getBiometricEmail,
+  getBiometricToken,
+  storeBiometricToken,
+  enableBiometricForEmail,
 } from "@/lib/biometric";
 import hommiesLogo from "@/assets/hommies-logo.png";
 import { useShowcaseImages } from "@/hooks/useShowcaseImages";
@@ -69,14 +72,28 @@ const Auth = () => {
   }, [isLogin]);
 
   const handleBiometricLogin = async () => {
+    if (sendingReset) return;
     const ok = await authenticateBiometric("Log ind med fingeraftryk eller Face ID");
     if (!ok) {
       toast({ title: "Biometrisk login afvist", variant: "destructive" });
       return;
     }
-    // We've authenticated locally; the user still needs to confirm password
-    // because we don't store the raw password. Surface a quick hint instead.
-    toast({ title: "Skriv adgangskode for at færdiggøre login" });
+    const refreshToken = getBiometricToken();
+    if (!refreshToken) {
+      toast({ title: "Log ind med adgangskode én gang for at aktivere biometrisk login" });
+      return;
+    }
+    // Exchange the stored refresh token for a fresh session — actually logs in.
+    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+    if (error || !data.session) {
+      toast({
+        variant: "destructive",
+        title: "Biometrisk login mislykkedes",
+        description: "Log venligst ind med din adgangskode.",
+      });
+      return;
+    }
+    navigate("/");
   };
 
   const validateForm = () => {
@@ -111,8 +128,10 @@ const Auth = () => {
             if (wantsBiometric) {
               const ok = await authenticateBiometric("Bekræft for at aktivere biometrisk login");
               if (ok) {
-                const { enableBiometricForEmail } = await import("@/lib/biometric");
                 enableBiometricForEmail(email);
+                // Store the current refresh token so biometric can log in later.
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.refresh_token) storeBiometricToken(session.refresh_token);
                 toast({ title: "Biometrisk login aktiveret" });
               }
             }

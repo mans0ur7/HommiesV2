@@ -2,19 +2,20 @@
 // the app can ask "is biometric available?" and "authenticate now" without
 // thinking about the native/web split.
 //
-// We don't store the user's password — we store a flag that says "the user
-// opted in to biometric quick-login on this device" + their Supabase email.
-// When biometric succeeds, we surface the saved email so the regular
-// auth form can be pre-filled and the user just clicks Log in.
-//
-// (Full passwordless biometric login would require a secret-stored refresh
-// token; that's a future iteration.)
+// We store a flag that says "the user opted in to biometric quick-login on this
+// device", their Supabase email, and the Supabase refresh token. After a
+// successful biometric prompt we exchange that refresh token for a fresh
+// session (supabase.auth.refreshSession) so the user is actually logged in —
+// no password needed. The refresh token lives at the same security level as the
+// session Supabase already persists in localStorage, and is kept current on
+// every token refresh (see AuthContext) so it survives rotation.
 
 import { BiometricAuth, BiometryType } from "@aparajita/capacitor-biometric-auth";
 import { isNativeApp } from "./native";
 
 const ENABLED_KEY = "hommies_biometric_enabled_v1";
 const EMAIL_KEY = "hommies_biometric_email_v1";
+const TOKEN_KEY = "hommies_biometric_token_v1";
 
 export interface BiometricStatus {
   available: boolean;
@@ -73,5 +74,15 @@ export function disableBiometric(): void {
   try {
     localStorage.removeItem(ENABLED_KEY);
     localStorage.removeItem(EMAIL_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   } catch { /* ignore */ }
+}
+
+/** Store/refresh the Supabase refresh token used for biometric quick-login. */
+export function storeBiometricToken(refreshToken: string): void {
+  try { localStorage.setItem(TOKEN_KEY, refreshToken); } catch { /* ignore */ }
+}
+
+export function getBiometricToken(): string | null {
+  try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
 }

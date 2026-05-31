@@ -298,10 +298,11 @@ const Matches = () => {
 
         // Apply roomie filters
         filteredProfiles = filteredProfiles.filter(p => {
-          // Gender filter
+          // Gender filter. Both p.gender and the filter value are canonical keys
+          // ("male"/"female"/"other"), so compare directly — mapping to a
+          // translated label here used to make the filter match nothing.
           if (roomieFilters.gender !== "all") {
-            const genderMap: Record<string, string> = { "male": t("matches.male"), "female": t("matches.female"), "other": t("matches.other") };
-            if (p.gender !== genderMap[roomieFilters.gender]) return false;
+            if (p.gender !== roomieFilters.gender) return false;
           }
           // Age filter — the slider maxes at 60, which means "60 and up", so
           // don't apply an upper bound when it's pinned to the max.

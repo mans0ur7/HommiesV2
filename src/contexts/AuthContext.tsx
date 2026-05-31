@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp } from "@/lib/native";
+import { isBiometricEnabled, storeBiometricToken } from "@/lib/biometric";
 
 interface Profile {
   id: string;
@@ -83,7 +84,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
+
+        // Keep the biometric quick-login refresh token current (Supabase rotates
+        // it on every refresh). Only when the user has opted in on this device.
+        if (session?.refresh_token && isBiometricEnabled()) {
+          storeBiometricToken(session.refresh_token);
+        }
+
         // Defer profile fetch with setTimeout to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
@@ -140,8 +147,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setSession(null);
     setProfile(null);
-    // Then sign out from Supabase
-    await supabase.auth.signOut({ scope: 'global' });
+    // Then sign out from Supabase. Use 'local' scope so we only sign out this
+    // device (and don't revoke the refresh token server-side) — this is the
+    // expected single-device logout and lets biometric quick-login work next
+    // time without re-entering the password.
+    await supabase.auth.signOut({ scope: 'local' });
   };
 
   return (
