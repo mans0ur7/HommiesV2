@@ -4,7 +4,6 @@ import { Search, Heart, FileSignature, ArrowRight } from "lucide-react";
 import { StatusBar, Style } from "@capacitor/status-bar";
 import { Button } from "@/components/ui/button";
 import { isNativeApp } from "@/lib/native";
-import hommiesLogo from "@/assets/hommies-logo.png";
 
 export const ONBOARDING_SEEN_KEY = "hommies_onboarding_seen";
 
@@ -66,7 +65,10 @@ const Onboarding = ({ onDone }: { onDone: () => void }) => {
     <div className="fixed inset-0 z-50 flex flex-col bg-primary text-primary-foreground">
       {/* Top bar: logo + skip */}
       <div className="safe-area-top flex items-center justify-between px-6 pt-4">
-        <img src={hommiesLogo} alt="Hommies" className="h-7 brightness-0 invert" />
+        <div className="flex items-center gap-2">
+          <img src="/hommies-icon.png" alt="" className="h-7 w-7 rounded-lg" />
+          <span className="text-lg font-bold tracking-tight text-primary-foreground">Hommies</span>
+        </div>
         <button
           onClick={onDone}
           className="text-sm font-medium text-primary-foreground/60 hover:text-primary-foreground"
