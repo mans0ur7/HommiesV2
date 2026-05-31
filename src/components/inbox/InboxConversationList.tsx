@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import EmptyState from "@/components/ui/empty-state";
 import { usePresence } from "@/hooks/usePresence";
+import { cn } from "@/lib/utils";
 
 interface Conversation {
   id: string;
@@ -49,6 +50,13 @@ interface InboxConversationListProps {
   activeTab: "landlord" | "roomie";
 }
 
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex items-center gap-3 px-3 py-2">
+    <div className="h-px w-8 bg-foreground/40" />
+    <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">{children}</span>
+  </div>
+);
+
 const InboxConversationList = ({
   regularConversations,
   groupConversations,
@@ -79,159 +87,120 @@ const InboxConversationList = ({
     }
   };
 
-  const renderConversationItem = (conversation: Conversation, index: number, isGroup: boolean = false) => (
-    <button
-      type="button"
-      key={conversation.id}
-      onClick={(e) => {
-        e.preventDefault();
-        onSelect(conversation);
-      }}
-      className={`w-full flex items-center gap-3 p-3 cursor-pointer transition-all duration-200 text-left rounded-xl group animate-fade-in ${
-        selectedId === conversation.id
-          ? "bg-gradient-to-r from-primary/10 to-primary/5 shadow-md border border-primary/20"
-          : "hover:bg-muted/40 hover:shadow-sm border border-transparent"
-      }`}
-      style={{ animationDelay: `${index * 50}ms` }}
-    >
-      {/* Avatar */}
-      <div className="relative flex-shrink-0">
-        {isGroup && conversation.groupInfo ? (
-          <div className={`relative w-11 h-11 rounded-xl transition-all overflow-hidden ${
-            selectedId === conversation.id
-              ? "ring-2 ring-primary shadow-lg"
-              : conversation.unreadCount > 0
-                ? "ring-2 ring-secondary shadow-md"
-                : "ring-1 ring-border/50"
-          }`}>
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 to-purple-500/20" />
-            {conversation.groupInfo.memberAvatars.slice(0, 2).map((avatar, idx) => (
-              <img
-                key={idx}
-                src={avatar || "/placeholder.svg"}
-                alt="Gruppemedlem"
-                className={`w-5 h-5 rounded-md border border-background object-cover absolute transition-transform duration-300 group-hover:scale-110 ${
-                  idx === 0 ? "top-1.5 left-1.5" : "bottom-1.5 right-1.5"
-                }`}
-              />
-            ))}
-            {conversation.groupInfo.memberAvatars.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <UsersRound className="w-4 h-4 text-violet-500" />
-              </div>
-            )}
-          </div>
-        ) : conversation.otherUser.avatar_url ? (
-          <img
-            src={conversation.otherUser.avatar_url}
-            alt={conversation.otherUser.name}
-            className={`w-11 h-11 rounded-xl object-cover transition-all duration-300 group-hover:scale-105 ${
-              selectedId === conversation.id
-                ? "ring-2 ring-primary shadow-lg"
-                : conversation.unreadCount > 0
-                  ? "ring-2 ring-secondary shadow-md"
-                  : "ring-1 ring-border/30"
-            }`}
-          />
-        ) : (
-          <div className={`w-11 h-11 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${
-            selectedId === conversation.id
-              ? "ring-2 ring-primary shadow-lg"
-              : conversation.unreadCount > 0
-                ? "ring-2 ring-secondary shadow-md"
-                : "ring-1 ring-border/30"
-          }`}>
-            <User className="w-5 h-5 text-muted-foreground" />
-          </div>
-        )}
-        {conversation.unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-secondary rounded-md flex items-center justify-center shadow-lg animate-pulse">
-            <span className="text-[9px] font-bold text-secondary-foreground">
-              {conversation.unreadCount > 9 ? "9+" : conversation.unreadCount}
-            </span>
-          </div>
-        )}
-        {!isGroup && isOnline(conversation.otherUser.id) && conversation.unreadCount === 0 && (
-          <div
-            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background"
-            title="Online nu"
-          />
-        )}
-      </div>
+  const renderConversationItem = (conversation: Conversation, isGroup: boolean = false) => {
+    const selected = selectedId === conversation.id;
+    const unread = conversation.unreadCount > 0;
+    const ringClass = selected
+      ? "ring-2 ring-foreground/70"
+      : unread
+        ? "ring-2 ring-secondary"
+        : "ring-1 ring-border/60";
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className={`text-sm truncate transition-colors duration-200 ${
-              conversation.unreadCount > 0 ? "font-semibold text-foreground" : "font-medium text-foreground/90"
-            } group-hover:text-primary`}>
-              {conversation.groupInfo?.name || conversation.otherUser.name}
-            </span>
-            {/* Group badge for group conversations */}
-            {isGroup && (
-              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-violet-500 text-white text-[9px] font-bold flex-shrink-0 shadow-sm">
-                <UsersRound className="w-2.5 h-2.5" />
-                Gruppe
+    return (
+      <button
+        type="button"
+        key={conversation.id}
+        onClick={(e) => {
+          e.preventDefault();
+          onSelect(conversation);
+        }}
+        className={cn(
+          "w-full flex items-center gap-3 p-3 cursor-pointer transition-colors text-left rounded-2xl group",
+          selected ? "bg-muted" : "hover:bg-muted/50"
+        )}
+      >
+        {/* Avatar */}
+        <div className="relative flex-shrink-0">
+          {isGroup && conversation.groupInfo ? (
+            <div className={cn("relative w-11 h-11 rounded-full overflow-hidden bg-muted", ringClass)}>
+              {conversation.groupInfo.memberAvatars.slice(0, 2).map((avatar, idx) => (
+                <img
+                  key={idx}
+                  src={avatar || "/placeholder.svg"}
+                  alt="Gruppemedlem"
+                  className={cn(
+                    "w-5 h-5 rounded-full border border-background object-cover absolute",
+                    idx === 0 ? "top-1.5 left-1.5" : "bottom-1.5 right-1.5"
+                  )}
+                />
+              ))}
+              {conversation.groupInfo.memberAvatars.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <UsersRound className="w-4 h-4 text-foreground/50" />
+                </div>
+              )}
+            </div>
+          ) : conversation.otherUser.avatar_url ? (
+            <img
+              src={conversation.otherUser.avatar_url}
+              alt={conversation.otherUser.name}
+              className={cn("w-11 h-11 rounded-full object-cover bg-muted", ringClass)}
+            />
+          ) : (
+            <div className={cn("w-11 h-11 rounded-full bg-muted flex items-center justify-center", ringClass)}>
+              <User className="w-5 h-5 text-foreground/40" />
+            </div>
+          )}
+          {unread && (
+            <div className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-secondary rounded-full flex items-center justify-center">
+              <span className="text-[9px] font-bold text-secondary-foreground">
+                {conversation.unreadCount > 9 ? "9+" : conversation.unreadCount}
               </span>
-            )}
-            {/* Type badge for regular conversations */}
-            {!isGroup && (
-              <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold flex-shrink-0 shadow-sm ${
-                activeTab === "landlord" 
-                  ? "bg-amber-500 text-white"
-                  : "bg-teal-500 text-white"
-              }`}>
-                {activeTab === "landlord" ? (
-                  <>
-                    <Home className="w-2.5 h-2.5" />
-                    Udlejer
-                  </>
-                ) : (
-                  <>
-                    <User className="w-2.5 h-2.5" />
-                    Roomie
-                  </>
-                )}
-              </span>
-            )}
-          </div>
-          {conversation.lastMessage && (
-            <span className={`text-[10px] flex-shrink-0 tabular-nums transition-colors duration-200 ${
-              conversation.unreadCount > 0 
-                ? "text-secondary font-semibold" 
-                : "text-muted-foreground/70"
-            }`}>
-              {formatTime(conversation.lastMessage.created_at)}
-            </span>
+            </div>
+          )}
+          {!isGroup && isOnline(conversation.otherUser.id) && !unread && (
+            <div
+              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background"
+              title="Online nu"
+            />
           )}
         </div>
-        {/* Member count for groups */}
-        {isGroup && conversation.groupInfo && (
-          <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-            {conversation.groupInfo.memberCount} medlemmer
-          </p>
-        )}
-        {/* Property title */}
-        {conversation.property && (
-          <div className="flex items-center gap-1 mt-1">
-            <div className="w-3.5 h-3.5 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Home className="w-2 h-2 text-primary" />
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className={cn("text-sm truncate", unread ? "font-semibold text-foreground" : "font-medium text-foreground/90")}>
+                {conversation.groupInfo?.name || conversation.otherUser.name}
+              </span>
+              {isGroup ? (
+                <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-muted text-foreground/70 text-[9px] font-semibold flex-shrink-0">
+                  <UsersRound className="w-2.5 h-2.5" />
+                  Gruppe
+                </span>
+              ) : (
+                <span
+                  className={cn(
+                    "flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-semibold flex-shrink-0",
+                    activeTab === "landlord" ? "bg-foreground text-background" : "bg-secondary text-secondary-foreground"
+                  )}
+                >
+                  {activeTab === "landlord" ? <Home className="w-2.5 h-2.5" /> : <User className="w-2.5 h-2.5" />}
+                  {activeTab === "landlord" ? "Udlejer" : "Roomie"}
+                </span>
+              )}
             </div>
-            <span className="text-[11px] text-primary/80 font-medium truncate">
-              {conversation.property.title}
-            </span>
+            {conversation.lastMessage && (
+              <span className={cn("text-[10px] flex-shrink-0 tabular-nums", unread ? "text-foreground font-semibold" : "text-foreground/40")}>
+                {formatTime(conversation.lastMessage.created_at)}
+              </span>
+            )}
           </div>
-        )}
-        <p className={`text-[11px] truncate mt-1 leading-relaxed transition-colors duration-200 ${
-          conversation.unreadCount > 0 
-            ? "text-foreground/80" 
-            : "text-muted-foreground/60"
-        }`}>
-          {conversation.lastMessage?.content || "Start en samtale..."}
-        </p>
-      </div>
-    </button>
-  );
+          {isGroup && conversation.groupInfo && (
+            <p className="text-[11px] text-foreground/50 mt-0.5">{conversation.groupInfo.memberCount} medlemmer</p>
+          )}
+          {conversation.property && (
+            <div className="flex items-center gap-1 mt-1">
+              <Home className="w-3 h-3 text-foreground/40 flex-shrink-0" />
+              <span className="text-[11px] text-foreground/55 font-medium truncate">{conversation.property.title}</span>
+            </div>
+          )}
+          <p className={cn("text-[11px] truncate mt-1 leading-relaxed", unread ? "text-foreground/80" : "text-foreground/50")}>
+            {conversation.lastMessage?.content || "Start en samtale..."}
+          </p>
+        </div>
+      </button>
+    );
+  };
 
   const hasGroupConversations = groupConversations.length > 0;
   const hasRegularConversations = regularConversations.length > 0;
@@ -241,13 +210,13 @@ const InboxConversationList = ({
     <div className="flex flex-col h-full">
       {/* Search */}
       <div className="p-4">
-        <div className="relative group">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors duration-200" />
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Søg i samtaler..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 bg-muted/20 border-border/30 rounded-xl h-11 focus:bg-background focus:border-primary/30 focus:ring-2 focus:ring-primary/10 transition-all duration-200 placeholder:text-muted-foreground/60"
+            className="pl-10 border-border/60 rounded-full h-11 focus-visible:ring-1 focus-visible:ring-foreground/20"
           />
         </div>
       </div>
@@ -257,15 +226,11 @@ const InboxConversationList = ({
         {loading ? (
           <div className="space-y-2 p-2">
             {[...Array(4)].map((_, i) => (
-              <div 
-                key={i} 
-                className="flex items-center gap-3 p-3 animate-pulse rounded-xl"
-                style={{ animationDelay: `${i * 100}ms` }}
-              >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-muted/50 to-muted/30" />
+              <div key={i} className="flex items-center gap-3 p-3 animate-pulse rounded-2xl">
+                <div className="w-11 h-11 rounded-full bg-muted" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-28 bg-muted/50 rounded-lg" />
-                  <div className="h-3 w-40 bg-muted/30 rounded-lg" />
+                  <div className="h-4 w-28 bg-muted rounded-lg" />
+                  <div className="h-3 w-40 bg-muted/60 rounded-lg" />
                 </div>
               </div>
             ))}
@@ -282,34 +247,20 @@ const InboxConversationList = ({
           />
         ) : (
           <div className="space-y-4 pb-2">
-            {/* Groups Section - always visible */}
             {hasGroupConversations && (
               <div>
-                <div className="flex items-center gap-2 px-3 py-2">
-                  <UsersRound className="w-4 h-4 text-violet-500" />
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Grupper
-                  </h3>
-                  <div className="flex-1 h-px bg-border/30" />
-                </div>
+                <SectionLabel>Grupper</SectionLabel>
                 <div className="space-y-1">
-                  {groupConversations.map((conv, index) => renderConversationItem(conv, index, true))}
+                  {groupConversations.map((conv) => renderConversationItem(conv, true))}
                 </div>
               </div>
             )}
 
-            {/* Messages Section */}
             {hasRegularConversations && (
               <div>
-                <div className="flex items-center gap-2 px-3 py-2">
-                  <MessageCircle className="w-4 h-4 text-primary" />
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Beskeder
-                  </h3>
-                  <div className="flex-1 h-px bg-border/30" />
-                </div>
+                <SectionLabel>Beskeder</SectionLabel>
                 <div className="space-y-1">
-                  {regularConversations.map((conv, index) => renderConversationItem(conv, index, false))}
+                  {regularConversations.map((conv) => renderConversationItem(conv, false))}
                 </div>
               </div>
             )}

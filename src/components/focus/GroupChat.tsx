@@ -167,7 +167,7 @@ const GroupChat = ({ group }: GroupChatProps) => {
   }
 
   return (
-    <div className="flex flex-col h-[500px] bg-card rounded-xl border">
+    <div className="flex flex-col h-[500px] bg-background rounded-2xl border border-border/60">
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
@@ -184,15 +184,15 @@ const GroupChat = ({ group }: GroupChatProps) => {
                 className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                  className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap shadow-sm ${
                     isOwn
-                      ? "bg-primary text-primary-foreground rounded-br-sm"
-                      : "bg-muted rounded-bl-sm"
+                      ? "bg-primary text-primary-foreground rounded-br-md"
+                      : "bg-background border border-border/50 text-foreground rounded-bl-md"
                   }`}
                 >
-                  <p className="text-sm">{msg.content}</p>
+                  {msg.content}
                 </div>
-                <span className="text-xs text-muted-foreground mt-1">
+                <span className="text-[11px] text-foreground/50 mt-1 px-1">
                   {!isOwn && msg.sender?.name && `${msg.sender.name} • `}
                   {formatTime(msg.created_at)}
                 </span>
@@ -204,16 +204,22 @@ const GroupChat = ({ group }: GroupChatProps) => {
       </div>
 
       {/* Input area */}
-      <div className="p-4 border-t">
-        <div className="flex gap-2">
+      <div className="p-3 border-t border-border/60">
+        <div className="flex items-center gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Skriv din besked her..."
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             disabled={sending}
+            className="rounded-full border-border/60 h-11 focus-visible:ring-1 focus-visible:ring-foreground/20"
           />
-          <Button onClick={handleSend} disabled={sending || !newMessage.trim()}>
+          <Button
+            onClick={handleSend}
+            disabled={sending || !newMessage.trim()}
+            size="icon"
+            className="rounded-full h-11 w-11 flex-shrink-0 bg-foreground text-background hover:bg-foreground/90"
+          >
             <Send className="w-4 h-4" />
           </Button>
         </div>

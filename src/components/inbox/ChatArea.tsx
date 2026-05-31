@@ -494,14 +494,19 @@ const ChatArea = ({
 
   if (!conversation) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-muted/20 to-background">
-        <div className="text-center animate-fade-in">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center shadow-lg">
-            <MessageCircle className="w-10 h-10 text-primary/60" />
+      <div className="flex-1 flex items-center justify-center bg-background">
+        <div className="text-center px-8">
+          <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-secondary flex items-center justify-center">
+            <MessageCircle className="w-7 h-7 text-secondary-foreground" strokeWidth={1.75} />
           </div>
-          <p className="text-lg font-semibold text-foreground">Vælg en samtale</p>
-          <p className="text-sm text-muted-foreground mt-1 max-w-[200px] mx-auto">
-            Vælg en samtale fra listen til venstre for at begynde at chatte
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="h-px w-8 bg-foreground/30" />
+            <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/50">Beskeder</span>
+            <div className="h-px w-8 bg-foreground/30" />
+          </div>
+          <p className="text-xl font-medium tracking-tight text-foreground">Vælg en samtale</p>
+          <p className="text-sm text-foreground/55 mt-1.5 max-w-[220px] mx-auto leading-relaxed">
+            Vælg en samtale fra listen for at begynde at chatte
           </p>
         </div>
       </div>
