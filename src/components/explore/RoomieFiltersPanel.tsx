@@ -334,7 +334,7 @@ const RoomieFiltersPanel = ({
   );
 
   const StickyFooter = () => (
-    <div className="flex items-center justify-between gap-3 border-t border-border/60 bg-background px-6 py-4">
+    <div className="flex items-center justify-between gap-3 border-t border-border/60 bg-background px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))]">
       <button
         onClick={handleReset}
         className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors px-2 py-2"

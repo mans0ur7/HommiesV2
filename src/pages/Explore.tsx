@@ -527,7 +527,11 @@ const Explore = () => {
         </section>
 
         {/* ───────── STICKY CONTROL BAR (tabs + filters) ───────── */}
-        <div ref={resultsRef} className="sticky top-12 md:top-20 z-40 bg-background/85 backdrop-blur-md border-b border-border mt-8 md:mt-14">
+        <div
+          ref={resultsRef}
+          className="sticky top-0 md:top-20 z-40 bg-background/85 backdrop-blur-md border-b border-border mt-8 md:mt-14"
+          style={isMobile && user ? { top: "calc(var(--safe-top) + 3.5rem)" } : undefined}
+        >
           <div className="container mx-auto px-3 md:px-6 lg:px-8 py-3 md:py-4 flex flex-wrap items-center gap-2 md:gap-3">
             {/* Tabs — clean underline, no gradient pill */}
             <div className="flex items-center gap-1 bg-muted/50 rounded-full p-1">
