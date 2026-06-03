@@ -37,13 +37,12 @@ const StatsBar = () => {
     { value: data.properties, label: t("landing.statsRooms"), suffix: "+" },
     { value: data.cities, label: t("landing.statsCities"), suffix: "" },
     { value: data.users, label: t("landing.statsUsers"), suffix: "+" },
-    { value: 24, label: t("landing.statsResponse"), prefix: "~", suffix: "t" },
   ];
 
   return (
     <section className="border-y border-border bg-card">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 py-8 sm:py-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4">
+        <div className="grid grid-cols-3 gap-y-6 gap-x-4">
           {stats.map((stat, i) => (
             <div
               key={i}
