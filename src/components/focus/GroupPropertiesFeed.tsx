@@ -422,7 +422,7 @@ const GroupPropertiesFeed = ({
           </div>
 
           {/* Sticky footer */}
-          <div className="border-t border-border/60 px-6 py-4 flex gap-3 justify-end bg-background">
+          <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] flex gap-3 justify-end bg-background">
             <Button
               variant="ghost"
               onClick={() => setSelectedProperty(null)}

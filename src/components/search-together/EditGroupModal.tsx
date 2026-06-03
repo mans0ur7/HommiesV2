@@ -362,7 +362,7 @@ const EditGroupModal = ({
           </div>
 
           {/* Sticky footer */}
-          <div className="border-t border-border/60 px-6 py-4 flex items-center justify-between gap-3 bg-background">
+          <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] flex items-center justify-between gap-3 bg-background">
             {!isCreator && onLeaveGroup ? (
               <Button
                 variant="ghost"

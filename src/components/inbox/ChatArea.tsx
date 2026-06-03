@@ -921,7 +921,7 @@ const ChatArea = ({
         </div>
       )}
 
-      <div className="px-4 py-4 md:px-6 bg-background/80 backdrop-blur-lg border-t flex-shrink-0">
+      <div className="px-4 pt-4 pb-[calc(1rem+var(--safe-bottom))] md:px-6 bg-background/80 backdrop-blur-lg border-t flex-shrink-0">
         <div className="flex items-center gap-2 md:gap-3">
           <input
             ref={fileInputRef}

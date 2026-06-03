@@ -338,7 +338,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
           </div>
 
           {/* Sticky footer actions */}
-          <div className="border-t border-border/60 px-6 py-4 flex gap-3 bg-background">
+          <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] flex gap-3 bg-background">
             <Button
               variant="outline"
               onClick={() => {
@@ -542,7 +542,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
           </div>
 
           {/* Sticky footer actions */}
-          <div className="border-t border-border/60 px-6 py-4 flex gap-3 bg-background">
+          <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] flex gap-3 bg-background">
             <Button
               variant="outline"
               onClick={() => {

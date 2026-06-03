@@ -537,7 +537,7 @@ const SearchAgentWizard = ({
         </div>
 
         {/* Footer */}
-        <div className="border-t border-border/60 px-6 py-4 flex items-center justify-between bg-background">
+        <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] flex items-center justify-between bg-background">
           <Button
             variant="ghost"
             onClick={currentStep === 1 ? onClose : prevStep}
