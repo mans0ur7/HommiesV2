@@ -455,7 +455,9 @@ const Matches = () => {
             connection_type: "landlord",
           });
 
-      if (error) throw error;
+      // A duplicate connection (you swiped this person before) must not abort the
+      // flow — we still want to (re)send the request below so they receive it.
+      if (error && error.code !== "23505") throw error;
 
       trackView(currentItem);
 

@@ -128,7 +128,10 @@ async function handleNotificationRow(record: any) {
       ? (record.property_id ? `/property/${record.property_id}` : "/search-agents")
       : (type === "contract_ready" || type === "contract_signed")
         ? "/documents"
-        : "/inbox";
+        : (type === "group_invitation" || type === "group_request" ||
+           type === "group_request_accepted" || type === "group_request_rejected")
+          ? "/focus"
+          : "/inbox";
 
   await sendPush(
     [userId],
