@@ -21,6 +21,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 import PropertyCard from "./PropertyCard";
 import ExperienceRatingPrompt from "./ExperienceRatingPrompt";
 import LaunchOfferBanner from "@/components/promo/LaunchOfferBanner";
+import PartnerBanner from "@/components/landing/PartnerBanner";
 import ProfileCompletenessCard from "./ProfileCompletenessCard";
 import SinceLastVisit from "./SinceLastVisit";
 import PeopleWhoWantYou from "./PeopleWhoWantYou";
@@ -451,6 +452,9 @@ const LoggedInHome = () => {
             </button>
           </div>
         </section>
+
+        {/* ───────── PARTNER: Oscar moving discount (10% · HOMMIES10) ───────── */}
+        <PartnerBanner />
 
         {/* ───────── EXPERIENCE RATING (bottom) ───────── */}
         <section className="px-4 md:px-6 lg:px-12 pb-16 md:pb-24">
