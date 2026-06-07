@@ -94,20 +94,15 @@ const SearchAgentWizard = ({
     }
   }, [city, availableAreas]);
 
+  // One location per search agent: picking an area replaces any previous one
+  // (so buying extra agents is what lets you cover more locations).
   const toggleArea = (area: string) => {
-    setSelectedAreas(prev => 
-      prev.includes(area) 
-        ? prev.filter(a => a !== area)
-        : [...prev, area]
-    );
+    setSelectedAreas(prev => (prev.includes(area) ? [] : [area]));
   };
 
   const generateAgentName = () => {
     if (selectedAreas.length > 0) {
-      if (selectedAreas.length === 1) {
-        return `Søgning i ${selectedAreas[0]}`;
-      }
-      return `Søgning i ${selectedAreas.length} områder`;
+      return `Søgning i ${selectedAreas[0]}`;
     }
     if (city) {
       return `Søgning i ${city}`;
@@ -244,7 +239,7 @@ const SearchAgentWizard = ({
               <div>
                 <h3 className="text-lg font-medium tracking-tight mb-2">Vælg område</h3>
                 <p className="text-sm text-muted-foreground">
-                  Vælg by og eventuelle områder du vil overvåge
+                  Vælg by og ét område du vil overvåge (én lokation pr. søgeagent)
                 </p>
               </div>
 
@@ -301,25 +296,27 @@ const SearchAgentWizard = ({
 
                 {availableAreas.length > 0 && (
                   <div className="space-y-3">
-                    <Label>Områder i {city}</Label>
+                    <Label>Vælg ét område i {city} (valgfrit)</Label>
                     <div className="grid grid-cols-2 gap-2">
-                      {availableAreas.map((area) => (
-                        <label
-                          key={area}
-                          className={cn(
-                            "flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-colors",
-                            selectedAreas.includes(area)
-                              ? "border-border/60 bg-secondary/20"
-                              : "border-border/60 hover:bg-muted"
-                          )}
-                        >
-                          <Checkbox
-                            checked={selectedAreas.includes(area)}
-                            onCheckedChange={() => toggleArea(area)}
-                          />
-                          <span className="text-sm">{area}</span>
-                        </label>
-                      ))}
+                      {availableAreas.map((area) => {
+                        const selected = selectedAreas.includes(area);
+                        return (
+                          <button
+                            key={area}
+                            type="button"
+                            onClick={() => toggleArea(area)}
+                            aria-pressed={selected}
+                            className={cn(
+                              "flex items-center p-3 rounded-2xl border text-left text-sm transition-colors",
+                              selected
+                                ? "border-foreground bg-secondary/20 font-medium"
+                                : "border-border/60 hover:bg-muted"
+                            )}
+                          >
+                            {area}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
