@@ -128,14 +128,24 @@ export default function ContractDetail() {
     if (!contract) return;
     setSigning(true);
     try {
-      const { error } = await supabase
+      // Only flip to 'signed' if the contract is still 'ready'. This closes the
+      // race where the landlord reverted it to draft while the tenant was viewing
+      // a stale 'ready' page — without it, the tenant could sign a withdrawn draft.
+      const { data, error } = await supabase
         .from("contracts")
         .update({
           status: "signed",
           tenant_confirmed_at: new Date().toISOString(),
         })
-        .eq("id", contract.id);
+        .eq("id", contract.id)
+        .eq("status", "ready")
+        .select();
       if (error) throw error;
+      if (!data || data.length === 0) {
+        toast({ title: t("contract.notReady"), variant: "destructive" });
+        fetchContract();
+        return;
+      }
       toast({ title: t("contract.signedToast"), description: t("contract.signedToastBody") });
       fetchContract();
     } catch (err: any) {

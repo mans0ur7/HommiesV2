@@ -6,15 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
+import { passwordSchema } from "@/lib/validation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
-
-const passwordSchema = z
-  .string()
-  .min(8, "Adgangskode skal være mindst 8 tegn")
-  .regex(/[A-Z]/, "Adgangskode skal indeholde mindst ét stort bogstav")
-  .regex(/[0-9]/, "Adgangskode skal indeholde mindst ét tal");
 
 const ResetPassword = () => {
   const navigate = useNavigate();

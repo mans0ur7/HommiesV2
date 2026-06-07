@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { z } from "zod";
+import { emailSchema, passwordSchema } from "@/lib/validation";
 import { Eye, EyeOff, Home, Users, ArrowRight, Fingerprint, Loader2 } from "lucide-react";
 import {
   checkBiometricAvailable,
@@ -21,13 +21,6 @@ import hommiesLogo from "@/assets/hommies-logo.png";
 import { useShowcaseImages } from "@/hooks/useShowcaseImages";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp } from "@/lib/native";
-
-const emailSchema = z.string().email("Ugyldig email-adresse");
-const passwordSchema = z
-  .string()
-  .min(8, "Adgangskode skal være mindst 8 tegn")
-  .regex(/[A-Z]/, "Adgangskode skal indeholde mindst ét stort bogstav")
-  .regex(/[0-9]/, "Adgangskode skal indeholde mindst ét tal");
 
 const Auth = () => {
   const [searchParams] = useSearchParams();

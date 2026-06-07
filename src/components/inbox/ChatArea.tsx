@@ -635,7 +635,7 @@ const ChatArea = ({
                 size="icon"
                 className="rounded-full h-7 w-7 md:h-9 md:w-9 hover:bg-primary/10"
                 onClick={handleContractClick}
-                title={conversation.groupInfo ? "Vælg medlem til kontrakt" : "Start lejekontrakt"}
+                title={conversation.groupInfo ? "Vælg medlem til husorden" : "Start husorden"}
               >
                 <FileSignature className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" />
               </Button>
@@ -841,7 +841,7 @@ const ChatArea = ({
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground mb-4">
-              Lejekontrakter oprettes individuelt. Vælg hvilken person fra gruppen du vil lave kontrakt med:
+              Husordener oprettes individuelt. Vælg hvilken person fra gruppen du vil lave husorden med:
             </p>
             {loadingMembers ? (
               <div className="space-y-3">

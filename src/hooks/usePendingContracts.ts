@@ -16,15 +16,17 @@ export const usePendingContracts = () => {
       let query = supabase.from("contracts").select("*", { count: "exact", head: true });
 
       if (profile.user_type === "landlord") {
-        // Landlord: contracts waiting for tenant confirmation or ready to sign
+        // Landlord: notify once the tenant has signed (the app only ever writes
+        // draft/ready/signed — the old tenant_confirmed/partially_signed statuses
+        // are never set, so the badge never appeared).
         query = query
           .eq("landlord_id", user.id)
-          .in("status", ["tenant_confirmed", "partially_signed"]);
+          .eq("status", "signed");
       } else {
-        // Roomie/tenant: contracts ready for them to review or sign
+        // Roomie/tenant: contracts ready for them to review and sign
         query = query
           .eq("tenant_id", user.id)
-          .in("status", ["ready", "sent_to_penneo", "partially_signed"]);
+          .eq("status", "ready");
       }
 
       const { count } = await query;

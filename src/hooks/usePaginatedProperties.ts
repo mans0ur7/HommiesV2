@@ -51,6 +51,7 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const [blockedUserIds, setBlockedUserIds] = useState<Set<string>>(new Set());
 
   // Fetch blocked users once
@@ -144,6 +145,7 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
     }
 
     try {
+      setError(null);
       const from = pageNum * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
@@ -182,8 +184,9 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
 
       setHasMore(data?.length === PAGE_SIZE);
       setPage(pageNum);
-    } catch (error) {
-      console.error('Error fetching properties:', error);
+    } catch (err) {
+      console.error('Error fetching properties:', err);
+      setError(err instanceof Error ? err.message : 'Kunne ikke hente boliger');
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
@@ -191,15 +194,23 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
   }, [buildQuery, blockedUserIds, filters.hasRoomImages, filters.hasFloorPlan, filters.amenities]);
 
   const loadMore = useCallback(() => {
-    if (!isLoadingMore && hasMore) {
+    // Don't auto-refire a failed page — that turns a transient error into a tight
+    // retry loop as the load-more observer keeps re-triggering on the same page.
+    if (!isLoadingMore && hasMore && !error) {
       fetchPage(page + 1, true);
     }
-  }, [fetchPage, page, isLoadingMore, hasMore]);
+  }, [fetchPage, page, isLoadingMore, hasMore, error]);
+
+  const retry = useCallback(() => {
+    setError(null);
+    fetchPage(page + 1, true);
+  }, [fetchPage, page]);
 
   const refresh = useCallback(() => {
     setProperties([]);
     setPage(0);
     setHasMore(true);
+    setError(null);
     fetchPage(0, false);
   }, [fetchPage]);
 
@@ -220,7 +231,9 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
     isLoading,
     isLoadingMore,
     hasMore,
+    error,
     loadMore,
+    retry,
     refresh,
     totalLoaded: properties.length,
   };

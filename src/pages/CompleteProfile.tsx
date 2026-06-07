@@ -178,9 +178,10 @@ const CompleteProfile = () => {
         }
       }
 
-      // Get userType from sessionStorage (set during registration)
+      // Get userType from sessionStorage (set during registration). Keep it until
+      // the insert succeeds so a failed attempt + retry doesn't silently turn a
+      // landlord into a roomie (user_type is only ever set here).
       const userType = sessionStorage.getItem("selectedUserType") || "roomie";
-      sessionStorage.removeItem("selectedUserType");
 
       // Create profile
       const { error } = await supabase.from("profiles").insert({
@@ -190,7 +191,7 @@ const CompleteProfile = () => {
         gender: gender || null,
         study: study.trim() || null,
         work: work || null,
-        work_other: work === "other" ? workOther.trim() : null,
+        work_other: (work === "employed" || work === "self-employed" || work === "other") ? workOther.trim() : null,
         nationality: nationality || null,
         bio: bio.trim() || null,
         avatar_url: avatarUrl,
@@ -205,6 +206,8 @@ const CompleteProfile = () => {
         });
         console.error("Profile creation error:", error);
       } else {
+        // Only clear the chosen user type once the profile actually saved.
+        sessionStorage.removeItem("selectedUserType");
         await refreshProfile();
         toast({
           title: t("profile.created"),

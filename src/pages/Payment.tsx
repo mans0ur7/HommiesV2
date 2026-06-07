@@ -8,11 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, CreditCard, Sparkles, Clock, Search, Gift, CheckCircle, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { differenceInDays } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isNativeApp } from "@/lib/native";
-
-const FREE_TRIAL_DAYS = 60;
+import { getLaunchWindowInfo, LAUNCH_WINDOW_DAYS } from "@/lib/listingPromo";
 
 type ProductType =
   | "boost_1day" | "boost_3day" | "boost_7day"
@@ -30,15 +28,9 @@ const Payment = () => {
   const [landlordProperties, setLandlordProperties] = useState<{ id: string; title: string }[]>([]);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
 
-  // Beregn gratis prøveperiode baseret på profil-oprettelsesdato
-  const freeTrialInfo = useMemo(() => {
-    if (!profile?.created_at) return { active: false, daysLeft: 0, daysUsed: 0 };
-    const created = new Date(profile.created_at);
-    const now = new Date();
-    const daysUsed = differenceInDays(now, created);
-    const daysLeft = Math.max(0, FREE_TRIAL_DAYS - daysUsed);
-    return { active: daysLeft > 0, daysLeft, daysUsed };
-  }, [profile?.created_at]);
+  // Gratis periode følger det globale launch-vindue (samme kilde som MyListings),
+  // ikke den enkelte profils oprettelsesdato.
+  const freeTrialInfo = useMemo(() => getLaunchWindowInfo(), []);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
@@ -170,19 +162,19 @@ const Payment = () => {
                       {freeTrialInfo.active ? (
                         <>
                           <h3 className="font-medium tracking-tight text-foreground">
-                            Gratis periode — {freeTrialInfo.daysLeft} dage tilbage
+                            Launch-tilbud — {freeTrialInfo.daysLeft} dage tilbage
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Du kan offentliggøre annoncer gratis de første {FREE_TRIAL_DAYS} dage. Boost og søgeagenter koster stadig det normale.
+                            Under launch-perioden kan du offentliggøre annoncer gratis. Boost og søgeagenter koster stadig det normale.
                           </p>
                           <div className="mt-3 w-full bg-muted rounded-full h-2">
                             <div
                               className="bg-foreground/70 h-2 rounded-full transition-all"
-                              style={{ width: `${(freeTrialInfo.daysUsed / FREE_TRIAL_DAYS) * 100}%` }}
+                              style={{ width: `${(freeTrialInfo.daysUsed / LAUNCH_WINDOW_DAYS) * 100}%` }}
                             />
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {freeTrialInfo.daysUsed} af {FREE_TRIAL_DAYS} dage brugt
+                            {freeTrialInfo.daysUsed} af {LAUNCH_WINDOW_DAYS} dage brugt
                           </p>
                         </>
                       ) : (

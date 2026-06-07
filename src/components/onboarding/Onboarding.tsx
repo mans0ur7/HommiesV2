@@ -24,7 +24,7 @@ const slides = [
     icon: FileSignature,
     title: "Chat & underskriv digitalt",
     description:
-      "Skriv sammen, søg bolig i grupper og underskriv lejekontrakten direkte i appen.",
+      "Skriv sammen, søg bolig i grupper og underskriv husordenen direkte i appen.",
   },
 ];
 

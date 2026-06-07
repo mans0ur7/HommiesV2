@@ -392,11 +392,12 @@ const Matches = () => {
           owner: ownerMap.get(p.user_id)
         }));
 
-        // Apply landlord gender filter after owner data is available
+        // Apply landlord gender filter after owner data is available.
+        // Both sides are canonical values ('male'/'female') — compare directly;
+        // mapping to the translated label here returned zero results.
         if (propertyFilters.landlordGender !== "all") {
-          const genderMap: Record<string, string> = { "male": t("matches.male"), "female": t("matches.female") };
-          propertiesWithOwners = propertiesWithOwners.filter(p => 
-            p.owner?.gender === genderMap[propertyFilters.landlordGender]
+          propertiesWithOwners = propertiesWithOwners.filter(p =>
+            p.owner?.gender === propertyFilters.landlordGender
           );
         }
 

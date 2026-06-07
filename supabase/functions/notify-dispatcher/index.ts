@@ -123,9 +123,12 @@ async function handleNotificationRow(record: any) {
     if ((u as any)?.notify_push_requests === false) return;
   }
 
-  const url = type === "new_property"
-    ? (record.property_id ? `/property/${record.property_id}` : "/search-agents")
-    : "/inbox";
+  const url =
+    type === "new_property"
+      ? (record.property_id ? `/property/${record.property_id}` : "/search-agents")
+      : (type === "contract_ready" || type === "contract_signed")
+        ? "/documents"
+        : "/inbox";
 
   await sendPush(
     [userId],

@@ -110,6 +110,7 @@ const Explore = () => {
     hasMore: hasMoreProperties,
     loadMore: loadMoreProperties,
     totalLoaded: propertiesLoaded,
+    error: propertiesError,
   } = usePaginatedProperties(paginatedPropertyFilters);
 
   const {
@@ -119,7 +120,17 @@ const Explore = () => {
     hasMore: hasMoreRoomies,
     loadMore: loadMoreRoomies,
     totalLoaded: roomiesLoaded,
+    error: roomiesError,
   } = usePaginatedRoomies(paginatedRoomieFilters);
+
+  // Surface fetch failures instead of silently swallowing them (the hook also
+  // stops auto-retrying the failed page, so this won't toast-spam).
+  useEffect(() => {
+    if (propertiesError) toast.error("Kunne ikke hente flere boliger. Prøv igen senere.");
+  }, [propertiesError]);
+  useEffect(() => {
+    if (roomiesError) toast.error("Kunne ikke hente flere roomies. Prøv igen senere.");
+  }, [roomiesError]);
 
   const handleRoomieClick = async (userId: string) => {
     setIsLoadingRoomieProfile(true);

@@ -16,6 +16,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { isNativeApp } from "@/lib/native";
+import { passwordSchema } from "@/lib/validation";
 import {
   isPushSupported,
   getNotificationPermission,
@@ -414,11 +415,12 @@ const Settings = () => {
       return;
     }
 
-    if (newPassword.length < 6) {
+    const pwCheck = passwordSchema.safeParse(newPassword);
+    if (!pwCheck.success) {
       toast({
         variant: "destructive",
         title: t("settings.error"),
-        description: t("settings.pwTooShort"),
+        description: pwCheck.error.issues[0].message,
       });
       return;
     }
