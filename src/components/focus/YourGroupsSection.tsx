@@ -9,6 +9,7 @@ interface YourGroupsSectionProps {
   onSelectGroup: (group: HousingGroup) => void;
   onEditGroup: (group: HousingGroup) => void;
   onCreateGroup: () => void;
+  unreadByGroup?: Record<string, number>;
 }
 
 const YourGroupsSection = ({
@@ -17,6 +18,7 @@ const YourGroupsSection = ({
   onSelectGroup,
   onEditGroup,
   onCreateGroup,
+  unreadByGroup = {},
 }: YourGroupsSectionProps) => {
   if (loading) {
     return (
@@ -74,12 +76,15 @@ const YourGroupsSection = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {groups.map((group) => {
             const acceptedMembers = group.members?.filter(m => m.status === "accepted") || [];
+            const unread = unreadByGroup[group.id] || 0;
 
             return (
               <button
                 key={group.id}
                 onClick={() => onSelectGroup(group)}
-                className="group text-left rounded-2xl border border-border/60 bg-background p-5 hover:border-foreground/40 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] transition-all"
+                className={`group text-left rounded-2xl border bg-background p-5 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.12)] transition-all ${
+                  unread > 0 ? "border-secondary ring-1 ring-secondary/60" : "border-border/60 hover:border-foreground/40"
+                }`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -146,9 +151,14 @@ const YourGroupsSection = ({
 
                 <div className="flex items-center justify-between pt-3 border-t border-border/60">
                   <div className="flex items-center gap-3 text-xs text-foreground/70">
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className={`inline-flex items-center gap-1.5 ${unread > 0 ? "text-foreground font-semibold" : ""}`}>
                       <MessageSquare className="w-3.5 h-3.5" />
                       Chat
+                      {unread > 0 && (
+                        <span className="ml-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+                          {unread > 99 ? "99+" : unread}
+                        </span>
+                      )}
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <Home className="w-3.5 h-3.5" />
@@ -156,7 +166,7 @@ const YourGroupsSection = ({
                     </span>
                   </div>
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground group-hover:gap-2 transition-all">
-                    Åbn gruppe
+                    {unread > 0 ? "Ny besked" : "Åbn gruppe"}
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>

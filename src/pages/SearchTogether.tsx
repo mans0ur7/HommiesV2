@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { useHousingGroups, HousingGroup } from "@/hooks/useHousingGroups";
 import { useGroupRequests } from "@/hooks/useGroupRequests";
+import { useGroupUnread } from "@/hooks/useGroupUnread";
 import FocusHeroBanner from "@/components/focus/FocusHeroBanner";
 import YourGroupsSection from "@/components/focus/YourGroupsSection";
 import LikedPeopleSection from "@/components/focus/LikedPeopleSection";
@@ -48,6 +49,8 @@ const SearchTogether = () => {
     sentRequests,
     sendGroupRequest,
   } = useGroupRequests();
+
+  const { unreadByGroup } = useGroupUnread();
 
   const [connectedRoomies, setConnectedRoomies] = useState<ConnectedRoomie[]>([]);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
@@ -199,6 +202,7 @@ const SearchTogether = () => {
                 onSelectGroup={setSelectedGroup}
                 onEditGroup={handleEditGroup}
                 onCreateGroup={() => setShowCreateWizard(true)}
+                unreadByGroup={unreadByGroup}
               />
             )}
 
