@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { GroupMember } from "@/hooks/useHousingGroups";
-import { Button } from "@/components/ui/button";
-import { Users, Check, X, ChevronRight } from "lucide-react";
+import { Users, Check, X, MapPin, Wallet, BedDouble, Loader2 } from "lucide-react";
 import GroupInvitationModal from "./GroupInvitationModal";
 
 interface PendingGroupInvitationsProps {
@@ -24,73 +23,127 @@ interface PendingGroupInvitationsProps {
   onRespond: (memberId: string, accept: boolean) => Promise<boolean>;
 }
 
+const chip = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background border border-border/60 text-[11px] text-foreground/70";
+
 const PendingGroupInvitations = ({
   invitations,
   onRespond,
 }: PendingGroupInvitationsProps) => {
   const [selectedInvitation, setSelectedInvitation] = useState<typeof invitations[0] | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   if (invitations.length === 0) return null;
 
+  const respond = async (e: React.MouseEvent, memberId: string, accept: boolean) => {
+    e.stopPropagation();
+    if (busyId) return;
+    setBusyId(memberId);
+    await onRespond(memberId, accept);
+    setBusyId(null);
+  };
+
   return (
     <>
-      <div className="mb-6 p-4 bg-secondary/10 rounded-2xl border border-border/60">
-        <div className="mb-4 flex items-center gap-3">
+      <div className="mb-6">
+        <div className="mb-3 flex items-center gap-3">
           <span className="h-px w-8 bg-foreground/40" />
           <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
-            Gruppe-invitationer ({invitations.length})
+            Gruppe-invitationer
           </span>
+          <span className="text-[11px] text-foreground/40">{invitations.length}</span>
         </div>
 
         <div className="space-y-3">
-          {invitations.map((inv) => (
-            <div
-              key={inv.id}
-              className="flex items-center gap-3 p-3 bg-background rounded-2xl border border-border/60 hover:border-border transition-colors cursor-pointer group"
-              onClick={() => setSelectedInvitation(inv)}
-            >
-              <div className="w-10 h-10 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center">
-                <Users className="w-5 h-5 text-foreground/70" />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">
-                  {inv.housing_groups?.name || "Ukendt gruppe"}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Inviteret af {inv.inviterProfile?.name || "Ukendt"}
-                  {inv.housing_groups?.city && ` · ${inv.housing_groups.city}`}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {/* Quick action buttons */}
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRespond(inv.id, false);
-                  }}
+          {invitations.map((inv) => {
+            const g = inv.housing_groups;
+            const busy = busyId === inv.id;
+            return (
+              <div
+                key={inv.id}
+                className="rounded-3xl border border-secondary/60 bg-secondary/10 overflow-hidden"
+              >
+                {/* Tappable info area opens full group details */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedInvitation(inv)}
+                  className="w-full text-left p-4 flex items-start gap-3"
                 >
-                  <X className="w-4 h-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRespond(inv.id, true);
-                  }}
-                >
-                  <Check className="w-4 h-4" />
-                </Button>
-                {/* Arrow to indicate clickable */}
-                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                    {inv.inviterProfile?.avatar_url ? (
+                      <img
+                        src={inv.inviterProfile.avatar_url}
+                        alt={inv.inviterProfile?.name || "Afsender"}
+                        className="w-12 h-12 object-cover"
+                      />
+                    ) : (
+                      <Users className="w-6 h-6 text-secondary-foreground" />
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-foreground/50 mb-0.5">
+                      Invitation
+                    </p>
+                    <p className="font-semibold text-foreground leading-tight truncate">
+                      {g?.name || "Boliggruppe"}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      <span className="font-medium text-foreground/80">
+                        {inv.inviterProfile?.name || "En roomie"}
+                      </span>{" "}
+                      har inviteret dig
+                    </p>
+
+                    {(g?.city || g?.area || g?.budget_per_person || g?.desired_rooms) && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {(g?.area || g?.city) && (
+                          <span className={chip}>
+                            <MapPin className="w-3 h-3" /> {g?.area || g?.city}
+                          </span>
+                        )}
+                        {g?.budget_per_person ? (
+                          <span className={chip}>
+                            <Wallet className="w-3 h-3" /> {g.budget_per_person.toLocaleString("da-DK")} kr./pers.
+                          </span>
+                        ) : null}
+                        {g?.desired_rooms ? (
+                          <span className={chip}>
+                            <BedDouble className="w-3 h-3" /> {g.desired_rooms} værelser
+                          </span>
+                        ) : null}
+                      </div>
+                    )}
+
+                    <span className="inline-block text-xs text-foreground/50 underline underline-offset-2 mt-2">
+                      Se gruppen
+                    </span>
+                  </div>
+                </button>
+
+                {/* Always-visible, touch-friendly actions */}
+                <div className="flex gap-2 px-4 pb-4">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={(e) => respond(e, inv.id, false)}
+                    className="flex-1 h-11 rounded-full border border-border/60 bg-background text-sm font-medium text-foreground/70 hover:bg-muted transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60"
+                  >
+                    <X className="w-4 h-4" />
+                    Afvis
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={(e) => respond(e, inv.id, true)}
+                    className="flex-1 h-11 rounded-full bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60"
+                  >
+                    {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                    Accepter
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
