@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand "laks"/peach used for the launch splash (matches iOS launch screen + capacitor.config backgroundColor). -->
+    <color name="splash_background">#FCC9BA</color>
+</resources>
