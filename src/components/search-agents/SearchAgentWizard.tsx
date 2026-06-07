@@ -154,7 +154,7 @@ const SearchAgentWizard = ({
 
   const canProceed = () => {
     if (currentStep === 1) {
-      return true; // Area is optional
+      return !!city; // A specific city is required — one location per search agent
     }
     return true;
   };
@@ -263,16 +263,6 @@ const SearchAgentWizard = ({
                 <div className="space-y-2">
                   <Label>Vælg by</Label>
                   <div className="max-h-48 overflow-y-auto border border-border/60 rounded-2xl divide-y divide-border/60">
-                    <button
-                      type="button"
-                      onClick={() => setCity("")}
-                      className={cn(
-                        "w-full px-4 py-2.5 text-left text-sm transition-colors",
-                        !city ? "bg-secondary/20 text-foreground font-medium" : "hover:bg-muted"
-                      )}
-                    >
-                      Alle byer
-                    </button>
                     {filteredCities.map((c) => (
                       <button
                         key={c}
@@ -456,7 +446,7 @@ const SearchAgentWizard = ({
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">By:</span>
-                  <span className="font-medium">{city || "Alle byer"}</span>
+                  <span className="font-medium">{city}</span>
                 </div>
                 {selectedAreas.length > 0 && (
                   <div className="flex items-center justify-between text-sm">

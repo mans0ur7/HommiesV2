@@ -99,11 +99,13 @@
     "enterEmailFirst": "Indtast din email ovenfor, så sender vi et nulstillingslink"
   },
   "home": {
-    "greetingNight": "God nat",
-    "greetingMorning": "God morgen",
+    "greetingNight": "Godnat",
+    "greetingMorning": "Godmorgen",
     "greetingDay": "Goddag",
-    "greetingEvening": "God aften",
+    "greetingEvening": "Godaften",
     "heroQuestion": "Hvor skal du hjem til i dag?",
+    "heroRoomie": "Find dit næste hjem",
+    "heroLandlord": "Find din næste lejer",
     "searchPlaceholder": "Søg by, område eller adresse",
     "search": "Søg",
     "seeMatches": "Se dine matches",

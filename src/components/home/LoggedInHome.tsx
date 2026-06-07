@@ -97,7 +97,7 @@ const LoggedInHome = () => {
                   {firstName ? `, ${firstName}` : ""}
                 </span>
                 <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05]">
-                  {t("home.heroQuestion")}
+                  {isLandlord ? t("home.heroLandlord") : t("home.heroRoomie")}
                 </h1>
               </div>
               <button

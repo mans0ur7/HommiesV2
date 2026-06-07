@@ -101,9 +101,11 @@
   "home": {
     "greetingNight": "Good night",
     "greetingMorning": "Good morning",
-    "greetingDay": "Hello",
+    "greetingDay": "Good afternoon",
     "greetingEvening": "Good evening",
     "heroQuestion": "Where are you heading home to today?",
+    "heroRoomie": "Find your next home",
+    "heroLandlord": "Find your next tenant",
     "searchPlaceholder": "Search city, area or address",
     "search": "Search",
     "seeMatches": "See your matches",
