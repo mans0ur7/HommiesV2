@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import AppLayout from "@/components/navigation/AppLayout";
+import LaunchOfferBanner from "@/components/promo/LaunchOfferBanner";
 import ExplorePropertyCard from "@/components/explore/ExplorePropertyCard";
 import ExploreRoomieCard from "@/components/explore/ExploreRoomieCard";
 import ExploreRoomieModal from "@/components/explore/ExploreRoomieModal";
@@ -465,6 +466,13 @@ const Explore = () => {
             </div>
           </div>
         </section>
+
+        {/* ───────── LAUNCH OFFER ───────── */}
+        {isLandlord && (
+          <div className="container mx-auto px-3 md:px-6 lg:px-8 pt-6">
+            <LaunchOfferBanner />
+          </div>
+        )}
 
         {/* ───────── STUDIEBYER MOSAIC ───────── */}
         <section className="container mx-auto px-3 md:px-6 lg:px-8 pt-8 md:pt-14">

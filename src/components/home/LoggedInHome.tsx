@@ -20,6 +20,7 @@ import Footer from "@/components/landing/Footer";
 import AppLayout from "@/components/navigation/AppLayout";
 import PropertyCard from "./PropertyCard";
 import ExperienceRatingPrompt from "./ExperienceRatingPrompt";
+import LaunchOfferBanner from "@/components/promo/LaunchOfferBanner";
 import ProfileCompletenessCard from "./ProfileCompletenessCard";
 import SinceLastVisit from "./SinceLastVisit";
 import PeopleWhoWantYou from "./PeopleWhoWantYou";
@@ -144,6 +145,15 @@ const LoggedInHome = () => {
             <ProfileCompletenessCard />
           </div>
         </section>
+
+        {/* ───────── LANDLORD: launch offer banner ───────── */}
+        {isLandlord && (
+          <section className="px-4 md:px-6 lg:px-12 pb-2">
+            <div className="container mx-auto max-w-7xl">
+              <LaunchOfferBanner />
+            </div>
+          </section>
+        )}
 
         {/* ───────── ROOMIE: people who want you / LANDLORD: listing ───────── */}
         <section className="px-4 md:px-6 lg:px-12 py-8 md:py-12">

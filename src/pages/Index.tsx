@@ -15,6 +15,7 @@ import CTASection from "@/components/landing/CTASection";
 import FAQSection from "@/components/landing/FAQSection";
 import Footer from "@/components/landing/Footer";
 import PartnerBanner from "@/components/landing/PartnerBanner";
+import LaunchOfferBanner from "@/components/promo/LaunchOfferBanner";
 import SeoHead from "@/components/common/SeoHead";
 
 const Index = () => {
@@ -75,6 +76,9 @@ const Index = () => {
       <HeroSection />
       <StatsBar />
       <FeaturedRoomsSection />
+      <div className="container mx-auto max-w-7xl px-4 md:px-6 lg:px-12 my-6">
+        <LaunchOfferBanner to="/auth?mode=signup" />
+      </div>
       <ExploreSection />
       <HowItWorksSection />
       <HousingSection />

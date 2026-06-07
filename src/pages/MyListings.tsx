@@ -37,6 +37,8 @@ import GenderCompositionSelector from "@/components/listings/GenderCompositionSe
 import { compressImage } from "@/lib/compressImage";
 import { checkFields } from "@/lib/contentFilter";
 import { isNativeApp } from "@/lib/native";
+import { getLaunchWindowInfo } from "@/lib/listingPromo";
+import LaunchOfferBanner from "@/components/promo/LaunchOfferBanner";
 import { useListingDraft } from "@/hooks/useListingDraft";
 
 const AddressMap = lazy(() => import("@/components/listings/AddressMap"));
@@ -243,13 +245,11 @@ const MyListings = () => {
     return !hasExistingListings; // Only eligible if no existing listings
   }, [editingProperty, hasExistingListings]);
 
-  const freeTrialInfo = useMemo(() => {
-    if (!profile?.created_at) return { active: false, daysLeft: 0, daysUsed: 0 };
-    const created = new Date(profile.created_at);
-    const daysUsed = differenceInDays(new Date(), created);
-    const daysLeft = Math.max(0, FREE_TRIAL_DAYS - daysUsed);
-    return { active: daysLeft > 0, daysLeft, daysUsed };
-  }, [profile?.created_at]);
+  // Free-listing promo is driven by a fixed-date launch window
+  // (src/lib/listingPromo.ts) instead of each landlord's signup date: during the
+  // window ANY new listing is published free for 30 days. Shape kept the same
+  // ({ active, daysLeft, daysUsed }) so the existing UI/publish logic works as-is.
+  const freeTrialInfo = useMemo(() => getLaunchWindowInfo(), []);
 
   // Calculate discounted price for listing (always round down to be fair to customers)
   const getListingPrice = (originalPrice: number, applyDiscount: boolean) => {
@@ -1100,20 +1100,8 @@ const nextStep = () => {
           )}
         </div>
 
-        {/* Launch Offer Banner - shown for first-time landlords on main page */}
-        {!showForm && isLaunchOfferEligible && (
-          <div className="mb-6 bg-secondary/20 border border-border/60 rounded-2xl p-4 flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-secondary-foreground" />
-            </div>
-            <div>
-              <p className="font-medium text-foreground">{t("myListings.launchOfferTitle")}</p>
-              <p className="text-sm text-foreground/60">
-                {t("myListings.launchOfferBody")}
-              </p>
-            </div>
-          </div>
-        )}
+        {/* Launch promo banner — free listings during the launch window */}
+        {!showForm && <LaunchOfferBanner className="mb-6" />}
 
         {/* Step-by-step Form */}
         {showForm && (
