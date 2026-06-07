@@ -94,19 +94,6 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
 
     setIsConnecting(true);
     try {
-      const { data: existingConnection } = await supabase
-        .from("connections")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("target_user_id", roomie.user_id)
-        .maybeSingle();
-
-      if (existingConnection) {
-        toast.info("Du har allerede sendt en forbindelsesanmodning til denne roomie");
-        handleClose();
-        return;
-      }
-
       const { data: existingRequest } = await supabase
         .from("match_requests")
         .select("id")
@@ -121,13 +108,12 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
         return;
       }
 
-      const { error: connectionError } = await supabase.from("connections").insert({
-        user_id: user.id,
-        target_user_id: roomie.user_id,
-        connection_type: "roomie",
-      });
-
-      if (connectionError) throw connectionError;
+      // Best-effort: a connection row may already exist (UNIQUE constraint) from a
+      // prior swipe — it must NOT block creating the request the recipient receives.
+      await supabase.from("connections").upsert(
+        { user_id: user.id, target_user_id: roomie.user_id, connection_type: "roomie" },
+        { onConflict: "user_id,target_user_id", ignoreDuplicates: true }
+      );
 
       const { error: requestError } = await supabase.from("match_requests").insert({
         sender_id: user.id,

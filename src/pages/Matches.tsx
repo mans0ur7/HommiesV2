@@ -459,6 +459,46 @@ const Matches = () => {
 
       trackView(currentItem);
 
+      // The connection row above is invisible to the other person — also create a
+      // match_request so they actually RECEIVE the request (Inbox + push). Deduped
+      // so re-connecting or a mutual swipe won't create duplicate requests.
+      if (activeTab === "roomies") {
+        const otherUserId = (currentItem as Profile).user_id;
+        const { data: existingReq } = await supabase
+          .from("match_requests")
+          .select("id")
+          .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`)
+          .maybeSingle();
+        if (!existingReq) {
+          await supabase.from("match_requests").insert({
+            sender_id: user.id,
+            receiver_id: otherUserId,
+            status: "pending",
+            type: "roomie",
+          });
+        }
+      } else {
+        const ownerId = (currentItem as any).user_id;
+        if (ownerId && ownerId !== user.id) {
+          const { data: existingReq } = await supabase
+            .from("match_requests")
+            .select("id")
+            .eq("sender_id", user.id)
+            .eq("receiver_id", ownerId)
+            .eq("property_id", currentItem.id)
+            .maybeSingle();
+          if (!existingReq) {
+            await supabase.from("match_requests").insert({
+              sender_id: user.id,
+              receiver_id: ownerId,
+              property_id: currentItem.id,
+              status: "pending",
+              type: "landlord",
+            });
+          }
+        }
+      }
+
       // Check for mutual match (other side already connected back) — only for roomies
       let isMutual = false;
       if (activeTab === "roomies") {
