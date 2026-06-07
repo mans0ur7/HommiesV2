@@ -2302,7 +2302,7 @@ const nextStep = () => {
             </div>
           </div>
 
-          <div className="border-t border-border/60 px-6 py-4 bg-background">
+          <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] bg-background">
             <Button
               onClick={handleRenewListing}
               disabled={renewPurchasing}
@@ -2354,7 +2354,7 @@ const nextStep = () => {
             </div>
           </div>
 
-          <div className="border-t border-border/60 px-6 py-4 bg-background">
+          <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] bg-background">
             <Button
               onClick={handleBoostListing}
               disabled={boostPurchasing}

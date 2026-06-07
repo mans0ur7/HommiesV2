@@ -229,7 +229,7 @@ const FilterModal = ({
         </div>
 
         {/* Sticky footer */}
-        <div className="border-t border-border/60 px-6 py-4 flex items-center justify-between gap-3 bg-background">
+        <div className="border-t border-border/60 px-6 pt-4 pb-[calc(1rem+var(--safe-bottom))] flex items-center justify-between gap-3 bg-background">
           <button
             onClick={activeTab === "properties" ? resetProperty : resetRoomie}
             className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors px-2 py-2"
