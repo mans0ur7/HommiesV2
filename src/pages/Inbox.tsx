@@ -313,6 +313,34 @@ const Inbox = () => {
     setPendingRequestsByTab((prev) => ({ ...prev, [tab]: filteredRequests }));
   };
 
+  // Real-time: surface incoming match requests and reorder conversations as they
+  // arrive, so the inbox updates live without a manual refresh. (Group requests
+  // are handled separately by useGroupRequests; RLS limits message events to the
+  // user's own conversations.)
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`inbox-realtime-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "match_requests", filter: `receiver_id=eq.${user.id}` },
+        () => {
+          fetchPendingRequestsForTab("roomie");
+          fetchPendingRequestsForTab("landlord");
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        () => { fetchAllConversations(); }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const handleAcceptRequest = async (requestId: string) => {
     if (!user) return;
     

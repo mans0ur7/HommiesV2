@@ -69,7 +69,8 @@ export const useGroupRequests = () => {
         const { data: sent } = await supabase
           .from("group_requests")
           .select("*")
-          .in("group_id", groupIds);
+          .in("group_id", groupIds)
+          .order("created_at", { ascending: false });
 
         if (sent) {
           const sentWithDetails = await enrichRequests(sent);
@@ -83,7 +84,8 @@ export const useGroupRequests = () => {
           .from("group_requests")
           .select("*")
           .eq("landlord_id", user.id)
-          .eq("status", "pending");
+          .eq("status", "pending")
+          .order("created_at", { ascending: false });
 
         if (received) {
           const receivedWithDetails = await enrichRequests(received);
