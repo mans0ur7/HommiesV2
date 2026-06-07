@@ -30,3 +30,8 @@ dist-ssr
 
 # Xcode / native build output
 build/
+
+# Firebase / FCM credentials (contain keys — never commit)
+android/app/google-services.json
+ios/App/App/GoogleService-Info.plist
+*firebase-adminsdk*.json

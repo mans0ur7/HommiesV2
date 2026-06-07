@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp } from "@/lib/native";
+import { initNativePush } from "@/lib/nativePush";
 import { isBiometricEnabled, storeBiometricToken } from "@/lib/biometric";
 
 interface Profile {
@@ -96,6 +97,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => {
             fetchProfile(session.user.id);
           }, 0);
+          // Register this device for native push (no-op on web / if not granted)
+          void initNativePush();
         } else {
           setProfile(null);
           setProfileLoaded(true);
