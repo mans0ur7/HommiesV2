@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { HousingGroup } from "@/hooks/useHousingGroups";
-import { ArrowLeft, Settings, User, MessageSquare, Home, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Settings, User, MessageSquare, Home } from "lucide-react";
 import GroupChat from "./GroupChat";
 import GroupPropertiesFeed from "./GroupPropertiesFeed";
 
@@ -35,120 +34,94 @@ const GroupDetailView = ({
     { id: "boliger" as const, label: "Boliger", icon: Home },
   ];
 
+  // Full-height, one-page layout: compact header + tabs are fixed, the content
+  // (chat or properties) fills the rest. The app header/bottom-nav are hidden by
+  // the parent on mobile, so we add safe-area padding here.
   return (
-    <div className="space-y-5">
-      {/* Back navigation */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="gap-2 px-3 h-9 -ml-3 text-muted-foreground hover:text-foreground"
-        onClick={onBack}
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Tilbage til Focus</span>
-      </Button>
-
-      {/* Elegant group header card */}
-      <div className="relative rounded-3xl border border-border/60 bg-background p-6 md:p-8">
+    <div className="flex flex-1 flex-col min-h-0 w-full max-w-3xl mx-auto px-3 md:px-6 pt-[calc(var(--safe-top)+0.5rem)] md:pt-5">
+      {/* Compact header */}
+      <div className="shrink-0 flex items-center gap-3 pb-3 border-b border-border/60">
         <button
-          onClick={() => onEditGroup(group)}
-          className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border border-border/60 bg-secondary/20 hover:bg-secondary/30 text-foreground/70 text-xs font-medium transition-colors"
+          onClick={onBack}
+          className="w-9 h-9 -ml-1 rounded-full hover:bg-muted flex items-center justify-center text-foreground/70 shrink-0"
+          aria-label="Tilbage"
         >
-          <Settings className="w-3.5 h-3.5" />
-          Indstillinger
+          <ArrowLeft className="w-5 h-5" />
         </button>
 
-        <div>
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-px w-8 bg-foreground/40" />
-            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">
-              Gruppe
-            </span>
-          </div>
+        <div className="flex -space-x-2 shrink-0">
+          {acceptedMembers.slice(0, 3).map((member, idx) => (
+            <div
+              key={member.id}
+              className="w-8 h-8 rounded-full border-2 border-background overflow-hidden bg-secondary/20"
+              style={{ zIndex: 3 - idx }}
+            >
+              {member.profile?.avatar_url ? (
+                <img src={member.profile.avatar_url} alt={member.profile.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-foreground/50" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
 
-          <div className="flex -space-x-3 mb-4">
-            {acceptedMembers.slice(0, 4).map((member, idx) => (
-              <div
-                key={member.id}
-                className="w-12 h-12 rounded-full border-[3px] border-background overflow-hidden bg-secondary/20"
-                style={{ zIndex: 4 - idx }}
+        <div className="min-w-0 flex-1">
+          <h2 className="font-semibold text-foreground text-base leading-tight truncate">{group.name}</h2>
+          <p className="text-xs text-foreground/55 truncate">
+            {acceptedMembers.length} {acceptedMembers.length === 1 ? "medlem" : "medlemmer"}
+            {group.budget_per_person ? ` · ${group.budget_per_person.toLocaleString("da-DK")} kr/pers.` : ""}
+          </p>
+        </div>
+
+        <button
+          onClick={() => onEditGroup(group)}
+          className="w-9 h-9 rounded-full bg-muted hover:bg-muted/70 flex items-center justify-center text-foreground/70 shrink-0"
+          aria-label="Indstillinger"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="shrink-0 py-3">
+        <div className="inline-flex p-1 rounded-full bg-muted">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
               >
-                {member.profile?.avatar_url ? (
-                  <img
-                    src={member.profile.avatar_url}
-                    alt={member.profile.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-foreground/50" />
-                  </div>
-                )}
-              </div>
-            ))}
-            {acceptedMembers.length > 4 && (
-              <div className="w-12 h-12 rounded-full border-[3px] border-background bg-secondary/20 flex items-center justify-center">
-                <span className="text-xs text-foreground/70 font-medium">
-                  +{acceptedMembers.length - 4}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <h2 className="font-medium text-foreground text-2xl md:text-3xl tracking-tight">
-            {group.name}
-          </h2>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-foreground/60">
-            <span className="inline-flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5" />
-              {acceptedMembers.length} {acceptedMembers.length === 1 ? "medlem" : "medlemmer"}
-            </span>
-            {group.budget_per_person && (
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-foreground/30" />
-                {group.budget_per_person.toLocaleString()} kr / person
-              </span>
-            )}
-          </div>
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Segmented tabs */}
-      <div className="inline-flex p-1 rounded-full bg-muted">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Content area */}
-      <div>
-        {activeTab === "beskeder" && (
-          <div className="rounded-2xl border border-border/60 bg-background overflow-hidden">
+      {/* Content fills the remaining height */}
+      <div className="flex-1 min-h-0 pb-[calc(0.5rem+var(--safe-bottom))]">
+        {activeTab === "beskeder" ? (
+          <div className="h-full rounded-2xl border border-border/60 overflow-hidden">
             <GroupChat group={group} />
           </div>
-        )}
-        {activeTab === "boliger" && (
-          <GroupPropertiesFeed
-            group={group}
-            groupId={group.id}
-            onSendRequest={onSendRequest}
-            sentRequestPropertyIds={sentRequestPropertyIds}
-          />
+        ) : (
+          <div className="h-full overflow-y-auto">
+            <GroupPropertiesFeed
+              group={group}
+              groupId={group.id}
+              onSendRequest={onSendRequest}
+              sentRequestPropertyIds={sentRequestPropertyIds}
+            />
+          </div>
         )}
       </div>
     </div>

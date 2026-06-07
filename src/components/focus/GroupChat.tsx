@@ -197,14 +197,14 @@ const GroupChat = ({ group }: GroupChatProps) => {
 
   if (loading) {
     return (
-      <div className="h-[60vh] md:h-[520px] flex items-center justify-center">
+      <div className="h-full min-h-[50vh] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-[60vh] md:h-[520px] bg-muted/20">
+    <div className="flex flex-col h-full bg-muted/20">
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-3 md:px-4 py-4">
         {messages.length === 0 ? (

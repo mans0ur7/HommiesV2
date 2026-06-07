@@ -149,13 +149,23 @@ const SearchTogether = () => {
   }
 
   return (
-    <AppLayout>
-    <div className="min-h-screen bg-background flex flex-col">
+    <AppLayout hideBottomNav={isMobile && !!selectedGroup} hideHeader={isMobile && !!selectedGroup}>
+    <div className={selectedGroup ? "h-[100dvh] bg-background flex flex-col overflow-hidden" : "min-h-screen bg-background flex flex-col"}>
       {!isMobile && <Navbar />}
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 lg:px-12 py-6 md:py-12">
-        {/* Editorial Header */}
-        {!selectedGroup && (
+      {/* Open group = full-screen, one-page chat experience (no outer scroll) */}
+      {selectedGroup ? (
+        <GroupDetailView
+          group={selectedGroup}
+          onBack={() => setSelectedGroup(null)}
+          onEditGroup={handleEditGroup}
+          onSendRequest={sendGroupRequest}
+          sentRequestPropertyIds={sentRequestPropertyIds}
+        />
+      ) : (
+        <>
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 lg:px-12 py-6 md:py-12">
+          {/* Editorial Header */}
           <div className="mb-8 md:mb-12">
             <div className="flex items-center gap-3 mb-3">
               <div className="h-px w-8 bg-foreground/40" />
@@ -168,54 +178,42 @@ const SearchTogether = () => {
               {t("searchTogether.subtitle")}
             </p>
           </div>
-        )}
 
-        {/* Show group detail view if a group is selected */}
-        {selectedGroup ? (
-          <GroupDetailView
-            group={selectedGroup}
-            onBack={() => setSelectedGroup(null)}
-            onEditGroup={handleEditGroup}
-            onSendRequest={sendGroupRequest}
-            sentRequestPropertyIds={sentRequestPropertyIds}
+          {/* Hero Banner - only show when user has no groups */}
+          {groups.length === 0 && !groupsLoading && (
+            <FocusHeroBanner onCreateGroup={() => setShowCreateWizard(true)} />
+          )}
+
+          {/* Afventende gruppeinvitationer */}
+          <PendingGroupInvitations
+            invitations={pendingInvitations as any}
+            onRespond={handleRespondToInvitation}
           />
-        ) : (
-          <>
-            {/* Hero Banner - only show when user has no groups */}
-            {groups.length === 0 && !groupsLoading && (
-              <FocusHeroBanner onCreateGroup={() => setShowCreateWizard(true)} />
-            )}
 
-            {/* Afventende gruppeinvitationer */}
-            <PendingGroupInvitations
-              invitations={pendingInvitations as any}
-              onRespond={handleRespondToInvitation}
+          {/* Dine grupper - shown once the user actually has groups (or while
+              loading). When empty, the hero banner above is the single CTA so
+              we don't stack three "Opret gruppe" buttons. */}
+          {(groupsLoading || groups.length > 0) && (
+            <YourGroupsSection
+              groups={groups}
+              loading={groupsLoading}
+              onSelectGroup={setSelectedGroup}
+              onEditGroup={handleEditGroup}
+              onCreateGroup={() => setShowCreateWizard(true)}
+              unreadByGroup={unreadByGroup}
             />
+          )}
 
-            {/* Dine grupper - shown once the user actually has groups (or while
-                loading). When empty, the hero banner above is the single CTA so
-                we don't stack three "Opret gruppe" buttons. */}
-            {(groupsLoading || groups.length > 0) && (
-              <YourGroupsSection
-                groups={groups}
-                loading={groupsLoading}
-                onSelectGroup={setSelectedGroup}
-                onEditGroup={handleEditGroup}
-                onCreateGroup={() => setShowCreateWizard(true)}
-                unreadByGroup={unreadByGroup}
-              />
-            )}
+          {/* Personer du har liket */}
+          <LikedPeopleSection />
 
-            {/* Personer du har liket */}
-            <LikedPeopleSection />
+          {/* Boliger du har liket */}
+          <LikedPropertiesSection />
+        </main>
 
-            {/* Boliger du har liket */}
-            <LikedPropertiesSection />
-          </>
-        )}
-      </main>
-
-      <Footer />
+        <Footer />
+        </>
+      )}
 
       {/* Create group wizard */}
       <CreateGroupWizard
