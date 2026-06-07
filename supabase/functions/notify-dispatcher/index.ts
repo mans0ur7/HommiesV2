@@ -3,7 +3,9 @@
 // Single endpoint that handles Database Webhook INSERT events for:
 //   - messages          → push to conversation participants (except sender)
 //   - match_requests    → push to receiver
-//   - notifications     → push to user when type = 'new_property' (search-agent match)
+//   - notifications     → push to user for types without their own table webhook
+//                         (new_property search-agent match, group_request,
+//                          group_invitation, *_accepted/*_rejected status updates)
 //
 // Body format from Supabase Database Webhooks:
 //   { type: "INSERT", schema: "public", table: "<name>", record: {...}, old_record: null }
@@ -95,16 +97,41 @@ async function handleMatchRequest(record: any) {
   );
 }
 
-async function handleSearchAgentMatch(record: any) {
-  if (record.type !== "new_property") return;
+// Generic handler for notifications-table rows. Pushes for notification types
+// that do NOT have their own dedicated table webhook. messages + match_requests
+// already push via their own table webhooks, so they are skipped here to avoid
+// double-sending.
+async function handleNotificationRow(record: any) {
+  const type = record.type as string;
   const userId = record.user_id;
-  if (!userId) return;
+  if (!type || !userId) return;
+
+  if (type === "new_message" || type === "match_request") return; // pushed via their own table webhooks
+
+  // Respect the per-user request-push preference for request-style notifications.
+  const requestTypes = new Set([
+    "group_request", "group_invitation",
+    "group_request_accepted", "group_request_rejected",
+    "match_request_accepted", "match_request_rejected",
+  ]);
+  if (requestTypes.has(type)) {
+    const { data: u } = await admin
+      .from("profiles")
+      .select("notify_push_requests")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if ((u as any)?.notify_push_requests === false) return;
+  }
+
+  const url = type === "new_property"
+    ? (record.property_id ? `/property/${record.property_id}` : "/search-agents")
+    : "/inbox";
 
   await sendPush(
     [userId],
-    record.title ?? "Ny bolig matcher din søgeagent",
-    record.message ?? "Klik for at se boligen",
-    record.property_id ? `/property/${record.property_id}` : "/search-agents"
+    record.title ?? "Hommies",
+    record.message ?? "Du har en ny notifikation",
+    url,
   );
 }
 
@@ -124,7 +151,7 @@ Deno.serve(async (req) => {
 
     if (table === "messages")            await handleMessage(record);
     else if (table === "match_requests") await handleMatchRequest(record);
-    else if (table === "notifications")  await handleSearchAgentMatch(record);
+    else if (table === "notifications")  await handleNotificationRow(record);
     else {
       return new Response(JSON.stringify({ skipped: `table ${table} not handled` }), {
         headers: { ...CORS, "Content-Type": "application/json" },
