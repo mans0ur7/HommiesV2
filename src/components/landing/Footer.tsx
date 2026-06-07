@@ -20,7 +20,6 @@ const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
   const links = [
     { label: t("landing.footerAbout"), action: () => handleScrollToSection("/about", "about") },
     { label: t("landing.footerContact"), to: "/contact" },
-    { label: t("landing.footerMoving"), to: "/flytteservice" },
     { label: t("landing.footerPrivacy"), to: "/privacy" },
     { label: t("landing.footerTerms"), to: "/terms" },
     { label: t("landing.footerDeleteAccount"), to: "/delete-account" },

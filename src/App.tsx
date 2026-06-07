@@ -39,7 +39,6 @@ const ContractWizard = lazy(() => import("./pages/ContractWizard"));
 const ContractDetail = lazy(() => import("./pages/ContractDetail"));
 const SearchAgents = lazy(() => import("./pages/SearchAgents"));
 const SearchTogether = lazy(() => import("./pages/SearchTogether"));
-const MovingService = lazy(() => import("./pages/MovingService"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -123,7 +122,6 @@ const App = () => (
             <Route path="/search-agents" element={<SearchAgents />} />
             <Route path="/focus" element={<SearchTogether />} />
             <Route path="/search-together" element={<SearchTogether />} />
-            <Route path="/flytteservice" element={<MovingService />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
