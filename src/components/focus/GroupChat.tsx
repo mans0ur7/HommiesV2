@@ -72,11 +72,23 @@ const GroupChat = ({ group }: GroupChatProps) => {
           })
         );
         setMessages(enrichedMessages);
+
+        // We're viewing the chat — mark others' messages read so the unread
+        // indicator on the Focus tab clears.
+        if (user) {
+          await supabase
+            .from("messages")
+            .update({ read_at: new Date().toISOString() })
+            .eq("conversation_id", conversationId)
+            .neq("sender_id", user.id)
+            .is("read_at", null);
+          window.dispatchEvent(new Event("messages-read"));
+        }
       }
     };
 
     fetchMessages();
-  }, [conversationId]);
+  }, [conversationId, user]);
 
   // Subscribe to new messages
   useEffect(() => {
@@ -103,6 +115,14 @@ const GroupChat = ({ group }: GroupChatProps) => {
             if (prev.some((m) => m.id === newMsg.id)) return prev;
             return [...prev, { ...newMsg, sender: profile }];
           });
+          // Chat is open — immediately mark an incoming message read.
+          if (user && newMsg.sender_id !== user.id) {
+            await supabase
+              .from("messages")
+              .update({ read_at: new Date().toISOString() })
+              .eq("id", newMsg.id);
+            window.dispatchEvent(new Event("messages-read"));
+          }
         }
       )
       .subscribe();
@@ -110,7 +130,7 @@ const GroupChat = ({ group }: GroupChatProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, user]);
 
   // Scroll to bottom on new messages
   useEffect(() => {

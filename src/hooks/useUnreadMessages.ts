@@ -5,10 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const useUnreadMessages = () => {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [groupUnreadCount, setGroupUnreadCount] = useState(0);
 
   const fetchUnreadCount = useCallback(async () => {
     if (!user) {
       setUnreadCount(0);
+      setGroupUnreadCount(0);
       return;
     }
 
@@ -20,10 +22,21 @@ export const useUnreadMessages = () => {
 
     if (!participations?.length) {
       setUnreadCount(0);
+      setGroupUnreadCount(0);
       return;
     }
 
     const conversationIds = participations.map((p) => p.conversation_id);
+
+    // Internal group chats live under Focus, not the Inbox — count them separately
+    // so a group message doesn't get stuck on the Inbox icon.
+    const { data: convs } = await supabase
+      .from("conversations")
+      .select("id, type")
+      .in("id", conversationIds);
+    const groupConvIds = new Set(
+      (convs ?? []).filter((c) => c.type === "group").map((c) => c.id)
+    );
 
     // Fetch unread message rows and count them client-side to avoid false totals
     // when the backend count metadata becomes inconsistent.
@@ -36,10 +49,18 @@ export const useUnreadMessages = () => {
 
     if (error) {
       setUnreadCount(0);
+      setGroupUnreadCount(0);
       return;
     }
 
-    setUnreadCount(data?.length || 0);
+    let direct = 0;
+    let group = 0;
+    for (const m of data ?? []) {
+      if (groupConvIds.has(m.conversation_id)) group++;
+      else direct++;
+    }
+    setUnreadCount(direct);
+    setGroupUnreadCount(group);
   }, [user]);
 
   useEffect(() => {
@@ -92,5 +113,5 @@ export const useUnreadMessages = () => {
     };
   }, [user, fetchUnreadCount]);
 
-  return { unreadCount, refetch: fetchUnreadCount };
+  return { unreadCount, groupUnreadCount, refetch: fetchUnreadCount };
 };

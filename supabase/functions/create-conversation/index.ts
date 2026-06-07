@@ -90,19 +90,36 @@ serve(async (req) => {
         .maybeSingle();
 
       if (existing) {
-        // Ensure caller is a participant (in case they joined the group after the chat was created)
-        const { data: isParticipant } = await supabase
-          .from("conversation_participants")
-          .select("id")
-          .eq("conversation_id", existing.id)
-          .eq("user_id", callerId)
-          .maybeSingle();
+        // Re-sync participants: ensure the creator + ALL accepted members are
+        // participants, so members who accepted AFTER the chat was first created
+        // still receive messages (RLS + realtime both require participation).
+        const { data: groupRow } = await supabase
+          .from("housing_groups")
+          .select("created_by")
+          .eq("id", body.group_id)
+          .single();
+        const { data: members } = await supabase
+          .from("housing_group_members")
+          .select("user_id")
+          .eq("group_id", body.group_id)
+          .eq("status", "accepted");
 
-        if (!isParticipant) {
-          await supabase.from("conversation_participants").insert({
-            conversation_id: existing.id,
-            user_id: callerId,
-          });
+        const wanted = new Set<string>();
+        if (groupRow?.created_by) wanted.add(groupRow.created_by);
+        (members || []).forEach((m) => wanted.add(m.user_id));
+        wanted.add(callerId);
+
+        const { data: existingParts } = await supabase
+          .from("conversation_participants")
+          .select("user_id")
+          .eq("conversation_id", existing.id);
+        const have = new Set((existingParts || []).map((p) => p.user_id));
+
+        const toAdd = Array.from(wanted).filter((id) => !have.has(id));
+        if (toAdd.length > 0) {
+          await supabase.from("conversation_participants").insert(
+            toAdd.map((user_id) => ({ conversation_id: existing.id, user_id }))
+          );
         }
 
         return new Response(JSON.stringify({ conversation: existing }), {

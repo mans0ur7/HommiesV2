@@ -16,7 +16,7 @@ const BottomNavigation = () => {
   const { profile } = useAuth();
   const { t } = useTranslation();
   const isLandlord = profile?.user_type === "landlord";
-  const { unreadCount } = useUnreadMessages();
+  const { unreadCount, groupUnreadCount } = useUnreadMessages();
 
   const navItems: NavItem[] = [
     {
@@ -79,6 +79,11 @@ const BottomNavigation = () => {
                   {item.href === "/inbox" && unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full px-0.5 leading-none">
                       {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                  {item.href === "/focus" && groupUnreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full px-0.5 leading-none">
+                      {groupUnreadCount > 99 ? "99+" : groupUnreadCount}
                     </span>
                   )}
                 </div>

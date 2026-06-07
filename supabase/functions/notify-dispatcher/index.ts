@@ -64,7 +64,32 @@ async function handleMessage(record: any) {
   const senderName = senderProfile?.name ?? "Nogen";
   const preview = (content ?? "").slice(0, 80);
 
-  await sendPush(enabled, `Ny besked fra ${senderName}`, preview || "Du har en ny besked", "/inbox");
+  // Internal group chats live under Focus — make the push name the group and link
+  // there (a direct chat keeps the sender name + /inbox).
+  const { data: conv } = await admin
+    .from("conversations")
+    .select("type, group_id")
+    .eq("id", conversation_id)
+    .maybeSingle();
+
+  const isGroup = (conv as any)?.type === "group";
+  let title = `Ny besked fra ${senderName}`;
+  let url = "/inbox";
+  if (isGroup && (conv as any)?.group_id) {
+    const { data: grp } = await admin
+      .from("housing_groups")
+      .select("name")
+      .eq("id", (conv as any).group_id)
+      .maybeSingle();
+    title = `Ny besked i ${grp?.name ?? "din gruppe"}`;
+    url = "/focus";
+  }
+
+  const body = isGroup
+    ? (preview ? `${senderName}: ${preview}` : `${senderName} skrev i gruppen`)
+    : (preview || "Du har en ny besked");
+
+  await sendPush(enabled, title, body, url);
 }
 
 async function handleMatchRequest(record: any) {
