@@ -478,6 +478,16 @@ const Inbox = () => {
   const roomieRequests = [...pendingRequestsByTab.roomie];
   const landlordRequests = [...pendingRequestsByTab.landlord];
 
+  // Per-tab unread message totals — so each tab shows where new messages are.
+  // Opening the inbox from a notification, you immediately see which side it's on
+  // instead of landing on an empty tab and having to switch manually.
+  const landlordUnread = allConversations
+    .filter((c) => c.type === "landlord")
+    .reduce((n, c) => n + (c.unreadCount || 0), 0);
+  const roomieUnread =
+    allConversations.filter((c) => c.type === "roomie").reduce((n, c) => n + (c.unreadCount || 0), 0) +
+    groupConversations.reduce((n, c) => n + (c.unreadCount || 0), 0);
+
   const handleSelectConversationMobile = (conversation: Conversation) => {
     handleSelectConversation(conversation);
     const isMobileView = window.matchMedia("(max-width: 767px)").matches;
@@ -556,6 +566,13 @@ const Inbox = () => {
                     >
                       <Home className="w-3.5 h-3.5" />
                       <span>{t("inbox.tabLandlord")}</span>
+                      {landlordUnread > 0 && (
+                        <span className={`ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center ${
+                          activeTab === "landlord" ? "bg-background text-foreground" : "bg-secondary text-secondary-foreground"
+                        }`}>
+                          {landlordUnread > 9 ? "9+" : landlordUnread}
+                        </span>
+                      )}
                     </button>
                     <button
                       onClick={() => setActiveTab("roomie")}
@@ -567,6 +584,13 @@ const Inbox = () => {
                     >
                       <User className="w-3.5 h-3.5" />
                       <span>{t("inbox.tabRoomies")}</span>
+                      {roomieUnread > 0 && (
+                        <span className={`ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold flex items-center justify-center ${
+                          activeTab === "roomie" ? "bg-background text-foreground" : "bg-secondary text-secondary-foreground"
+                        }`}>
+                          {roomieUnread > 9 ? "9+" : roomieUnread}
+                        </span>
+                      )}
                     </button>
                   </div>
                 </div>
