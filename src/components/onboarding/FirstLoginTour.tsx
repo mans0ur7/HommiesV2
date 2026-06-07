@@ -44,7 +44,7 @@ const FirstLoginTour = () => {
 
   return (
     <div className="fixed inset-0 z-[120] bg-foreground/60 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-6">
-      <div className="bg-background w-full md:max-w-md rounded-t-3xl md:rounded-3xl border border-border/60 p-6 md:p-8 relative">
+      <div className="bg-background w-full md:max-w-md rounded-t-3xl md:rounded-3xl border border-border/60 p-6 md:p-8 pb-[calc(1.5rem+var(--safe-bottom))] md:pb-8 relative">
         <button
           onClick={close}
           aria-label="Skip"
