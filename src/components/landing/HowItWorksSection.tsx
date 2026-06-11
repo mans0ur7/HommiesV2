@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { UserCircle2, Sparkles, MessageSquare, ArrowRight, Check } from "lucide-react";
+import Reveal from "@/components/common/Reveal";
 
 const HowItWorksSection = () => {
   const navigate = useNavigate();
@@ -9,17 +10,17 @@ const HowItWorksSection = () => {
   return (
     <section className="bg-background py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="max-w-2xl mb-10 sm:mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
+        <Reveal className="max-w-2xl mb-10 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground">
             {t("landing.howTitle")}
           </h2>
           <p className="mt-3 text-muted-foreground text-base sm:text-lg">
             {t("landing.howSubtitle")}
           </p>
-        </div>
+        </Reveal>
 
         {/* Bento grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
+        <Reveal as="div" delay={80} className="grid grid-cols-1 lg:grid-cols-6 gap-4">
           {/* Step 1 — wide */}
           <div className="lg:col-span-3 lg:row-span-2 rounded-3xl bg-card border border-border p-6 sm:p-8 flex flex-col justify-between min-h-[320px] overflow-hidden">
             <div className="flex items-center gap-3">
@@ -109,7 +110,7 @@ const HowItWorksSection = () => {
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -25,7 +25,7 @@ const CTASection = () => {
               <div className="text-xs uppercase tracking-[0.2em] text-primary-foreground/60 mb-4">
                 {t("landing.ctaEyebrow")}
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-[1.05]">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display leading-[1.05]">
                 {t("landing.ctaLine1")}
                 <br />
                 <span className="text-primary-foreground/60">{t("landing.ctaLine2")}</span>

@@ -43,7 +43,7 @@ const FeaturedRoomsSection = () => {
         {/* Header */}
         <div className="flex items-end justify-between mb-8 sm:mb-10 gap-4">
           <div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground">
               {t("landing.featuredTitle")}
             </h2>
             <p className="mt-2 text-muted-foreground text-sm sm:text-base">

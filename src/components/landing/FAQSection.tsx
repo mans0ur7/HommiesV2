@@ -24,7 +24,7 @@ const FAQSection = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid lg:grid-cols-[1fr_1.6fr] gap-10 lg:gap-16">
           <div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground">
               {t("landing.faqHeader")}
             </h2>
             <p className="mt-3 text-muted-foreground text-base">

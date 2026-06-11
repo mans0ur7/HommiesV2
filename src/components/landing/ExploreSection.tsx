@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import Reveal from "@/components/common/Reveal";
 import copenhagenImg from "@/assets/cities/copenhagen.jpg";
 import aarhusImg from "@/assets/cities/aarhus.jpg";
 import odenseImg from "@/assets/cities/odense.jpg";
@@ -52,16 +53,16 @@ const ExploreSection = () => {
   return (
     <section className="bg-secondary/30 py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-8 sm:mb-10 gap-4">
+        <Reveal className="flex items-end justify-between mb-8 sm:mb-10 gap-4">
           <div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground">
               {t("landing.exploreTitle")}
             </h2>
             <p className="mt-2 text-muted-foreground text-sm sm:text-base">
               {t("landing.exploreSubtitle")}
             </p>
           </div>
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <CityTile city={kbh} className="col-span-2 row-span-2 aspect-[4/5] lg:aspect-auto" onClick={go} />
@@ -88,7 +89,7 @@ const CityTile = ({
   return (
     <button
       onClick={() => onClick(city.name)}
-      className={`group relative overflow-hidden rounded-2xl bg-muted text-left ${className}`}
+      className={`group relative overflow-hidden rounded-2xl bg-muted text-left shadow-soft hover-lift ${className}`}
     >
       <img
         src={city.image}

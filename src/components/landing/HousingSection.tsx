@@ -13,7 +13,7 @@ const HousingSection = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8 sm:mb-10 gap-4">
           <div className="max-w-2xl">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display text-foreground">
               {t("landing.housingTitle")}
             </h2>
             <p className="mt-3 text-muted-foreground text-base sm:text-lg">
