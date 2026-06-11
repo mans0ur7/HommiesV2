@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { getTraitBadgeClass } from "@/lib/traits";
+import ProfilePrompts from "@/components/profile/ProfilePrompts";
 
 interface RoomieProfile {
   id: string;
@@ -205,6 +206,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
                 <p className="text-sm text-foreground/70 leading-relaxed line-clamp-4">{roomie.bio}</p>
               </div>
             )}
+            <ProfilePrompts prompts={(roomie as any).prompts} />
           </div>
         </div>
 

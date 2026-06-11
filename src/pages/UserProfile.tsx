@@ -7,6 +7,7 @@ import Navbar from "@/components/landing/Navbar";
 import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { personalityOptions, lifestyleOptions } from "@/lib/traits";
+import ProfilePrompts from "@/components/profile/ProfilePrompts";
 
 interface Property {
   id: string;
@@ -266,6 +267,9 @@ const UserProfile = () => {
                 </button>
               )}
             </div>
+
+            {/* Prompts */}
+            <ProfilePrompts prompts={(profile as any).prompts} />
 
             {/* Personality */}
             {personality.length > 0 && (

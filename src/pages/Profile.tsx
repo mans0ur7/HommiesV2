@@ -40,6 +40,9 @@ import { allLanguages } from "@/data/languages";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import ProfilePrompts from "@/components/profile/ProfilePrompts";
+import ProfilePromptsEditor from "@/components/profile/ProfilePromptsEditor";
+import { parsePrompts, type ProfilePrompt } from "@/data/profilePrompts";
 
 const genderOptions = [
   { value: "male", label: "Mand" },
@@ -81,6 +84,7 @@ const Profile = () => {
   const [personality, setPersonality] = useState<string[]>([]);
   const [lifestyle, setLifestyle] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
+  const [prompts, setPrompts] = useState<ProfilePrompt[]>([]);
   const [monthlyBudget, setMonthlyBudget] = useState("");
   const [rentalPeriod, setRentalPeriod] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -144,6 +148,7 @@ const Profile = () => {
       setRentalPeriod(profile.rental_period || "");
       setAvatarPreview(profile.avatar_url || null);
       setProfileImages((profile as any).images || []);
+      setPrompts(parsePrompts((profile as any).prompts));
     }
     if (user) {
       setNewEmail(user.email || "");
@@ -303,6 +308,7 @@ const Profile = () => {
           rental_period: rentalPeriod || null,
           avatar_url: avatarUrl,
           images: uploadedImageUrls,
+          prompts: prompts.filter((p) => p.answer.trim().length > 0),
         })
         .eq("id", profile.id);
 
@@ -379,6 +385,7 @@ const Profile = () => {
       setRentalPeriod(profile.rental_period || "");
       setAvatarPreview(profile.avatar_url || null);
       setAvatarFile(null);
+      setPrompts(parsePrompts((profile as any).prompts));
     }
     setIsEditing(false);
   };
@@ -596,6 +603,15 @@ const Profile = () => {
               <div className="space-y-2">
                 <Label>{t("profile.aboutMe")}</Label>
                 <Textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder={t("profile.bioPlaceholderOwn")} rows={4} />
+              </div>
+
+              {/* Prompts — small, conversational personality */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Prompts</Label>
+                  <span className="text-xs text-muted-foreground">Gør din profil personlig</span>
+                </div>
+                <ProfilePromptsEditor value={prompts} onChange={setPrompts} />
               </div>
 
               {/* Personality */}
@@ -915,6 +931,9 @@ const Profile = () => {
                 </button>
               )}
             </div>
+
+            {/* Prompts */}
+            <ProfilePrompts prompts={(profile as any).prompts} />
 
             {/* Personality */}
             {personality.length > 0 && (
