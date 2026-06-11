@@ -60,23 +60,23 @@ const HeroSection = () => {
   const small2Img = small2?.images?.[0] ?? fallbackImages[2];
 
   return (
-    <section className="relative bg-background pt-6 pb-12 sm:pt-10 sm:pb-20">
+    <section className="relative hero-mesh pt-6 pb-12 sm:pt-10 sm:pb-20 overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-14 items-center">
           {/* LEFT — copy + search */}
           <div>
-            <h1 className="font-semibold tracking-[-0.03em] text-foreground leading-[1.02] text-[clamp(2.4rem,5.5vw,4.25rem)]">
+            <h1 className="font-display text-foreground leading-[1.0] text-[clamp(2.6rem,6vw,4.75rem)] animate-fade-in-up">
               {t("landing.heroLine1")}
               <br />
-              <span className="text-foreground/50">{t("landing.heroLine2")}</span>
+              <span className="italic text-secondary-foreground/45">{t("landing.heroLine2")}</span>
             </h1>
-            <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed">
+            <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed animate-fade-in-up" style={{ animationDelay: "90ms", animationFillMode: "backwards" }}>
               {t("landing.heroSubtitle")}
             </p>
 
             {/* Search panel */}
-            <div ref={wrapperRef} className="relative mt-8">
-              <div className="bg-card border border-border rounded-2xl shadow-[0_8px_30px_-12px_rgba(3,42,59,0.15)] overflow-hidden">
+            <div ref={wrapperRef} className="relative mt-8 animate-fade-in-up" style={{ animationDelay: "180ms", animationFillMode: "backwards" }}>
+              <div className="bg-card border border-border rounded-2xl shadow-soft-lg overflow-hidden">
                 <form onSubmit={handleSubmit} className="flex items-stretch p-2 gap-2">
                   <div className="flex-1 flex items-center gap-2 px-3 min-w-0">
                     <Search className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -138,7 +138,7 @@ const HeroSection = () => {
             </div>
 
             {/* Quick shortcuts */}
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: "260ms", animationFillMode: "backwards" }}>
               <span>{t("landing.heroPopular")}</span>
               {["København", "Aarhus", "Odense", "Aalborg"].map((c) => (
                 <button
@@ -153,7 +153,7 @@ const HeroSection = () => {
           </div>
 
           {/* RIGHT — bento */}
-          <div className="hidden lg:grid grid-cols-5 grid-rows-6 gap-3 h-[500px]">
+          <div className="hidden lg:grid grid-cols-5 grid-rows-6 gap-3 h-[500px] animate-fade-in-up" style={{ animationDelay: "120ms", animationFillMode: "backwards" }}>
             <BentoCard
               className="col-span-3 row-span-6"
               image={bigImg}
@@ -214,7 +214,7 @@ const BentoCard = ({ className = "", image, title, price, onClick }: BentoCardPr
   return (
     <button
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl bg-muted ${className}`}
+      className={`group relative overflow-hidden rounded-2xl bg-muted shadow-soft hover-lift ${className}`}
     >
       {image ? (
         <img

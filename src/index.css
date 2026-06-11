@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+/* Fonts load via <link> in index.html (with preconnect) for faster first paint. */
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 /* Hommies Design System
    Colors: Dark Blue (#032A3B) and Rose (#FFC2BB)
-   Font: DM Sans (closest to Neue Haas Grotesk Display Pro)
+   Fonts: DM Sans (UI/body) + Fraunces (warm editorial display headings)
 */
 
 @layer base {
@@ -46,7 +46,11 @@
     --input: 220 13% 91%;
     --ring: 195 92% 12%;
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
+
+    /* Warm, soft elevation — tinted with the brand blue instead of pure black,
+       so shadows feel like part of the palette rather than a grey haze. */
+    --shadow-color: 195 60% 18%;
 
     /* Footer: Dark teal/blue */
     --footer: 195 92% 12%;
@@ -124,7 +128,58 @@
   .glass {
     @apply bg-gradient-to-r from-white/95 to-white/85 backdrop-blur-lg shadow-lg;
   }
-  
+
+  /* Warm editorial display type — Fraunces with optical sizing. Used on big
+     hero / section headings for character; UI stays DM Sans. */
+  .font-display {
+    font-family: "Fraunces", "DM Sans", Georgia, serif;
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+  }
+
+  /* Soft, brand-tinted elevation — replaces the default flat grey shadows. */
+  .shadow-soft {
+    box-shadow: 0 1px 2px hsl(var(--shadow-color) / 0.06),
+                0 8px 24px -12px hsl(var(--shadow-color) / 0.18);
+  }
+  .shadow-soft-lg {
+    box-shadow: 0 2px 4px hsl(var(--shadow-color) / 0.05),
+                0 24px 48px -20px hsl(var(--shadow-color) / 0.28);
+  }
+  /* Lift on hover for cards/tiles. */
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 2px 4px hsl(var(--shadow-color) / 0.06),
+                0 28px 50px -22px hsl(var(--shadow-color) / 0.30);
+  }
+
+  /* Warm gradient-mesh backdrop for heroes/sections — soft rose + blue washes
+     on top of the background so it doesn't read as flat white. */
+  .hero-mesh {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(40rem 40rem at 88% -10%, hsl(var(--secondary) / 0.45), transparent 60%),
+      radial-gradient(34rem 34rem at -8% 8%, hsl(var(--warm) / 0.7), transparent 60%);
+  }
+
+  /* Scroll-reveal: elements start hidden and rise into place when in view
+     (toggled by the .is-visible class via the useReveal hook). */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
@@ -158,6 +213,11 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+    /* Never leave reveal content hidden when motion is disabled. */
+    .reveal {
+      opacity: 1 !important;
+      transform: none !important;
     }
   }
 }
