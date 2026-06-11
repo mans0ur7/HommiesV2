@@ -192,6 +192,30 @@ export const isValidCity = (query: string): boolean => {
   return danishCities.some(city => normalizeCity(city) === normalized);
 };
 
+// DAWA's officielle postnrnavne for centrale bydele — "Nørrebro" findes ikke som
+// postdistrikt; adressen får city "København N". Bruges til at oversætte brugerens
+// by-valg til et prefix der matcher properties.city (som altid er DAWA-postnrnavn).
+const dawaDistrictByCity: Record<string, string> = {
+  "nørrebro": "København N",
+  "østerbro": "København Ø",
+  "vesterbro": "København V",
+  "amager": "København S",
+};
+
+// Prefix til ilike-søgninger mod properties.city ("København" → matcher "København N/Ø/…")
+export const dawaCityQueryPrefix = (city: string): string => {
+  return dawaDistrictByCity[normalizeCity(city)] ?? city.trim();
+};
+
+// DAWA-postdistrikter som "København N", "Aarhus C", "Odense SV", "Aalborg Øst" er
+// gyldige annonce-byer, selvom de ikke står i danishCities-listen.
+const postalDistrictSuffix = /\s+(n|s|ø|v|k|c|m|nv|nø|sv|sø|øst|vest|nord|syd)$/i;
+export const isValidListingCity = (query: string): boolean => {
+  if (isValidCity(query)) return true;
+  const base = query.replace(postalDistrictSuffix, "");
+  return base !== query && isValidCity(base);
+};
+
 // Get matching cities for autocomplete
 export const getMatchingCities = (query: string): string[] => {
   if (!query.trim()) return [];

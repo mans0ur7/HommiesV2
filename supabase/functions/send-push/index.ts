@@ -142,6 +142,16 @@ async function sendNative(
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
+  // Kun interne kald med service-role-nøglen (notify-dispatcher) er tilladt.
+  // Den offentlige anon-nøgle passerer platformens verify_jwt og skal afvises her —
+  // ellers kan enhver sende vilkårlige push-beskeder (phishing) til kendte bruger-id'er.
+  const auth = req.headers.get("authorization") ?? "";
+  if (auth !== `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`) {
+    return new Response(JSON.stringify({ error: "forbidden" }), {
+      status: 403, headers: { ...CORS, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const { user_ids, title, body, url } = await req.json();
     if (!Array.isArray(user_ids) || user_ids.length === 0 || !title || !body) {

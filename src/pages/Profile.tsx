@@ -230,13 +230,21 @@ const Profile = () => {
 
       if (avatarFile) {
         const fileExt = avatarFile.name.split(".").pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        
+        // Storage-RLS kræver at filen ligger i en mappe navngivet efter brugerens uid
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
         const { error: uploadError } = await supabase.storage
           .from("avatars")
           .upload(fileName, avatarFile);
 
-        if (!uploadError) {
+        if (uploadError) {
+          console.error("Avatar upload error:", uploadError);
+          toast({
+            variant: "destructive",
+            title: t("profile.error"),
+            description: t("profile.avatarUploadError"),
+          });
+        } else {
           const { data: urlData } = supabase.storage
             .from("avatars")
             .getPublicUrl(fileName);
@@ -250,20 +258,31 @@ const Profile = () => {
       );
       const uploadedImageUrls: string[] = [...existingImages];
 
+      let failedImageUploads = 0;
       for (const file of newImageFiles) {
         const fileExt = file.name.split(".").pop();
-        const fileName = `${user.id}-profile-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        
+        const fileName = `${user.id}/profile-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
         const { error: uploadError } = await supabase.storage
           .from("avatars")
           .upload(fileName, file);
 
-        if (!uploadError) {
+        if (uploadError) {
+          console.error("Profile image upload error:", uploadError);
+          failedImageUploads++;
+        } else {
           const { data: urlData } = supabase.storage
             .from("avatars")
             .getPublicUrl(fileName);
           uploadedImageUrls.push(urlData.publicUrl);
         }
+      }
+      if (failedImageUploads > 0) {
+        toast({
+          variant: "destructive",
+          title: t("profile.error"),
+          description: t("profile.imageUploadError"),
+        });
       }
 
       const { error } = await supabase

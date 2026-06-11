@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchAgents } from "@/hooks/useSearchAgents";
+import { dawaCityQueryPrefix } from "@/data/danishCities";
 
 export interface RecommendedHome {
   id: string;
@@ -54,7 +55,9 @@ export const useRecommendedHomes = (enabled: boolean) => {
         .limit(8);
 
       if (preferredCity) {
-        query = query.eq("city", preferredCity);
+        // properties.city er DAWA-postnrnavne ("København N") — prefix-match i stedet
+        // for eksakt lighed, så "København" og bydele som "Nørrebro" også rammer.
+        query = query.ilike("city", `${dawaCityQueryPrefix(preferredCity)}%`);
       }
 
       const { data, error } = await query;

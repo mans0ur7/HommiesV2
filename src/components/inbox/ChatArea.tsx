@@ -359,10 +359,7 @@ const ChatArea = ({
       if (error) throw error;
       if (data) {
         setMessages((prev) => [...prev, data]);
-        await supabase
-          .from("conversations")
-          .update({ updated_at: new Date().toISOString() })
-          .eq("id", conversation.id);
+        // conversations.updated_at bumpes af DB-triggeren bump_conversation_updated_at
         onMessageSent();
       }
     } catch (e: unknown) {
@@ -411,10 +408,6 @@ const ChatArea = ({
 
       if (data) {
         setMessages((prev) => [...prev, data]);
-        await supabase
-          .from("conversations")
-          .update({ updated_at: new Date().toISOString() })
-          .eq("id", conversation.id);
         onMessageSent();
       }
     } catch (e: unknown) {
@@ -457,14 +450,9 @@ const ChatArea = ({
       toast.error("Kunne ikke sende besked");
     } else if (data) {
       // Replace optimistic message with real one
-      setMessages((prev) => 
+      setMessages((prev) =>
         prev.map((m) => m.id === optimisticMessage.id ? data : m)
       );
-      
-      await supabase
-        .from("conversations")
-        .update({ updated_at: new Date().toISOString() })
-        .eq("id", conversation.id);
 
       // Throttled server-side; safe to fire-and-forget after every send.
       supabase.rpc("refresh_my_response_time").then(({ error: rpcErr }) => {

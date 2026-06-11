@@ -493,6 +493,8 @@
     "genderRequiredBody": "Please select your gender",
     "error": "Error",
     "errorCreate": "Could not create profile. Please try again.",
+    "avatarUploadError": "Your profile picture could not be uploaded. Your profile was saved without it — try adding it again under Profile.",
+    "imageUploadError": "One or more images could not be uploaded. Please try again.",
     "created": "Profile created!",
     "welcome": "Welcome to Hommies",
     "fillAll": "Fill out all fields?",

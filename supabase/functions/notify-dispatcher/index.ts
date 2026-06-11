@@ -169,6 +169,16 @@ async function handleNotificationRow(record: any) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
+  // Kun Database Webhooks (sender service-role-nøglen i Authorization) og interne
+  // service-kald er tilladt. Uden dette tjek kan enhver med den offentlige anon-nøgle
+  // poste falske webhook-bodies og udløse push til vilkårlige brugere.
+  const auth = req.headers.get("authorization") ?? "";
+  if (auth !== `Bearer ${SERVICE_KEY}`) {
+    return new Response(JSON.stringify({ error: "forbidden" }), {
+      status: 403, headers: { ...CORS, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const body = await req.json();
     if (body.type !== "INSERT") {

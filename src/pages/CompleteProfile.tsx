@@ -162,14 +162,20 @@ const CompleteProfile = () => {
       // Upload avatar if provided
       if (avatarFile) {
         const fileExt = avatarFile.name.split(".").pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        
+        // Storage-RLS kræver at filen ligger i en mappe navngivet efter brugerens uid
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
         const { error: uploadError, data } = await supabase.storage
           .from("avatars")
           .upload(fileName, avatarFile);
 
         if (uploadError) {
           console.error("Avatar upload error:", uploadError);
+          toast({
+            variant: "destructive",
+            title: t("profile.error"),
+            description: t("profile.avatarUploadError"),
+          });
         } else {
           const { data: urlData } = supabase.storage
             .from("avatars")

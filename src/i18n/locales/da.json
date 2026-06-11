@@ -493,6 +493,8 @@
     "genderRequiredBody": "Vælg venligst dit køn",
     "error": "Fejl",
     "errorCreate": "Kunne ikke oprette profil. Prøv igen.",
+    "avatarUploadError": "Dit profilbillede kunne ikke uploades. Profilen er gemt uden billede — prøv at tilføje det igen under Profil.",
+    "imageUploadError": "Et eller flere billeder kunne ikke uploades. Prøv igen.",
     "created": "Profil oprettet!",
     "welcome": "Velkommen til Hommies",
     "fillAll": "Udfyld alle felter?",

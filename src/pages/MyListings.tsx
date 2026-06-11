@@ -9,7 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Edit, Trash2, Eye, EyeOff, MapPin, Home, Check, ChevronLeft, ChevronRight, X, CreditCard, RefreshCw, Sparkles, Clock, Upload, Image as ImageIcon, AlertCircle, Gift, Loader2 } from "lucide-react";
-import { danishCities, getMatchingCities, isValidCity, getProperCityName } from "@/data/danishCities";
+import { danishCities, getMatchingCities, isValidListingCity, getProperCityName } from "@/data/danishCities";
 import { useDawaAutocomplete } from "@/hooks/useDawaAutocomplete";
 import { format, differenceInDays } from "date-fns";
 import { da } from "date-fns/locale";
@@ -821,7 +821,11 @@ const nextStep = () => {
 
   // Validation states for step 2
   const isValidPostalCode = /^\d{4}$/.test(formData.postal_code);
-  const cityValid = isValidCity(formData.city);
+  // En DAWA-bekræftet adresse har pr. definition en gyldig dansk by (postnrnavnet kan
+  // være et postdistrikt som "København N", der ikke står i danishCities-listen).
+  const cityValid =
+    (addressConfirmed && formData.city.trim().length > 0) ||
+    isValidListingCity(formData.city);
   const citySuggestions = useMemo(() => getMatchingCities(formData.city), [formData.city]);
   const addressValid = formData.address.trim().length >= 3;
 
