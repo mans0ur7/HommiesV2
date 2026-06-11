@@ -375,8 +375,9 @@ const Explore = () => {
         <section className="relative bg-background border-b border-border/60">
           <div className="container mx-auto px-3 md:px-6 lg:px-8 pt-6 md:pt-12 pb-6 md:pb-10">
             <div className="grid lg:grid-cols-12 gap-6 lg:gap-10 items-end">
-              {/* Left: copy + search */}
-              <div className="lg:col-span-7 space-y-5 md:space-y-7">
+              {/* Left: copy + search. På roomie-fanen fylder den hele bredden (ingen
+                  bolig-collage til højre), så der ikke står et tomt felt. */}
+              <div className={`${activeTab === "roomies" ? "lg:col-span-12" : "lg:col-span-7"} space-y-5 md:space-y-7`}>
                 <button
                   onClick={() => navigate(-1)}
                   className="inline-flex items-center gap-1 text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors"
