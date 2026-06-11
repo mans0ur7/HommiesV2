@@ -89,16 +89,16 @@ const LoggedInHome = () => {
         {!isMobile && <Navbar />}
 
         {/* ───────── HERO: greeting + adaptive CTA + search ───────── */}
-        <section className="px-4 md:px-6 lg:px-12 pt-8 md:pt-14 pb-8 md:pb-10">
+        <section className="hero-mesh px-4 md:px-6 lg:px-12 pt-8 md:pt-14 pb-8 md:pb-10">
           <div className="container mx-auto max-w-7xl">
             <div className="flex items-end justify-between gap-6 mb-8 md:mb-10">
               <div>
-                <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-3">
+                <span className="inline-flex items-center gap-2 text-xs font-medium text-foreground/60 mb-3 animate-fade-in-up">
                   <span className="w-6 h-px bg-foreground/30" />
                   {greeting}
                   {firstName ? `, ${firstName}` : ""}
                 </span>
-                <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05]">
+                <h1 className="text-4xl md:text-6xl font-display text-foreground leading-[1.02] animate-fade-in-up" style={{ animationDelay: "70ms", animationFillMode: "backwards" }}>
                   {isLandlord ? t("home.heroLandlord") : t("home.heroRoomie")}
                 </h1>
               </div>
@@ -113,7 +113,7 @@ const LoggedInHome = () => {
             </div>
 
             {/* Search bar */}
-            <div className="relative rounded-2xl border border-border/70 bg-background flex items-center gap-2 p-1.5 md:p-2">
+            <div className="relative rounded-2xl border border-border/70 bg-card shadow-soft flex items-center gap-2 p-1.5 md:p-2">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/50" />
                 <Input
@@ -177,7 +177,7 @@ const LoggedInHome = () => {
                       {t("home.recommendedEyebrow")}
                     </span>
                   </div>
-                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+                  <h2 className="text-2xl md:text-4xl font-display text-foreground">
                     {t("home.recommendedTitle")}
                   </h2>
                 </div>
@@ -230,7 +230,7 @@ const LoggedInHome = () => {
                       {t("home.compatibleEyebrow")}
                     </span>
                   </div>
-                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+                  <h2 className="text-2xl md:text-4xl font-display text-foreground">
                     {t("home.compatibleTitle")}
                   </h2>
                 </div>
@@ -324,7 +324,7 @@ const LoggedInHome = () => {
                       {t("home.similarEyebrow")}
                     </span>
                   </div>
-                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+                  <h2 className="text-2xl md:text-4xl font-display text-foreground">
                     {t("home.similarTitle", { title: anchorTitle })}
                   </h2>
                 </div>
@@ -377,7 +377,7 @@ const LoggedInHome = () => {
                       {t("home.favoritesEyebrow")}
                     </span>
                   </div>
-                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+                  <h2 className="text-2xl md:text-4xl font-display text-foreground">
                     {t("home.savedHomes")}
                   </h2>
                 </div>

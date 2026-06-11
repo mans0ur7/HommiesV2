@@ -33,7 +33,7 @@ const PropertyCard = ({ id, title, location, price, image, isLiked = false, onHe
       role="button"
       tabIndex={0}
       aria-label={`${title} i ${location} - ${price.toLocaleString()} kr/md`}
-      className="group rounded-2xl border border-border/60 overflow-hidden bg-card cursor-pointer transition-colors hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      className="group rounded-2xl border border-border/60 overflow-hidden bg-card cursor-pointer shadow-soft hover-lift hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       {/* Image */}
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
