@@ -56,7 +56,9 @@ const LoggedInHome = () => {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      navigate(`/explore?search=${encodeURIComponent(searchQuery.trim())}`);
+      // Explore læser ?q= (eller ?city=) — IKKE ?search=, så søgningen blev tidligere
+      // tabt og brugeren landede på ufiltreret Explore.
+      navigate(`/explore?q=${encodeURIComponent(searchQuery.trim())}`);
     } else {
       navigate("/explore");
     }

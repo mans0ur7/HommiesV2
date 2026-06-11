@@ -290,5 +290,28 @@ export async function generateContractPdf(data: HusordensData): Promise<JsPDF> {
 
 export async function downloadContractPdf(data: HusordensData, filename?: string): Promise<void> {
   const doc = await generateContractPdf(data);
-  doc.save(filename ?? `husorden-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+  const name = filename ?? `husorden-${format(new Date(), "yyyy-MM-dd")}.pdf`;
+
+  // I den native app ignorerer WebView'en jsPDF's <a download>-blob — skriv filen til
+  // disk og åbn dele-arket i stedet, så Android-brugere reelt får PDF'en.
+  const { Capacitor } = await import("@capacitor/core");
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const { Filesystem, Directory } = await import("@capacitor/filesystem");
+      const { Share } = await import("@capacitor/share");
+      const base64 = (doc.output("datauristring") as string).split(",")[1];
+      const written = await Filesystem.writeFile({
+        path: name,
+        data: base64,
+        directory: Directory.Cache,
+      });
+      await Share.share({ title: name, url: written.uri });
+      return;
+    } catch (e) {
+      console.error("[pdf] native download/share fejlede", e);
+      // falder igennem til web-save som sidste udvej
+    }
+  }
+
+  doc.save(name);
 }

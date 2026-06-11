@@ -90,15 +90,14 @@ const GroupChat = ({ group }: GroupChatProps) => {
         );
         setMessages(enrichedMessages);
 
-        // We're viewing the chat — mark others' messages read so the unread
-        // indicators (Focus tab + per-group badge) clear.
+        // Vi ser chatten — opdatér MIN egen last_read_at (per-bruger), så unread-indikatoren
+        // kun nulstilles for mig, ikke for de andre gruppemedlemmer (delt read_at-fejl).
         if (user) {
           await supabase
-            .from("messages")
-            .update({ read_at: new Date().toISOString() })
+            .from("conversation_participants")
+            .update({ last_read_at: new Date().toISOString() })
             .eq("conversation_id", conversationId)
-            .neq("sender_id", user.id)
-            .is("read_at", null);
+            .eq("user_id", user.id);
           window.dispatchEvent(new Event("messages-read"));
         }
       }
@@ -132,12 +131,13 @@ const GroupChat = ({ group }: GroupChatProps) => {
             if (prev.some((m) => m.id === newMsg.id)) return prev;
             return [...prev, { ...newMsg, sender: profile }];
           });
-          // Chat is open — immediately mark an incoming message read.
+          // Chat is open — opdatér min egen last_read_at (ikke beskedens delte read_at).
           if (user && newMsg.sender_id !== user.id) {
             await supabase
-              .from("messages")
-              .update({ read_at: new Date().toISOString() })
-              .eq("id", newMsg.id);
+              .from("conversation_participants")
+              .update({ last_read_at: new Date().toISOString() })
+              .eq("conversation_id", conversationId)
+              .eq("user_id", user.id);
             window.dispatchEvent(new Event("messages-read"));
           }
         }

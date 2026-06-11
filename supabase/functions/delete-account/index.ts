@@ -38,7 +38,6 @@ Deno.serve(async (req) => {
     // Delete user-owned data. Order matters when FKs are not set to cascade.
     // We swallow individual errors so one missing table doesn't abort the whole flow.
     const tables = [
-      "messages",
       "conversation_participants",
       "match_requests",
       "connections",
@@ -54,19 +53,36 @@ Deno.serve(async (req) => {
       "housing_group_members",
       "housing_groups",
       "push_subscriptions",
+      "native_device_tokens",
     ];
 
     for (const t of tables) {
       // Most tables key off user_id. Some use sender_id / receiver_id / created_by.
       await admin.from(t).delete().eq("user_id", uid).then(() => {}, () => {});
     }
+    // messages har INGEN user_id-kolonne (kun sender_id) — den gamle user_id-delete
+    // ramte derfor aldrig brugerens beskeder. Slet dem eksplicit.
+    await admin.from("messages").delete().eq("sender_id", uid).then(()=>{},()=>{});
     // Extra conditions for tables that use different FK names
     await admin.from("match_requests").delete().eq("sender_id",   uid).then(()=>{},()=>{});
     await admin.from("match_requests").delete().eq("receiver_id", uid).then(()=>{},()=>{});
     await admin.from("blocked_users").delete().eq("blocked_user_id", uid).then(()=>{},()=>{});
+    await admin.from("connections").delete().eq("target_user_id", uid).then(()=>{},()=>{});
+    await admin.from("ignored").delete().eq("target_user_id", uid).then(()=>{},()=>{});
+    await admin.from("views").delete().eq("target_user_id", uid).then(()=>{},()=>{});
     await admin.from("housing_groups").delete().eq("created_by", uid).then(()=>{},()=>{});
     await admin.from("contracts").delete().eq("landlord_id", uid).then(()=>{},()=>{});
     await admin.from("contracts").delete().eq("tenant_id",   uid).then(()=>{},()=>{});
+
+    // Brugerens uploadede filer (uid-mappe i hver bucket).
+    for (const bucket of ["avatars", "property-images", "chat-images"]) {
+      try {
+        const { data: files } = await admin.storage.from(bucket).list(uid);
+        if (files?.length) {
+          await admin.storage.from(bucket).remove(files.map((f: { name: string }) => `${uid}/${f.name}`));
+        }
+      } catch { /* best effort */ }
+    }
 
     // Profile row
     await admin.from("profiles").delete().eq("user_id", uid).then(()=>{},()=>{});

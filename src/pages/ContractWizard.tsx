@@ -176,7 +176,7 @@ export default function ContractWizard() {
       const row = {
         landlord_id: data.landlord_id,
         tenant_id:   data.tenant_id,
-        property_id: data.property_id || data.landlord_id, // fallback
+        property_id: data.property_id || null, // husorden uden bolig er gyldig (property_id er nu nullable)
         status: ready ? "ready" : "draft",
         ready_at: ready ? new Date().toISOString() : null,
         landlord_name:  data.landlord_name,

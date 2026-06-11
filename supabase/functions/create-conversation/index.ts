@@ -330,6 +330,68 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const otherId = callerId === userA ? userB : userA;
+
+    // Kræv en accepteret match mellem parterne — funktionen kører med service role
+    // og omgår RLS, så uden dette kunne enhver oprette en samtale med en vilkårlig bruger.
+    const { data: accepted } = await supabase
+      .from("match_requests")
+      .select("id")
+      .eq("status", "accepted")
+      .or(`and(sender_id.eq.${callerId},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${callerId})`)
+      .limit(1);
+    if (!accepted?.length) {
+      return new Response(JSON.stringify({ error: "Ingen accepteret forbindelse mellem parterne" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Afvis hvis nogen af parterne har blokeret den anden.
+    const { data: blocks } = await supabase
+      .from("blocked_users")
+      .select("id")
+      .or(`and(user_id.eq.${callerId},blocked_user_id.eq.${otherId}),and(user_id.eq.${otherId},blocked_user_id.eq.${callerId})`)
+      .limit(1);
+    if (blocks?.length) {
+      return new Response(JSON.stringify({ error: "Blokeret" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Dedup: genbrug en eksisterende 1:1-samtale mellem parret (samme type + property_id)
+    // i stedet for at oprette en ny hver gang.
+    const { data: callerConvs } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", callerId);
+    const callerConvIds = (callerConvs ?? []).map((r: { conversation_id: string }) => r.conversation_id);
+    if (callerConvIds.length) {
+      const { data: shared } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", otherId)
+        .in("conversation_id", callerConvIds);
+      const sharedIds = (shared ?? []).map((r: { conversation_id: string }) => r.conversation_id);
+      if (sharedIds.length) {
+        const { data: existing } = await supabase
+          .from("conversations")
+          .select("id, type, property_id, updated_at")
+          .in("id", sharedIds)
+          .eq("type", body.type)
+          .is("group_id", null);
+        const match = (existing ?? []).find((c: { property_id: string | null }) =>
+          (c.property_id ?? null) === (body.property_id ?? null)
+        );
+        if (match) {
+          return new Response(JSON.stringify({ conversation: match }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
 
     console.log("create-conversation: creating", {
       type: body.type,

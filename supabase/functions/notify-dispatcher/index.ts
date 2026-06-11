@@ -39,7 +39,22 @@ async function handleMessage(record: any) {
     .eq("conversation_id", conversation_id)
     .neq("user_id", sender_id);
 
-  const recipientIds = (parts ?? []).map((p) => p.user_id);
+  let recipientIds = (parts ?? []).map((p) => p.user_id);
+  if (recipientIds.length === 0) return;
+
+  // Blokering: send ikke push til (eller fra) en bruger der er blokeret af modparten.
+  const { data: blocks } = await admin
+    .from("blocked_users")
+    .select("user_id, blocked_user_id")
+    .or(`user_id.eq.${sender_id},blocked_user_id.eq.${sender_id}`);
+  if (blocks?.length) {
+    const blockedPair = new Set<string>();
+    for (const b of blocks as { user_id: string; blocked_user_id: string }[]) {
+      if (b.user_id === sender_id) blockedPair.add(b.blocked_user_id);
+      if (b.blocked_user_id === sender_id) blockedPair.add(b.user_id);
+    }
+    recipientIds = recipientIds.filter((id) => !blockedPair.has(id));
+  }
   if (recipientIds.length === 0) return;
 
   // Filter by per-user push preferences

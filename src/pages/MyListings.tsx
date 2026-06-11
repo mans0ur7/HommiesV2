@@ -999,16 +999,26 @@ const nextStep = () => {
       };
 
       if (editingProperty) {
+        // Redigering må IKKE forlænge/genaktivere annoncen gratis. Bevar status,
+        // publicering, udløbsdato og periode uændret — opdater kun selve indholdet.
+        const {
+          status: _status,
+          is_published: _isPublished,
+          expires_at: _expiresAt,
+          listing_period: _listingPeriod,
+          ...editableData
+        } = propertyData;
+
         const { error } = await supabase
           .from("properties")
-          .update(propertyData)
+          .update(editableData)
           .eq("id", editingProperty.id);
 
         if (error) throw error;
 
         toast({
-          title: t("myListings.updatedAndActivated"),
-          description: t("myListings.activeForDays", { days: selectedListingPeriod }),
+          title: t("myListings.updated"),
+          description: t("myListings.updatedBody"),
         });
         closeForm();
         fetchProperties();

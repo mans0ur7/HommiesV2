@@ -29,19 +29,34 @@ const PeopleWhoWantYou = () => {
     if (!user || busyId) return;
     setBusyId(req.id);
     try {
-      // Mirror Inbox accept: create the connection, then mark the request accepted.
-      const { error: connError } = await supabase.from("connections").insert({
-        user_id: user.id,
-        target_user_id: req.sender.user_id,
-        connection_type: "roomie",
-      });
-      if (connError) throw connError;
-
+      // Markér accepteret først (create-conversation kræver en accepteret match).
       const { error: updateError } = await supabase
         .from("match_requests")
         .update({ status: "accepted" })
         .eq("id", req.id);
       if (updateError) throw updateError;
+
+      // Opret samtalen, så de to parter rent faktisk kan chatte (samme som Inbox-accept).
+      // Tidligere manglede dette kald helt → man accepterede men fik ingen samtale.
+      const { error: convError } = await supabase.functions.invoke("create-conversation", {
+        body: {
+          type: "roomie",
+          participant_ids: [user.id, req.sender.user_id],
+          property_id: null,
+        },
+      });
+      if (convError) {
+        // Rul tilbage så anmodningen kan accepteres igen.
+        await supabase.from("match_requests").update({ status: "pending" }).eq("id", req.id);
+        throw convError;
+      }
+
+      // Registrér forbindelsen (dublet ignoreres af unik-constraint).
+      await supabase.from("connections").insert({
+        user_id: user.id,
+        target_user_id: req.sender.user_id,
+        connection_type: "roomie",
+      });
 
       toast.success(t("home.connectedToast"));
       await refetch();
@@ -113,7 +128,7 @@ const PeopleWhoWantYou = () => {
                 className="w-44 shrink-0 rounded-2xl border border-border/60 bg-background p-4 flex flex-col items-center text-center"
               >
                 <button
-                  onClick={() => navigate(`/profile/${req.sender.user_id}`)}
+                  onClick={() => navigate(`/user/${req.sender.user_id}`)}
                   className="relative w-16 h-16 rounded-full overflow-hidden border border-border/60 bg-muted mb-3"
                   aria-label={t("home.viewProfileAria", { name: firstName })}
                 >

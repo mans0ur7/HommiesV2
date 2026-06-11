@@ -11,11 +11,10 @@ import { useNotifications } from "@/hooks/useNotifications";
 import NotificationPopover from "./NotificationPopover";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const MobileHeader = () => {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { unreadSearchAgentCount } = useSearchAgentNotifications();
@@ -31,12 +30,15 @@ const MobileHeader = () => {
 
   const handleLogout = async () => {
     closeMenu();
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Kunne ikke logge ud");
-    } else {
+    // Brug den fælles signOut (scope: 'local' + token-oprydning) i stedet for et
+    // direkte supabase-kald med default 'global', der ellers logger ALLE enheder ud
+    // og ødelægger biometrisk quick-login.
+    try {
+      await signOut();
       toast.success("Du er nu logget ud");
       navigate("/");
+    } catch {
+      toast.error("Kunne ikke logge ud");
     }
   };
 

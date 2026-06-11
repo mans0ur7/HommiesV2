@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp } from "@/lib/native";
-import { initNativePush } from "@/lib/nativePush";
+import { initNativePush, clearNativePushToken } from "@/lib/nativePush";
 import { isBiometricEnabled, storeBiometricToken } from "@/lib/biometric";
 
 interface Profile {
@@ -146,6 +146,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    // Fjern denne enheds push-token MENS brugeren stadig er autentificeret, ellers
+    // bliver enheden ved med at modtage den udloggede brugers notifikationer.
+    try {
+      await clearNativePushToken();
+    } catch (e) {
+      console.warn("[push] kunne ikke rydde native token ved logout", e);
+    }
     // Clear state first
     setUser(null);
     setSession(null);

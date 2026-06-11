@@ -63,6 +63,11 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
       case "property":
       case "new_property":
         return notification.property_id ? `/property/${notification.property_id}` : "/explore";
+      case "contract_ready":
+      case "contract_signed":
+      case "contract_tenant_confirmed":
+      case "contract":
+        return "/documents";
       default:
         return "/";
     }

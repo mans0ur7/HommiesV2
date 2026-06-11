@@ -193,7 +193,7 @@ const NotifRow = ({
 );
 
 const Settings = () => {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -599,6 +599,16 @@ const Settings = () => {
       setNotifSaving(false);
     }
   };
+
+  // Vent på at sessionen er gendannet fra storage — ellers bouncer et hard refresh
+  // en indlogget bruger til /auth, fordi user kortvarigt er null.
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!user) {
     navigate("/auth");

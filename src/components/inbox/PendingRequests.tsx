@@ -73,7 +73,7 @@ const PendingRequests = ({
   const [showAllSheet, setShowAllSheet] = useState(false);
 
   const handleViewProfile = (userId: string) => {
-    navigate(`/profile/${userId}`);
+    navigate(`/user/${userId}`);
   };
 
   // Create unified list of all requests

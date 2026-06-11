@@ -74,7 +74,10 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
     let query = supabase
       .from('properties')
       .select('*')
-      .eq('is_published', true);
+      .eq('is_published', true)
+      // Skjul udløbne annoncer (betalt periode slut) — der findes intet job der
+      // af-publicerer dem, så vi filtrerer ved visning. Null = ingen udløbsdato.
+      .or(`expires_at.gt.${new Date().toISOString()},expires_at.is.null`);
 
     // Apply city filter
     if (filters.city) {

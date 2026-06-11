@@ -42,6 +42,19 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Ikke autoriseret");
 
+    // Boost/annonce-køb SKAL pege på en bolig brugeren ejer — ellers kan man betale
+    // for et produkt der aldrig kan leveres (fulfill matcher på id + user_id).
+    if (product_type.startsWith("boost_") || product_type.startsWith("listing_")) {
+      if (!product_id) throw new Error("Mangler bolig-id");
+      const { data: prop } = await supabaseAdmin
+        .from("properties")
+        .select("id")
+        .eq("id", product_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!prop) throw new Error("Boligen blev ikke fundet eller tilhører ikke dig");
+    }
+
     // Get or create Stripe customer so saved cards persist across purchases
     const { data: profile } = await supabaseAdmin
       .from("profiles")

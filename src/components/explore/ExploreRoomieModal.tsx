@@ -77,7 +77,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
   };
 
   const handleViewProfile = () => {
-    navigate(`/profile/${roomie.user_id}`);
+    navigate(`/user/${roomie.user_id}`);
     handleClose();
   };
 

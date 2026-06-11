@@ -18,13 +18,17 @@ export const useGroupUnread = () => {
 
     const { data: parts } = await supabase
       .from("conversation_participants")
-      .select("conversation_id")
+      .select("conversation_id, last_read_at")
       .eq("user_id", user.id);
     const ids = (parts ?? []).map((p) => p.conversation_id);
     if (!ids.length) {
       setUnreadByGroup({});
       return;
     }
+    // Min egen læsestatus pr. samtale (per-bruger, ikke delt).
+    const lastReadByConv = new Map(
+      (parts ?? []).map((p) => [p.conversation_id as string, p.last_read_at as string | null])
+    );
 
     const { data: convs } = await supabase
       .from("conversations")
@@ -40,14 +44,17 @@ export const useGroupUnread = () => {
     const convToGroup = new Map(groupConvs.map((c) => [c.id as string, c.group_id as string]));
     const { data: msgs } = await supabase
       .from("messages")
-      .select("conversation_id")
+      .select("conversation_id, created_at")
       .in("conversation_id", groupConvs.map((c) => c.id))
-      .neq("sender_id", user.id)
-      .is("read_at", null);
+      .neq("sender_id", user.id);
 
     const map: Record<string, number> = {};
     for (const m of msgs ?? []) {
-      const g = convToGroup.get(m.conversation_id as string);
+      const convId = m.conversation_id as string;
+      const lastRead = lastReadByConv.get(convId);
+      // Tæl kun beskeder nyere end MIN egen sidste læsning.
+      if (lastRead && new Date(m.created_at as string) <= new Date(lastRead)) continue;
+      const g = convToGroup.get(convId);
       if (g) map[g] = (map[g] || 0) + 1;
     }
     setUnreadByGroup(map);

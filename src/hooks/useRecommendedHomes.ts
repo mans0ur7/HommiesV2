@@ -51,6 +51,7 @@ export const useRecommendedHomes = (enabled: boolean) => {
           "id, title, city, size_sqm, is_furnished, monthly_rent, images, user_id"
         )
         .eq("is_published", true)
+        .or(`expires_at.gt.${new Date().toISOString()},expires_at.is.null`)
         .order("created_at", { ascending: false })
         .limit(8);
 

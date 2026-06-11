@@ -13,6 +13,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { useAppBadge } from "@/hooks/useAppBadge";
 import { useLastSeenHeartbeat } from "@/hooks/useLastSeenHeartbeat";
+import { useAndroidBackButton } from "@/hooks/useAndroidBackButton";
 
 // Lazy-loaded routes — each page is fetched on demand instead of shipping the
 // whole app in the initial bundle.
@@ -62,6 +63,7 @@ const ProfileGuard = () => {
   useDeepLinks();
   useAppBadge();
   useLastSeenHeartbeat();
+  useAndroidBackButton();
 
   useEffect(() => {
     if (loading || !profileLoaded) return;

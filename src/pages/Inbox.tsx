@@ -371,6 +371,12 @@ const Inbox = () => {
 
     if (error) {
       console.error("Error creating conversation:", error);
+      // Rul status tilbage til pending, så anmodningen ikke ender i limbo
+      // (accepteret men uden samtale) og kan accepteres igen.
+      await supabase
+        .from("match_requests")
+        .update({ status: "pending" })
+        .eq("id", requestId);
       toast.error(t("inbox.chatCreateFailed"));
       return;
     }

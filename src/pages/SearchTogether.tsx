@@ -43,6 +43,7 @@ const SearchTogether = () => {
     respondToInvitation,
     deleteGroup,
     leaveGroup,
+    refetch: refetchGroups,
   } = useHousingGroups();
 
   const {
@@ -239,6 +240,9 @@ const SearchTogether = () => {
         group={editModalGroup}
         onGroupUpdated={() => {
           setEditModalGroup(null);
+          // Hent grupperne igen, så ændret navn/detaljer slår igennem i listen
+          // og i den åbne gruppe (realtime lytter kun på medlemskab, ikke på gruppen).
+          refetchGroups();
         }}
         connectedRoomies={connectedRoomies}
         onInvite={handleInviteMembers}

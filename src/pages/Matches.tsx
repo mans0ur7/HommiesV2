@@ -97,7 +97,7 @@ const defaultRoomieFilters: RoomieFilters = {
 const Matches = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user, profile: userProfile } = useAuth();
+  const { user, profile: userProfile, loading: authLoading } = useAuth();
   const isMobile = useIsMobile();
   const isLandlord = userProfile?.user_type === "landlord";
   const { canAccessRoomieFeatures, hasPublishedProperty } = useLandlordHasPublishedProperty();
@@ -158,13 +158,16 @@ const Matches = () => {
     : (roomieFilters.gender !== "all" || roomieFilters.minAge > 18 || roomieFilters.maxAge < 60);
 
   useEffect(() => {
+    // Vent på session-gendannelse før redirect, ellers smides en indlogget bruger
+    // til /auth ved hard refresh/direkte link (user er kortvarigt null).
+    if (authLoading) return;
     if (!user) {
       navigate("/auth");
       return;
     }
     fetchData();
     fetchStats();
-  }, [user, activeTab, selectedCity, propertyFilters, roomieFilters]);
+  }, [user, authLoading, activeTab, selectedCity, propertyFilters, roomieFilters]);
 
   const fetchStats = async () => {
     if (!user) return;
@@ -339,6 +342,7 @@ const Matches = () => {
           .from("properties")
           .select("*")
           .eq("is_published", true)
+          .or(`expires_at.gt.${new Date().toISOString()},expires_at.is.null`)
           .neq("user_id", user.id);
 
         if (error) throw error;

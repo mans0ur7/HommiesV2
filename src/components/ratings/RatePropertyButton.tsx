@@ -117,6 +117,7 @@ const RatePropertyButton = ({
         property_id: propertyId,
         user_id: user?.id,
         rating: selectedRating,
+        comment: comment.trim() || null,
         match_request_id: matchRequest?.id,
       });
 

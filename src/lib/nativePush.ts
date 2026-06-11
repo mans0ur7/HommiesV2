@@ -6,14 +6,30 @@ import { supabase } from "@/integrations/supabase/client";
 // src/lib/push.ts. Call initNativePush() after the user is signed in.
 
 let listenersAdded = false;
+let lastToken: string | null = null;
 
 async function storeToken(token: string) {
+  lastToken = token;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
   await supabase.from("native_device_tokens").upsert(
     { user_id: user.id, token, platform: Capacitor.getPlatform() },
     { onConflict: "user_id,token" },
   );
+}
+
+// Slet denne enheds push-token ved logout, så den udloggede bruger ikke fortsat
+// modtager notifikationer (og en næste bruger på samme enhed ikke arver dem).
+export async function clearNativePushToken() {
+  if (!Capacitor.isNativePlatform() || !lastToken) return;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase
+      .from("native_device_tokens")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("token", lastToken);
+  }
 }
 
 export async function initNativePush() {

@@ -82,11 +82,13 @@ export const useNotifications = () => {
     mutationFn: async () => {
       if (!user?.id) return;
 
-      // Delete all notifications so they don't reappear after re-login
+      // Markér som læst (IKKE slet) — knappen lover kun "marker læst", og en sletning
+      // fjernede tidligere også ulæste besked-/match-/kontrakt-notifikationer permanent.
       const { error } = await supabase
         .from("notifications")
-        .delete()
-        .eq("user_id", user.id);
+        .update({ is_read: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
 
       if (error) throw error;
     },
