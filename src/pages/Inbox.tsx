@@ -129,16 +129,28 @@ const Inbox = () => {
       ])
     );
 
-    // Fetch group conversations (with group_id AND property_id - landlord-group chats only)
-    const { data: groupConvos } = allowedGroupIds.length
-      ? await supabase
-          .from("conversations")
-          .select("*")
-          .in("id", conversationIds)
-          .in("group_id", allowedGroupIds)
-          .not("property_id", "is", null)
-          .order("updated_at", { ascending: false })
-      : { data: [] as any[] };
+    // Udlejeren er hverken medlem eller skaber af lejergruppen, så den må også kunne
+    // se landlord-gruppe-chatten via EJERSKAB af boligen. Ellers kan medlemmerne skrive
+    // til udlejeren, men udlejeren ser aldrig tråden.
+    const { data: ownedProps } = await supabase
+      .from("properties")
+      .select("id")
+      .eq("user_id", user.id);
+    const ownedPropertyIds = new Set((ownedProps || []).map((p) => p.id));
+
+    // Hent ALLE landlord-gruppe-chats (group_id + property_id) hvor brugeren deltager,
+    // og vis dem hvis brugeren enten er medlem/skaber af gruppen ELLER ejer boligen.
+    const { data: allGroupConvos } = await supabase
+      .from("conversations")
+      .select("*")
+      .in("id", conversationIds)
+      .not("group_id", "is", null)
+      .not("property_id", "is", null)
+      .order("updated_at", { ascending: false });
+
+    const groupConvos = (allGroupConvos || []).filter(
+      (c) => allowedGroupIds.includes(c.group_id) || ownedPropertyIds.has(c.property_id)
+    );
 
     const processConversations = async (convos: any[]) => {
       if (!convos?.length) return [];

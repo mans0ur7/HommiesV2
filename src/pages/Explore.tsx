@@ -109,7 +109,9 @@ const Explore = () => {
     nationalities: roomieFilters.nationalities.length > 0 ? roomieFilters.nationalities : undefined,
     languages: roomieFilters.languages.length > 0 ? roomieFilters.languages : undefined,
     hasProfileImage: roomieFilters.hasProfileImage,
-  }), [roomieFilters]);
+    // På roomie-fanen søger søgefeltet på navn (så man kan finde en bestemt person).
+    nameSearch: activeTab === "roomies" ? appliedSearch : undefined,
+  }), [roomieFilters, activeTab, appliedSearch]);
 
   const {
     properties: displayProperties,
@@ -399,7 +401,7 @@ const Explore = () => {
                       <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                       <Input
                         ref={inputRef}
-                        placeholder={t("explore.searchPlaceholder")}
+                        placeholder={activeTab === "roomies" ? t("explore.searchNamePlaceholder") : t("explore.searchPlaceholder")}
                         value={searchQuery}
                         onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
                         onKeyPress={handleKeyPress}
@@ -426,7 +428,7 @@ const Explore = () => {
                   </div>
 
                   {/* Suggestions */}
-                  {showSuggestions && searchQuery.trim() && (
+                  {showSuggestions && searchQuery.trim() && activeTab === "properties" && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-2xl shadow-sm border border-border/60 overflow-hidden z-50">
                       {searchSuggestions.length > 0 ? (
                         <ul className="py-1 md:py-2 max-h-80 overflow-y-auto">

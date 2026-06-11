@@ -8,6 +8,8 @@ export interface RoomieFilters {
   nationalities?: string[];
   languages?: string[];
   hasProfileImage?: boolean;
+  /** Fritekst-søgning på roomie-navn (så venner kan finde hinanden og connecte). */
+  nameSearch?: string;
 }
 
 export interface PaginatedRoomie {
@@ -67,6 +69,12 @@ export function usePaginatedRoomies(filters: RoomieFilters = {}) {
       .eq('hidden_from_explore', false)
       .order('created_at', { ascending: false });
 
+    // Navne-søgning (find en bestemt person at connecte med).
+    const nameQ = filters.nameSearch?.trim();
+    if (nameQ) {
+      query = query.ilike('name', `%${nameQ}%`);
+    }
+
     // Apply gender filter at database level
     if (filters.gender && filters.gender !== 'all') {
       const genderMap: Record<string, string[]> = {
@@ -91,7 +99,7 @@ export function usePaginatedRoomies(filters: RoomieFilters = {}) {
     }
 
     return query;
-  }, [filters.gender, filters.ageRange]);
+  }, [filters.gender, filters.ageRange, filters.nameSearch]);
 
   const fetchPage = useCallback(async (pageNum: number, append: boolean = false) => {
     const isFirstPage = pageNum === 0;
@@ -190,8 +198,8 @@ export function usePaginatedRoomies(filters: RoomieFilters = {}) {
     } else if (!user) {
       refresh();
     }
-  }, [filters.gender, filters.ageRange?.[0], filters.ageRange?.[1], 
-      filters.hasProfileImage, blockedUserIds.size]);
+  }, [filters.gender, filters.ageRange?.[0], filters.ageRange?.[1],
+      filters.hasProfileImage, filters.nameSearch, blockedUserIds.size]);
 
   return {
     roomies,
