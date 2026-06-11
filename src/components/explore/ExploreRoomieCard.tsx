@@ -26,12 +26,12 @@ const ExploreRoomieCard = ({ id, name, occupation, image, age, onClick }: Explor
       role="button"
       tabIndex={0}
       aria-label={`Se profil for ${name}`}
-      className="flex flex-col items-center cursor-pointer group focus-visible:outline-none"
+      className="flex flex-col items-center cursor-pointer group focus-visible:outline-none transition-transform duration-300 hover:-translate-y-1"
     >
       <div className="relative">
-        <Avatar className="w-20 h-20 md:w-28 md:h-28 mb-2 ring-2 md:ring-4 ring-secondary/30 group-hover:ring-secondary group-focus-visible:ring-ring transition-all duration-300">
+        <Avatar className="w-20 h-20 md:w-28 md:h-28 mb-2 ring-2 md:ring-4 ring-secondary/30 group-hover:ring-secondary group-focus-visible:ring-ring shadow-soft transition-all duration-300">
           {image ? (
-            <AvatarImage src={image} alt={`Profilbillede af ${name}`} className="object-cover transition-transform duration-300" />
+            <AvatarImage src={image} alt={`Profilbillede af ${name}`} className="object-cover transition-transform duration-500 group-hover:scale-110" />
           ) : null}
           <AvatarFallback className="bg-secondary/20">
             <User className="w-8 h-8 md:w-10 md:h-10 text-muted-foreground" aria-hidden="true" />

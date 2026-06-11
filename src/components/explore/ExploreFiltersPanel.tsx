@@ -101,10 +101,10 @@ const ToggleChip = ({
 }) => (
   <button
     onClick={onClick}
-    className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+    className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
       selected
-        ? "bg-foreground text-background border-foreground"
-        : "bg-background text-foreground/80 border-border/60 hover:border-foreground/40"
+        ? "bg-foreground text-background border-foreground shadow-soft"
+        : "bg-background text-foreground/80 border-border/60 hover:border-foreground/40 hover:bg-muted/50"
     }`}
   >
     {children}
@@ -406,7 +406,7 @@ const ExploreFiltersPanel = ({
   if (variant === "sidebar") {
     return (
       <div className="w-80 flex-shrink-0">
-        <div className="sticky top-24 bg-background rounded-3xl border border-border/60 p-6">
+        <div className="sticky top-24 bg-background rounded-3xl border border-border/60 p-6 shadow-soft">
           <div className="flex items-center gap-3 mb-2">
             <div className="h-px w-8 bg-foreground/40" />
             <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">
@@ -414,7 +414,7 @@ const ExploreFiltersPanel = ({
               {activeFiltersCount > 0 && <span className="ml-2 text-foreground">· {activeFiltersCount}</span>}
             </span>
           </div>
-          <h2 className="text-2xl font-medium tracking-tight text-foreground mb-6">Filtre.</h2>
+          <h2 className="text-3xl font-display text-foreground mb-6">Filtre</h2>
           {renderFilters({ isMobile: false })}
         </div>
       </div>
@@ -428,7 +428,7 @@ const ExploreFiltersPanel = ({
         <DialogTrigger asChild>
           <button
             type="button"
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-full text-xs font-medium bg-background hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 border border-border/70 rounded-full text-xs font-medium bg-card shadow-soft hover:border-foreground/30 hover:-translate-y-0.5 transition-all duration-200"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             Filtre
@@ -448,8 +448,8 @@ const ExploreFiltersPanel = ({
                 {activeFiltersCount > 0 && <span className="ml-2 text-foreground">· {activeFiltersCount} aktive</span>}
               </span>
             </div>
-            <DialogTitle className="text-3xl font-medium tracking-tight text-foreground">
-              Filtre.
+            <DialogTitle className="text-3xl font-display text-foreground">
+              Filtre
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto px-6 py-6 flex-1">
@@ -487,8 +487,8 @@ const ExploreFiltersPanel = ({
               {activeFiltersCount > 0 && <span className="ml-2 text-foreground">· {activeFiltersCount} aktive</span>}
             </span>
           </div>
-          <SheetTitle className="text-3xl font-medium tracking-tight text-foreground">
-            Filtre.
+          <SheetTitle className="text-3xl font-display text-foreground">
+            Filtre
           </SheetTitle>
         </SheetHeader>
         <div className="overflow-y-auto px-6 py-6 flex-1">

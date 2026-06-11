@@ -386,10 +386,10 @@ const Explore = () => {
                   {t("explore.back")}
                 </button>
 
-                <h1 className="font-medium tracking-tight text-foreground leading-[1.05]"
-                    style={{ fontSize: 'clamp(2rem, 5vw, 3.75rem)' }}>
+                <h1 className="font-display text-foreground leading-[1.0]"
+                    style={{ fontSize: 'clamp(2.2rem, 5.5vw, 4rem)' }}>
                   {activeTab === "roomies" ? t("explore.titleRoomies1") : t("explore.title1")}
-                  <span className="block text-secondary">
+                  <span className="block italic text-secondary-foreground/45">
                     {activeTab === "roomies" ? t("explore.titleRoomiesHighlight") : t("explore.titleHome")}
                   </span>
                 </h1>
@@ -664,8 +664,8 @@ const Explore = () => {
                   <div className="relative hidden sm:block" ref={sortRef}>
                     <button
                       onClick={() => setShowSortDropdown(!showSortDropdown)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-full text-xs font-medium transition-colors ${
-                        showSortDropdown ? "border-foreground bg-muted" : "border-border hover:bg-muted"
+                      className={`flex items-center gap-1.5 px-4 py-2 border rounded-full text-xs font-medium bg-card shadow-soft transition-all duration-200 ${
+                        showSortDropdown ? "border-foreground/40" : "border-border/70 hover:border-foreground/30 hover:-translate-y-0.5"
                       }`}
                     >
                       {t(propertySortOptions.find(o => o.value === sortBy)?.labelKey ?? "explore.sort")}
@@ -693,10 +693,10 @@ const Explore = () => {
                       <button
                         key={filter.id}
                         onClick={() => toggleQuickFilter(filter.id)}
-                        className={`px-3 py-1.5 border rounded-full text-xs font-medium transition-all ${
+                        className={`px-4 py-2 border rounded-full text-xs font-medium transition-all duration-200 ${
                           activeFilters.includes(filter.id)
-                            ? "border-foreground bg-foreground text-background"
-                            : "border-border hover:bg-muted"
+                            ? "border-foreground bg-foreground text-background shadow-soft"
+                            : "border-border/70 bg-card shadow-soft hover:border-foreground/30 hover:-translate-y-0.5"
                         }`}
                       >
                         {t(filter.labelKey)}
@@ -785,7 +785,7 @@ const Explore = () => {
                     <div className="h-px w-8 bg-foreground/40" />
                     <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">{t("explore.results")}</span>
                   </div>
-                  <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground leading-tight">
+                  <h2 className="text-2xl md:text-4xl font-display text-foreground leading-tight">
                     {propertiesLoaded}{hasMoreProperties ? '+' : ''} {propertiesLoaded === 1 ? t("explore.home") : t("explore.homes")}
                     {selectedArea && <span className="text-muted-foreground font-normal"> · {selectedArea}</span>}
                     {!selectedArea && selectedStudyCity && <span className="text-muted-foreground font-normal"> · {selectedStudyCity}</span>}
@@ -898,7 +898,7 @@ const Explore = () => {
                   <div className="h-px w-8 bg-foreground/40" />
                   <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">{t("explore.people")}</span>
                 </div>
-                <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground leading-tight">
+                <h2 className="text-2xl md:text-4xl font-display text-foreground leading-tight">
                   {roomiesLoaded}{hasMoreRoomies ? '+' : ''} {roomiesLoaded === 1 ? t("explore.roomie") : t("explore.roomies")}
                   {roomieFiltersCount > 0 && <span className="text-muted-foreground font-normal text-base md:text-lg ml-2">{t("explore.withFilters")}</span>}
                 </h2>
