@@ -254,6 +254,10 @@ const Explore = () => {
     if (cityParam && universityAreas[cityParam]) {
       setSelectedStudyCity(cityParam);
     }
+    // "Se alle favoritter" fra forsiden linker til ?favorites=true — aktivér filteret.
+    if (searchParams.get("favorites") === "true") {
+      setActiveFilters((prev) => (prev.includes("favorites") ? prev : [...prev, "favorites"]));
+    }
   }, [searchParams]);
 
   const handleSearch = () => {

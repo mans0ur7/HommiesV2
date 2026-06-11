@@ -46,7 +46,9 @@ export const useNotifications = () => {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          // Lyt på ALLE ændringer (ikke kun INSERT): UPDATE dækker dedup-genbrug af en
+          // gruppebesked-række og læst-status fra en anden fane; DELETE dækker oprydning.
+          event: "*",
           schema: "public",
           table: "notifications",
           filter: `user_id=eq.${user.id}`,

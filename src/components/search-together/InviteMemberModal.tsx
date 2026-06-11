@@ -124,9 +124,12 @@ const InviteMemberModal = ({
                         </p>
                       )}
                     </div>
+                    {/* Rækken (button) håndterer selv toggle — checkboxen er kun visuel.
+                        Egen onCheckedChange ville toggle to gange (klik bobler) = intet sker. */}
                     <Checkbox
                       checked={selectedIds.includes(roomie.user_id)}
-                      onCheckedChange={() => toggleSelection(roomie.user_id)}
+                      tabIndex={-1}
+                      className="pointer-events-none"
                     />
                   </button>
                 ))}
