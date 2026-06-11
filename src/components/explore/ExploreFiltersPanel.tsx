@@ -188,7 +188,7 @@ const ExploreFiltersPanel = ({
     localFilters.genderComposition !== filters.genderComposition ||
     JSON.stringify(localFilters.amenities) !== JSON.stringify(filters.amenities) ||
     localSortBy !== sortBy ||
-    JSON.stringify(localQuickFilters.sort()) !== JSON.stringify(activeQuickFilters.slice().sort());
+    JSON.stringify(localQuickFilters.slice().sort()) !== JSON.stringify(activeQuickFilters.slice().sort());
 
   const applyFilters = () => {
     onFiltersChange(localFilters);

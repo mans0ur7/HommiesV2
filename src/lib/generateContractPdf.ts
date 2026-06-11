@@ -207,7 +207,7 @@ export async function generateContractPdf(data: HusordensData): Promise<JsPDF> {
   // ── § 3 RENGØRING & KØKKEN ───────────────────────────────
   section("§ 3  Rengøring og køkken");
   block("Rengøringsansvar:", data.maintenance_responsibility);
-  block("Køleregler:", data.kitchen_rules);
+  block("Køkkenregler:", data.kitchen_rules);
 
   // ── § 4 GÆSTER & HUSDYR ──────────────────────────────────
   section("§ 4  Gæster, husdyr og rygning");
