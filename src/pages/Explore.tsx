@@ -398,7 +398,9 @@ const Explore = () => {
                 <div className="relative max-w-2xl" ref={searchRef}>
                   <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card p-1.5 focus-within:border-foreground/40 transition-colors">
                     <div className="relative flex-1">
-                      <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+                      {activeTab === "roomies"
+                        ? <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+                        : <MapPin className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />}
                       <Input
                         ref={inputRef}
                         placeholder={activeTab === "roomies" ? t("explore.searchNamePlaceholder") : t("explore.searchPlaceholder")}
