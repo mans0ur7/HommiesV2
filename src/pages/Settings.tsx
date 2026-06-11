@@ -198,6 +198,7 @@ const Settings = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const native = isNativeApp();
   const isRoomie = profile?.user_type === "roomie";
 
   const [activeSection, setActiveSection] = useState<SettingsSection>('email');
