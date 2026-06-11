@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   APIProvider,
   Map,
@@ -186,6 +187,12 @@ function MarkerLayer({ groups }: { groups: MarkerGroup[] }) {
 }
 
 function PopupContent({ properties }: { properties: Property[] }) {
+  const navigate = useNavigate();
+  // SPA-navigation i stedet for <a href> (som ellers giver fuld side-reload).
+  const goTo = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(`/property/${id}`);
+  };
   if (properties.length === 1) {
     const p = properties[0];
     return (
@@ -209,6 +216,7 @@ function PopupContent({ properties }: { properties: Property[] }) {
         </div>
         <a
           href={`/property/${p.id}`}
+          onClick={goTo(p.id)}
           style={{
             display: "block", textAlign: "center", fontSize: 12, background: "#0f283c",
             color: "white", padding: "6px 12px", borderRadius: 6, textDecoration: "none",
@@ -230,6 +238,7 @@ function PopupContent({ properties }: { properties: Property[] }) {
           <a
             key={p.id}
             href={`/property/${p.id}`}
+            onClick={goTo(p.id)}
             style={{
               display: "flex", alignItems: "center", gap: 8, padding: 8,
               background: "#f5f5f5", borderRadius: 8, textDecoration: "none",

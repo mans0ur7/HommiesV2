@@ -276,7 +276,7 @@ export async function generateContractPdf(data: HusordensData): Promise<JsPDF> {
   y += 6;
   doc.setFontSize(7.5); rgb(C.muted); doc.setFont("helvetica", "italic");
   const note = doc.splitTextToSize(
-    "Denne husorden er en samboaftale og er juridisk bindende under dansk aftaleloven (§1). Digital accept med tidsstempel og bruger-ID udgør gyldig underskrift.",
+    "Denne husorden er en samboaftale mellem beboerne og er bindende i henhold til dansk aftaleret. Begge parters digitale accept registreres med tidsstempel.",
     CW
   );
   doc.text(note, M + 4, y);
