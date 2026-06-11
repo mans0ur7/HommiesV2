@@ -65,11 +65,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (!error && data) {
-      setProfile(data);
-    } else {
-      setProfile(null);
+    if (error) {
+      // Transient fejl (fx netværk) må IKKE behandles som "ingen profil" — ellers
+      // bouncer en eksisterende bruger til /complete-profile. Behold nuværende profil.
+      console.warn("[auth] profil-fetch fejlede:", error.message);
+      setProfileLoaded(true);
+      return;
     }
+    // data === null betyder reelt ingen profil-række (ny bruger) → complete-profile.
+    setProfile(data ?? null);
     setProfileLoaded(true);
   };
 
@@ -94,6 +98,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Defer profile fetch with setTimeout to avoid deadlock
         if (session?.user) {
+          // Nulstil profileLoaded så ProfileGuard venter på den FRISKE profil-fetch
+          // (undgår at en ny indlogning kortvarigt ses som "bruger uden profil").
+          setProfileLoaded(false);
           setTimeout(() => {
             fetchProfile(session.user.id);
           }, 0);

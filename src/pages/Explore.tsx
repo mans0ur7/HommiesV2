@@ -40,7 +40,8 @@ const propertySortOptions = [
 ];
 
 const propertyQuickFilters = [
-  { id: "top-rated", labelKey: "explore.filterTopRated" },
+  // "top-rated" fjernet: der findes ingen rating-aggregering på properties, så chippen
+  // gjorde reelt ingenting. "budget" sorterer billigst-først (se paginatedFilters).
   { id: "budget", labelKey: "explore.filterBudget" },
   { id: "favorites", labelKey: "explore.filterFavorites" },
 ];
@@ -92,7 +93,8 @@ const Explore = () => {
     genderComposition: propertyFilters.genderComposition,
     isFavorites: activeFilters.includes("favorites"),
     favoriteIds: favorites,
-    sortBy: sortBy as 'newest' | 'price-low' | 'price-high',
+    // "Budget"-quickfilteret tvinger billigst-først.
+    sortBy: (activeFilters.includes("budget") ? "price-low" : sortBy) as 'newest' | 'price-low' | 'price-high',
   }), [selectedStudyCity, appliedSearch, selectedArea, propertyFilters, activeFilters, favorites, sortBy]);
 
   const paginatedRoomieFilters: PaginatedRoomieFilters = useMemo(() => ({

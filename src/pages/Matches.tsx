@@ -107,6 +107,9 @@ const Matches = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  // Spejl af currentIndex til brug i async AI-rerank-callbacks (undgår stale closure).
+  const currentIndexRef = useRef(0);
+  useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
   const [loading, setLoading] = useState(true);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -330,7 +333,9 @@ const Matches = () => {
           lifestyle: p.lifestyle,
           personality: p.personality,
         }))).then(ranked => {
-          if (ranked && ranked.length > 0) {
+          // Omsortér IKKE bunken hvis brugeren allerede er begyndt at swipe — det ville
+          // flytte kortene under fingrene. Ranking gælder kun en urørt bunke.
+          if (ranked && ranked.length > 0 && currentIndexRef.current === 0) {
             const order = new Map<string, number>(ranked.map((r, idx) => [r.id, idx] as [string, number]));
             const sorted = [...filteredProfiles].sort((a, b) => (order.get(a.user_id) ?? 999) - (order.get(b.user_id) ?? 999));
             setProfiles(sorted);

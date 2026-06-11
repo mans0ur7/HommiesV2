@@ -279,6 +279,20 @@ const ChatArea = ({
             }
           }
         )
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "messages",
+            filter: `conversation_id=eq.${conversation.id}`,
+          },
+          (payload) => {
+            // Læsekvitteringer (read_at) skal opdatere live hos afsenderen.
+            const upd = payload.new as Message;
+            setMessages((prev) => prev.map((m) => (m.id === upd.id ? { ...m, ...upd } : m)));
+          }
+        )
         .on("broadcast", { event: "typing" }, (payload) => {
           if (payload.payload?.sender_id === currentUserId) return;
           setIsTyping(true);
@@ -449,10 +463,17 @@ const ChatArea = ({
       setNewMessage(messageContent); // Restore message
       toast.error("Kunne ikke sende besked");
     } else if (data) {
-      // Replace optimistic message with real one
-      setMessages((prev) =>
-        prev.map((m) => m.id === optimisticMessage.id ? data : m)
-      );
+      // Replace optimistic message with real one, og fjern en evt. dublet hvis
+      // realtime-INSERT allerede nåede at tilføje samme besked (race).
+      setMessages((prev) => {
+        const replaced = prev.map((m) => m.id === optimisticMessage.id ? data : m);
+        const seen = new Set<string>();
+        return replaced.filter((m) => {
+          if (seen.has(m.id)) return false;
+          seen.add(m.id);
+          return true;
+        });
+      });
 
       // Throttled server-side; safe to fire-and-forget after every send.
       supabase.rpc("refresh_my_response_time").then(({ error: rpcErr }) => {

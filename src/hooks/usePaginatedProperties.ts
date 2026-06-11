@@ -114,9 +114,12 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
       query = query.eq('gender_composition', filters.genderComposition);
     }
 
-    // Apply favorites filter
-    if (filters.isFavorites && filters.favoriteIds && filters.favoriteIds.length > 0) {
-      query = query.in('id', filters.favoriteIds);
+    // Apply favorites filter. Når favorit-filteret er aktivt men brugeren har 0
+    // favoritter, skal resultatet være TOMT (ikke alle boliger).
+    if (filters.isFavorites) {
+      query = query.in('id', filters.favoriteIds && filters.favoriteIds.length > 0
+        ? filters.favoriteIds
+        : ['00000000-0000-0000-0000-000000000000']);
     }
 
     // Apply sorting
@@ -225,9 +228,13 @@ export function usePaginatedProperties(filters: PropertyFilters = {}) {
     } else if (!user) {
       refresh();
     }
-  }, [filters.city, filters.area, filters.priceRange?.[0], filters.priceRange?.[1], 
+  }, [filters.city, filters.area, filters.priceRange?.[0], filters.priceRange?.[1],
       filters.sizeRange?.[0], filters.sizeRange?.[1], filters.genderComposition,
-      filters.sortBy, filters.isFavorites, blockedUserIds.size]);
+      filters.sortBy, filters.isFavorites, blockedUserIds.size,
+      // Klient-side-filtre skal også udløse en ny hentning, ellers ser man intet
+      // ske når man fx kun ændrer Faciliteter/Billeder/Plantegning.
+      JSON.stringify(filters.amenities), filters.hasRoomImages, filters.hasFloorPlan,
+      JSON.stringify(filters.favoriteIds)]);
 
   return {
     properties,
