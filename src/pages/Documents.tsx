@@ -121,7 +121,7 @@ export default function Documents() {
             <div className="h-px w-8 bg-foreground/40" />
             <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("documents.eyebrow")}</span>
           </div>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-display text-foreground leading-[1.05]">
             {t("documents.title")}
           </h1>
           <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">

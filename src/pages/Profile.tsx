@@ -418,7 +418,7 @@ const Profile = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("profile.eyebrow")}</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-medium tracking-tight text-foreground leading-[1.05]">
+              <h1 className="text-3xl md:text-5xl font-display text-foreground leading-[1.05]">
                 {t("profile.editTitle")}
               </h1>
             </div>
@@ -879,7 +879,7 @@ const Profile = () => {
                   {profile.user_type === "landlord" ? t("userProfile.landlord") : t("userProfile.roomie")}
                 </span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-foreground leading-[1.05]">
                 {profile.name}.
               </h1>
               <p className="text-foreground/60 text-base mt-3">

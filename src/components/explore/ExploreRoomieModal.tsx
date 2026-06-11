@@ -189,7 +189,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
         {/* Minimal info — name, what they do, tags, a short "about". Everything
             else lives on the full profile (the "Se profil" button below). */}
         <div className="px-6 pt-5 pb-4 max-h-[46vh] overflow-y-auto">
-          <h2 className="text-2xl font-medium tracking-tight text-foreground">{roomie.name}</h2>
+          <h2 className="text-2xl font-display text-foreground">{roomie.name}</h2>
           <p className="text-sm text-foreground/60 mt-0.5">{subline}</p>
 
           <div className="mt-5 space-y-5">

@@ -231,7 +231,7 @@ const Auth = () => {
               <span className="h-px w-8 bg-foreground/40" />
               {isLogin ? t("auth.loginEyebrow") : t("auth.signupEyebrow")}
             </span>
-            <h1 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground leading-[1.05] mb-3">
+            <h1 className="text-3xl md:text-5xl font-display text-foreground leading-[1.05] mb-3">
               {isLogin ? t("auth.loginTitle") : t("auth.signupTitle")}
             </h1>
             <p className="text-foreground/60 text-base mb-8 max-w-sm">

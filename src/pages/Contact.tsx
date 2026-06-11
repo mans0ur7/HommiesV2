@@ -72,7 +72,7 @@ const Contact = () => {
               <span className="w-6 h-px bg-foreground/30" />
               {t("contact.eyebrow")}
             </span>
-            <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-foreground leading-[1.05] mb-5">
+            <h1 className="text-4xl md:text-6xl font-display text-foreground leading-[1.05] mb-5">
               {t("contact.title")}
             </h1>
             <p className="text-base md:text-lg text-foreground/60 leading-relaxed max-w-xl">

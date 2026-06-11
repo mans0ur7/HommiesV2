@@ -100,7 +100,7 @@ const PeopleWhoWantYou = () => {
               {t("home.requestsEyebrow")}
             </span>
           </div>
-          <h2 className="text-2xl md:text-4xl font-medium tracking-tight text-foreground">
+          <h2 className="text-2xl md:text-4xl font-display text-foreground">
             {t("home.peopleWhoWantYouTitle")}
           </h2>
         </div>

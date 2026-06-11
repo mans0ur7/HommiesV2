@@ -1096,7 +1096,7 @@ const nextStep = () => {
               <div className="h-px w-8 bg-foreground/40" />
               <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("myListings.eyebrow")}</span>
             </div>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-display text-foreground leading-[1.05]">
               {t("myListings.title")}
             </h1>
             <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
@@ -1130,7 +1130,7 @@ const nextStep = () => {
                       {t("myListings.stepXofY", { current: currentStep, total: stepKeys.length })}
                     </span>
                   </div>
-                  <h2 className="text-xl md:text-3xl font-medium tracking-tight text-foreground">
+                  <h2 className="text-xl md:text-3xl font-display text-foreground">
                     {editingProperty ? t("myListings.editTitle") : t("myListings.createTitle")}
                   </h2>
                 </div>
@@ -2291,7 +2291,7 @@ const nextStep = () => {
               <div className="h-px w-8 bg-foreground/40" />
               <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">{t("myListings.renewBody")}</span>
             </div>
-            <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+            <SheetTitle className="text-2xl font-display text-foreground">
               {t("myListings.renewTitle")}
             </SheetTitle>
           </SheetHeader>
@@ -2343,7 +2343,7 @@ const nextStep = () => {
               <div className="h-px w-8 bg-foreground/40" />
               <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">{t("myListings.boostBody")}</span>
             </div>
-            <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+            <SheetTitle className="text-2xl font-display text-foreground">
               {t("myListings.boostTitle")}
             </SheetTitle>
           </SheetHeader>

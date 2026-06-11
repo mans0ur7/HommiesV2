@@ -526,7 +526,7 @@ const Inbox = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("inbox.eyebrow")}</span>
               </div>
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-medium tracking-tight text-foreground leading-[1.05]">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-display text-foreground leading-[1.05]">
                 {t("inbox.title")}
               </h1>
               <p className="mt-2 text-sm text-foreground/60 hidden sm:block">

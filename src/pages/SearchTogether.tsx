@@ -172,7 +172,7 @@ const SearchTogether = () => {
               <div className="h-px w-8 bg-foreground/40" />
               <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("searchTogether.eyebrow")}</span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-foreground leading-[1.05]">
               {t("searchTogether.title")}
             </h1>
             <p className="mt-3 text-foreground/60 max-w-2xl">

@@ -233,7 +233,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
 
           {/* Profile info */}
           <div className="overflow-y-auto px-6 py-6 flex-1">
-            <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{profile.name}</h2>
+            <h2 className="text-2xl font-display text-foreground mb-1">{profile.name}</h2>
             <p className="text-muted-foreground mb-2">
               {profile.age && `${profile.age}`}
               {profile.age && genderLabel && " • "}
@@ -463,7 +463,7 @@ const MatchProfileModal = ({ profile, property, open, onClose, onConnect, onIgno
 
           {/* Property info */}
           <div className="overflow-y-auto px-6 py-6 flex-1">
-            <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{property.title}</h2>
+            <h2 className="text-2xl font-display text-foreground mb-1">{property.title}</h2>
             <p className="text-muted-foreground mb-6">
               {property.address}, {property.city}
             </p>

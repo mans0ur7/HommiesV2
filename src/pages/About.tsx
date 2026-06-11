@@ -34,7 +34,7 @@ const About = () => {
                   <span className="w-6 h-px bg-foreground/30" />
                   {t("about.eyebrow")}
                 </span>
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-foreground leading-[1.05] mb-6">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-display text-foreground leading-[1.05] mb-6">
                   {t("about.title")}
                 </h1>
                 <p className="text-lg md:text-xl text-foreground/60 leading-relaxed max-w-xl">
@@ -85,7 +85,7 @@ const About = () => {
         <section className="px-4 md:px-6 lg:px-12 pb-16 md:pb-24">
           <div className="container mx-auto max-w-7xl">
             <div className="flex items-end justify-between mb-8 md:mb-10">
-              <h2 className="text-2xl md:text-4xl font-semibold tracking-tight text-foreground">
+              <h2 className="text-2xl md:text-4xl font-display text-foreground">
                 {t("about.values")}
               </h2>
               <span className="hidden md:block text-sm text-foreground/50">{t("about.cornerstones")}</span>
@@ -121,7 +121,7 @@ const About = () => {
               <span className="w-6 h-px bg-background/30" />
               {t("about.storyEyebrow")}
             </span>
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight mb-10 md:mb-12 leading-tight">
+            <h2 className="text-3xl md:text-5xl font-display mb-10 md:mb-12 leading-tight">
               {t("about.storyTitle")}
             </h2>
             <div className="space-y-6">
@@ -140,7 +140,7 @@ const About = () => {
         {/* ───────── CTA ───────── */}
         <section className="px-4 md:px-6 lg:px-12 py-16 md:py-24">
           <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight text-foreground mb-5">
+            <h2 className="text-3xl md:text-5xl font-display text-foreground mb-5">
               {t("about.ctaTitle")}
             </h2>
             <p className="text-base md:text-lg text-foreground/60 mb-8 max-w-xl mx-auto">

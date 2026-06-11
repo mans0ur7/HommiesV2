@@ -367,7 +367,7 @@ const RoomieFiltersPanel = ({
       <div className="w-80 flex-shrink-0">
         <div className="sticky top-24 bg-background rounded-3xl border border-border/60 p-6">
           <HeaderEditorial />
-          <h2 className="text-2xl font-medium tracking-tight text-foreground mb-6">Filtre.</h2>
+          <h2 className="text-2xl font-display text-foreground mb-6">Filtre.</h2>
           {renderFilters()}
         </div>
       </div>
@@ -395,7 +395,7 @@ const RoomieFiltersPanel = ({
         <DialogContent className="max-w-xl p-0 gap-0 overflow-hidden rounded-3xl border-border/60 max-h-[88vh] flex flex-col">
           <DialogHeader className="px-6 pt-6 pb-5 border-b border-border/60 shrink-0 text-left space-y-0">
             <HeaderEditorial />
-            <DialogTitle className="text-3xl font-medium tracking-tight text-foreground">Filtre.</DialogTitle>
+            <DialogTitle className="text-3xl font-display text-foreground">Filtre.</DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto px-6 py-6 flex-1">
             {renderFilters()}
@@ -426,7 +426,7 @@ const RoomieFiltersPanel = ({
       <SheetContent side="bottom" className="h-[88vh] p-0 rounded-t-3xl flex flex-col">
         <SheetHeader className="px-6 pt-6 pb-5 border-b border-border/60 shrink-0 text-left space-y-0">
           <HeaderEditorial />
-          <SheetTitle className="text-3xl font-medium tracking-tight text-foreground">Filtre.</SheetTitle>
+          <SheetTitle className="text-3xl font-display text-foreground">Filtre.</SheetTitle>
         </SheetHeader>
         <div className="overflow-y-auto px-6 py-6 flex-1">
           {renderFilters()}

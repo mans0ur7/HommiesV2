@@ -257,7 +257,7 @@ const CompleteProfile = () => {
               {t("profile.tellAboutYou")}
             </span>
           </span>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">{t("profile.completeTitle")}</h1>
+          <h1 className="text-2xl sm:text-3xl font-display text-foreground">{t("profile.completeTitle")}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

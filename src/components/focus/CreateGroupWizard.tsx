@@ -137,7 +137,7 @@ const CreateGroupWizard = ({
               Trin {step} / 2
             </span>
           </div>
-          <SheetTitle className="text-3xl font-medium tracking-tight text-foreground">
+          <SheetTitle className="text-3xl font-display text-foreground">
             {step === 1 ? "Opret gruppe." : "Invitér venner."}
           </SheetTitle>
         </SheetHeader>

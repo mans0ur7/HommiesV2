@@ -88,7 +88,7 @@ const Onboarding = ({ onDone }: { onDone: () => void }) => {
               <div className="w-24 h-24 rounded-3xl bg-accent flex items-center justify-center mb-10">
                 <Icon className="w-11 h-11 text-accent-foreground" strokeWidth={1.75} />
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight mb-4 max-w-xs">
+              <h1 className="text-3xl font-display mb-4 max-w-xs">
                 {title}
               </h1>
               <p className="text-primary-foreground/70 text-base leading-relaxed max-w-xs">

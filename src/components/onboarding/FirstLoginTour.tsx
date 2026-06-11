@@ -57,7 +57,7 @@ const FirstLoginTour = () => {
           <Icon className="w-7 h-7 text-foreground/70" />
         </div>
 
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-2">{t(step.titleKey)}</h2>
+        <h2 className="text-2xl font-display text-foreground mb-2">{t(step.titleKey)}</h2>
         <p className="text-muted-foreground leading-relaxed mb-8">{t(step.bodyKey)}</p>
 
         {/* Step dots */}

@@ -219,7 +219,7 @@ const PendingRequests = ({
               <div className="h-px w-8 bg-foreground/40" />
               <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">Anmodninger</span>
             </div>
-            <SheetTitle className="text-3xl font-medium tracking-tight text-foreground">
+            <SheetTitle className="text-3xl font-display text-foreground">
               Alle anmodninger.
             </SheetTitle>
           </SheetHeader>
@@ -301,7 +301,7 @@ const PendingRequests = ({
                   <div className="h-px w-8 bg-foreground/40" />
                   <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/60">Gruppeanmodning</span>
                 </div>
-                <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+                <SheetTitle className="text-2xl font-display text-foreground">
                   {selectedGroupRequest.group?.name || "Gruppe"}
                 </SheetTitle>
                 <p className="text-sm text-foreground/60">

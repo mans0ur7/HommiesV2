@@ -152,7 +152,7 @@ const GroupInvitationModal = ({
             <div className="h-px w-8 bg-foreground/40" />
             <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/60">Invitation</span>
           </div>
-          <SheetTitle className="text-2xl font-medium tracking-tight text-foreground">
+          <SheetTitle className="text-2xl font-display text-foreground">
             {group.name}
           </SheetTitle>
         </SheetHeader>

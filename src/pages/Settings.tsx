@@ -66,7 +66,7 @@ const PaymentSection = () => {
             <div className="h-px w-8 bg-foreground/40" />
             <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.pay")}</span>
           </div>
-          <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.pay")}</h2>
+          <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.pay")}</h2>
           <p className="text-muted-foreground text-sm">{t("settings.payDesc")}</p>
         </div>
         <div className="rounded-2xl border border-border/60 bg-secondary/20 p-6 text-center">
@@ -89,7 +89,7 @@ const PaymentSection = () => {
           <div className="h-px w-8 bg-foreground/40" />
           <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.pay")}</span>
         </div>
-        <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.pay")}</h2>
+        <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.pay")}</h2>
         <p className="text-muted-foreground text-sm">{t("settings.payDesc")}</p>
       </div>
 
@@ -667,7 +667,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.visibility")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.visibility")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.visibility")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.visibilityDesc")}</p>
             </div>
 
@@ -715,7 +715,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.emailAddress")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.emailAddress")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.emailAddress")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.currentEmail", { email: user.email })}</p>
             </div>
 
@@ -750,7 +750,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.password")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.password")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.password")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.changePassword")}</p>
             </div>
 
@@ -807,7 +807,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.phone")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.phone")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.phone")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.phoneDesc")}</p>
             </div>
 
@@ -845,7 +845,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.notifications")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.notifications")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.notifications")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.notificationsDesc")}</p>
             </div>
 
@@ -958,7 +958,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.blocked")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.blocked")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.blocked")}</h2>
               <p className="text-muted-foreground text-sm">
                 {blockedUsers.length === 0
                   ? t("settings.noBlocked")
@@ -1027,7 +1027,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.deleteAccount")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.deleteAccount")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.deleteAccount")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.deleteAccountDesc")}</p>
             </div>
 
@@ -1093,7 +1093,7 @@ const Settings = () => {
                 <div className="h-px w-8 bg-foreground/40" />
                 <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.reportProblem")}</span>
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-foreground mb-1">{t("settings.reportProblem")}</h2>
+              <h2 className="text-2xl font-display text-foreground mb-1">{t("settings.reportProblem")}</h2>
               <p className="text-muted-foreground text-sm">{t("settings.reportProblemDesc")}</p>
             </div>
 
@@ -1145,7 +1145,7 @@ const Settings = () => {
             <div className="h-px w-8 bg-foreground/40" />
             <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">{t("settings.account")}</span>
           </div>
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-display text-foreground leading-[1.05]">
             {t("settings.title")}
           </h1>
           <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">

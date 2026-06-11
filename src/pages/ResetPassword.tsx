@@ -85,7 +85,7 @@ const ResetPassword = () => {
           </div>
         ) : (
           <>
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">{t("reset.newPasswordHeading")}</h1>
+            <h1 className="text-3xl font-display text-foreground mb-2">{t("reset.newPasswordHeading")}</h1>
             <p className="text-foreground/60 text-sm mb-8">{t("reset.chooseNewPassword")}</p>
 
             <form onSubmit={handleSubmit} className="space-y-5">

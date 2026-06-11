@@ -36,7 +36,7 @@ export default class RouteErrorBoundary extends Component<Props, State> {
           <div className="w-16 h-16 mx-auto mb-5 rounded-3xl bg-destructive/10 flex items-center justify-center">
             <AlertTriangle className="w-7 h-7 text-destructive" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight mb-2">
+          <h1 className="text-2xl font-display mb-2">
             Noget gik galt
           </h1>
           <p className="text-sm text-muted-foreground mb-6">

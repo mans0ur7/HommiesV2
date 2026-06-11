@@ -257,7 +257,7 @@ export default function ContractWizard() {
               <div className="h-px w-8 bg-foreground/40" />
               <span className="text-xs uppercase tracking-[0.2em] text-foreground/60">{t("contract.wizardEyebrowNew")}</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-medium tracking-tight text-foreground">
+            <h1 className="text-3xl md:text-4xl font-display text-foreground">
               {t("contract.wizardTitle")}
             </h1>
           </div>

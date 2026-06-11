@@ -137,7 +137,7 @@ const FilterModal = ({
               {activeTab === "properties" ? "Boligfilter" : "Roomie-filter"}
             </span>
           </div>
-          <SheetTitle className="text-3xl font-medium tracking-tight text-foreground">
+          <SheetTitle className="text-3xl font-display text-foreground">
             Filtre.
           </SheetTitle>
         </SheetHeader>

@@ -107,7 +107,7 @@ const Payment = () => {
               <div className="w-12 h-12 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center mx-auto mb-5">
                 <ShieldCheck className="w-6 h-6 text-secondary" />
               </div>
-              <h1 className="text-2xl font-medium tracking-tight text-foreground mb-2">Premium-opgraderinger ikke tilgængelige</h1>
+              <h1 className="text-2xl font-display text-foreground mb-2">Premium-opgraderinger ikke tilgængelige</h1>
               <p className="text-sm text-foreground/60 leading-relaxed">
                 Du kan stadig oprette din første søgeagent og bruge gratis-perioden direkte i appen.
                 Kontakt info@hommies.dk hvis du har spørgsmål.
@@ -138,7 +138,7 @@ const Payment = () => {
               <div className="h-px w-8 bg-foreground/40" />
               <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Konto</span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-medium tracking-tight text-foreground leading-[1.05]">
+            <h1 className="text-3xl md:text-5xl font-display text-foreground leading-[1.05]">
               Betaling og priser.
             </h1>
             <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">

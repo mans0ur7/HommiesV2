@@ -202,7 +202,7 @@ const LocationModal = ({ open, onClose, selectedCity, onSelectCity }: LocationMo
               Lokation
             </span>
           </div>
-          <h2 className="text-3xl font-medium tracking-tight text-foreground">
+          <h2 className="text-3xl font-display text-foreground">
             Hvor vil du bo?
           </h2>
         </div>

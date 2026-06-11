@@ -230,7 +230,7 @@ const UserProfile = () => {
                   {profile.user_type === "landlord" ? t("userProfile.landlord") : t("userProfile.roomie")}
                 </span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight text-foreground leading-[1.05]">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display text-foreground leading-[1.05]">
                 {profile.name}.
               </h1>
               <p className="text-foreground/60 text-base mt-3">

@@ -538,7 +538,7 @@ const Explore = () => {
                     {selectedStudyCity ? t("explore.areas") : t("explore.studyCities")}
                   </span>
                 </div>
-                <h2 className="text-xl md:text-3xl font-medium tracking-tight text-foreground">
+                <h2 className="text-xl md:text-3xl font-display text-foreground">
                   {selectedStudyCity ? selectedStudyCity : t("explore.whereLive")}
                 </h2>
               </div>
