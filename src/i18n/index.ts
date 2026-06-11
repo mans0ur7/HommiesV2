@@ -20,7 +20,11 @@ i18n
     nonExplicitSupportedLngs: true,
     interpolation: { escapeValue: false },
     detection: {
-      order: ["localStorage", "navigator"],
+      // Dansk-først app: brug KUN brugerens eksplicit valgte sprog (localStorage).
+      // Detektér IKKE fra device-sproget ("navigator") — ellers viste en
+      // engelsk-indstillet telefon en rodet blanding af engelsk i18n + danske
+      // hårdkodede strenge. Falder tilbage til dansk (fallbackLng) hvis intet er valgt.
+      order: ["localStorage"],
       lookupLocalStorage: "hommies_lang",
       caches: ["localStorage"],
     },
