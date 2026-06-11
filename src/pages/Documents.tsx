@@ -84,9 +84,11 @@ export default function Documents() {
   };
 
   if (authLoading || loading) {
+    // Brug samme layout-skal som den rigtige side, så strukturen ikke hopper
+    // (og desktop-Navbar/Footer ikke vises på mobil under indlæsning).
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
+      <AppLayout>
+        {!isMobile && <Navbar />}
         <div className="flex-1 p-6">
           <div className="max-w-4xl mx-auto space-y-6">
             <Skeleton className="h-10 w-48" />
@@ -94,8 +96,8 @@ export default function Documents() {
             <Skeleton className="h-32 w-full" />
           </div>
         </div>
-        <Footer />
-      </div>
+        {!isMobile && <Footer />}
+      </AppLayout>
     );
   }
 

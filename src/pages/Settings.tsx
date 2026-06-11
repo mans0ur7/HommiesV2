@@ -227,6 +227,8 @@ const Settings = () => {
   const [pushPermission, setPushPermission] = useState<NotificationPermission>("default");
   const [pushActive, setPushActive] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+  // Native (FCM) push-status — web's serviceWorker-check gælder ikke i WebView'en.
+  const [nativePushStatus, setNativePushStatus] = useState<string | null>(null);
 
   // Report problem
   const [problemDescription, setProblemDescription] = useState("");
@@ -268,6 +270,30 @@ const Settings = () => {
     setPushPermission(getNotificationPermission());
     hasActivePushSubscription().then(setPushActive);
   }, [user]);
+
+  // I native-appen håndteres push af FCM (ikke web-push) — hent den faktiske tilladelse.
+  useEffect(() => {
+    if (!native) return;
+    import("@capacitor/push-notifications")
+      .then(({ PushNotifications }) => PushNotifications.checkPermissions())
+      .then((p) => setNativePushStatus(p.receive))
+      .catch(() => {});
+  }, [native]);
+
+  const handleEnableNativePush = async () => {
+    setPushLoading(true);
+    try {
+      const { initNativePush } = await import("@/lib/nativePush");
+      await initNativePush();
+      const { PushNotifications } = await import("@capacitor/push-notifications");
+      const p = await PushNotifications.checkPermissions();
+      setNativePushStatus(p.receive);
+    } catch (e) {
+      console.error("[push] enable failed", e);
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const handleTogglePush = async () => {
     if (!user) return;
@@ -831,7 +857,7 @@ const Settings = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-3 mb-1">
                     <p className="font-medium text-foreground">{t("settings.pushTitle")}</p>
-                    {pushActive && (
+                    {(pushActive || (native && nativePushStatus === "granted")) && (
                       <span className="text-[11px] font-semibold uppercase tracking-wider bg-foreground text-background rounded-full px-2 py-0.5">
                         {t("settings.pushActiveLabel")}
                       </span>
@@ -840,7 +866,20 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     {t("settings.pushBody")}
                   </p>
-                  {!pushSupported ? (
+                  {native ? (
+                    nativePushStatus === "granted" ? (
+                      <p className="text-xs text-foreground/70">Push er aktiveret på denne enhed.</p>
+                    ) : nativePushStatus === "denied" ? (
+                      <p className="text-xs text-foreground/70">Push er slået fra. Aktivér notifikationer for Hommies i enhedens indstillinger.</p>
+                    ) : (
+                      <Button onClick={handleEnableNativePush} disabled={pushLoading} size="sm">
+                        {pushLoading
+                          ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          : <Bell className="w-4 h-4 mr-2" />}
+                        Aktivér push
+                      </Button>
+                    )
+                  ) : !pushSupported ? (
                     <p className="text-xs text-foreground/70">
                       {t("settings.pushUnsupported")}
                     </p>
