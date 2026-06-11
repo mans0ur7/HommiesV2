@@ -42,6 +42,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import ProfilePrompts from "@/components/profile/ProfilePrompts";
 import ProfilePromptsEditor from "@/components/profile/ProfilePromptsEditor";
+import RoomieReviews from "@/components/profile/RoomieReviews";
 import { parsePrompts, type ProfilePrompt } from "@/data/profilePrompts";
 
 const genderOptions = [
@@ -934,6 +935,9 @@ const Profile = () => {
 
             {/* Prompts */}
             <ProfilePrompts prompts={(profile as any).prompts} />
+
+            {/* Roomie reviews & reputation (own profile — read-only) */}
+            {user?.id && <RoomieReviews userId={user.id} name={profile.name} />}
 
             {/* Personality */}
             {personality.length > 0 && (

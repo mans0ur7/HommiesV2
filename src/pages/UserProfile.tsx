@@ -8,6 +8,7 @@ import AppLayout from "@/components/navigation/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { personalityOptions, lifestyleOptions } from "@/lib/traits";
 import ProfilePrompts from "@/components/profile/ProfilePrompts";
+import RoomieReviews from "@/components/profile/RoomieReviews";
 
 interface Property {
   id: string;
@@ -270,6 +271,9 @@ const UserProfile = () => {
 
             {/* Prompts */}
             <ProfilePrompts prompts={(profile as any).prompts} />
+
+            {/* Roomie reviews & reputation */}
+            {userId && <RoomieReviews userId={userId} name={profile.name} />}
 
             {/* Personality */}
             {personality.length > 0 && (

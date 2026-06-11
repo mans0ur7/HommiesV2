@@ -10,6 +10,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { getTraitBadgeClass } from "@/lib/traits";
 import ProfilePrompts from "@/components/profile/ProfilePrompts";
+import ReputationBadge from "@/components/profile/ReputationBadge";
+import { useRoomieReviews } from "@/hooks/useRoomieReviews";
 
 interface RoomieProfile {
   id: string;
@@ -55,6 +57,7 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isConnecting, setIsConnecting] = useState(false);
+  const { average, count } = useRoomieReviews(roomie?.user_id ?? null);
 
   if (!roomie) return null;
 
@@ -190,7 +193,10 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
         {/* Minimal info — name, what they do, tags, a short "about". Everything
             else lives on the full profile (the "Se profil" button below). */}
         <div className="px-6 pt-5 pb-4 max-h-[46vh] overflow-y-auto">
-          <h2 className="text-2xl font-display text-foreground">{roomie.name}</h2>
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-2xl font-display text-foreground">{roomie.name}</h2>
+            <ReputationBadge average={average} count={count} />
+          </div>
           <p className="text-sm text-foreground/60 mt-0.5">{subline}</p>
 
           <div className="mt-5 space-y-5">
