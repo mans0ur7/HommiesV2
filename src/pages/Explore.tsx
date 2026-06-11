@@ -472,7 +472,9 @@ const Explore = () => {
 
               </div>
 
-              {/* Right: image bento collage (desktop only) */}
+              {/* Right: image bento collage (desktop only) — kun relevant for bolig-søgning,
+                  skjules på roomie-fanen. */}
+              {activeTab === "properties" && (
               <div className="hidden lg:block lg:col-span-5">
                 <div className="grid grid-cols-6 grid-rows-6 gap-2 h-[420px]">
                   <div className="col-span-4 row-span-4 rounded-2xl overflow-hidden bg-muted">
@@ -501,6 +503,7 @@ const Explore = () => {
                   )}
                 </div>
               </div>
+              )}
             </div>
           </div>
         </section>
