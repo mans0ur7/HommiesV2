@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { emailSchema, passwordSchema } from "@/lib/validation";
+import { mapAuthError } from "@/lib/authErrors";
 import { Eye, EyeOff, Home, Users, ArrowRight, Fingerprint, Loader2 } from "lucide-react";
 import {
   checkBiometricAvailable,
@@ -115,11 +116,7 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast({ variant: "destructive", title: "Login fejlede", description: "Forkert email eller adgangskode" });
-          } else {
-            toast({ variant: "destructive", title: "Fejl", description: error.message });
-          }
+          toast({ variant: "destructive", title: "Login fejlede", description: mapAuthError(error) });
         } else {
           // Offer biometric quick-login on the first successful sign-in
           if (biometricStatus.available && !biometricStatus.enabled) {
@@ -140,11 +137,7 @@ const Auth = () => {
       } else {
         const { error } = await signUp(email, password);
         if (error) {
-          if (error.message.includes("User already registered")) {
-            toast({ variant: "destructive", title: "Bruger eksisterer allerede", description: "Denne email er allerede registreret. Prøv at logge ind i stedet." });
-          } else {
-            toast({ variant: "destructive", title: "Fejl", description: error.message });
-          }
+          toast({ variant: "destructive", title: "Oprettelse fejlede", description: mapAuthError(error) });
         } else {
           sessionStorage.setItem("selectedUserType", userType || "roomie");
           navigate("/complete-profile");
@@ -192,7 +185,7 @@ const Auth = () => {
         : `${window.location.origin}/reset-password`;
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) {
-        toast({ variant: "destructive", title: "Fejl", description: error.message });
+        toast({ variant: "destructive", title: "Fejl", description: mapAuthError(error) });
       } else {
         // Only count the attempt once the email actually went out, so a
         // transient failure doesn't burn the user's quota.

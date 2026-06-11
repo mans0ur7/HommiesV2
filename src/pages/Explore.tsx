@@ -60,19 +60,25 @@ const Explore = () => {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { createAgent, searchAgents } = useSearchAgents();
 
-  const [activeTab, setActiveTab] = useState<"properties" | "roomies">("properties");
+  // Bevar filtre/sortering/fane på tværs af navigation (fx ind på en bolig og tilbage),
+  // så brugeren ikke skal sætte alt op igen. Søgning/område kommer fra URL'en og overstyrer.
+  const [persisted] = useState<Record<string, any>>(() => {
+    try { return JSON.parse(sessionStorage.getItem("explore_state") || "{}"); } catch { return {}; }
+  });
+
+  const [activeTab, setActiveTab] = useState<"properties" | "roomies">(persisted.activeTab ?? "properties");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("city") || searchParams.get("q") || "");
   const [appliedSearch, setAppliedSearch] = useState(searchParams.get("city") || searchParams.get("q") || "");
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [viewMode, setViewMode] = useState<"list" | "map">(persisted.viewMode ?? "list");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedStudyCity, setSelectedStudyCity] = useState<string | null>(null);
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const [mapPanTarget, setMapPanTarget] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string>("newest");
+  const [sortBy, setSortBy] = useState<string>(persisted.sortBy ?? "newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [propertyFilters, setPropertyFilters] = useState<PropertyFilters>(defaultPropertyFilters);
-  const [roomieFilters, setRoomieFilters] = useState<RoomieFilters>(defaultRoomieFilters);
+  const [activeFilters, setActiveFilters] = useState<string[]>(persisted.activeFilters ?? []);
+  const [propertyFilters, setPropertyFilters] = useState<PropertyFilters>({ ...defaultPropertyFilters, ...(persisted.propertyFilters ?? {}) });
+  const [roomieFilters, setRoomieFilters] = useState<RoomieFilters>({ ...defaultRoomieFilters, ...(persisted.roomieFilters ?? {}) });
   const [selectedRoomie, setSelectedRoomie] = useState<any>(null);
   const [showRoomieModal, setShowRoomieModal] = useState(false);
   const [isLoadingRoomieProfile, setIsLoadingRoomieProfile] = useState(false);
@@ -259,6 +265,15 @@ const Explore = () => {
       setActiveFilters((prev) => (prev.includes("favorites") ? prev : [...prev, "favorites"]));
     }
   }, [searchParams]);
+
+  // Gem filter-tilstanden, så den kan genskabes ved tilbage-navigation.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("explore_state", JSON.stringify({
+        activeTab, sortBy, activeFilters, propertyFilters, roomieFilters, viewMode,
+      }));
+    } catch { /* sessionStorage utilgængelig */ }
+  }, [activeTab, sortBy, activeFilters, propertyFilters, roomieFilters, viewMode]);
 
   const handleSearch = () => {
     setAppliedSearch(searchQuery);
