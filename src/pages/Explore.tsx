@@ -387,11 +387,13 @@ const Explore = () => {
 
                 <h1 className="font-medium tracking-tight text-foreground leading-[1.05]"
                     style={{ fontSize: 'clamp(2rem, 5vw, 3.75rem)' }}>
-                  {t("explore.title1")}
-                  <span className="block text-secondary">{t("explore.titleHome")}</span>
+                  {activeTab === "roomies" ? t("explore.titleRoomies1") : t("explore.title1")}
+                  <span className="block text-secondary">
+                    {activeTab === "roomies" ? t("explore.titleRoomiesHighlight") : t("explore.titleHome")}
+                  </span>
                 </h1>
                 <p className="text-sm md:text-lg text-muted-foreground max-w-xl">
-                  {t("explore.subtitle")}
+                  {activeTab === "roomies" ? t("explore.subtitleRoomies") : t("explore.subtitle")}
                 </p>
 
                 {/* Search bar — large, ground-level, single field */}
@@ -511,6 +513,9 @@ const Explore = () => {
         )}
 
         {/* ───────── STUDIEBYER MOSAIC ───────── */}
+        {/* By-mosaikken handler om at finde BOLIGER pr. by — skjul den på roomie-fanen,
+            hvor man søger efter personer (ellers ligner siden en bolig-søgning). */}
+        {activeTab === "properties" && (
         <section className="container mx-auto px-3 md:px-6 lg:px-8 pt-8 md:pt-14">
           <div className="flex items-end justify-between mb-4 md:mb-6">
             <div className="flex items-center gap-3">
@@ -569,6 +574,7 @@ const Explore = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* ───────── STICKY CONTROL BAR (tabs + filters) ───────── */}
         <div
