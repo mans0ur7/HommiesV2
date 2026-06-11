@@ -36,7 +36,7 @@ const Auth = () => {
   const [userType, setUserType] = useState<"roomie" | "landlord" | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string; userType?: string }>({});
 
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -44,6 +44,12 @@ const Auth = () => {
   useEffect(() => {
     setIsLogin(searchParams.get("mode") !== "signup");
   }, [searchParams]);
+
+  // En allerede indlogget bruger skal ikke kunne lande på login-siden (fx via
+  // hard-refresh-bounce eller "tilbage" efter login) — send dem til forsiden.
+  useEffect(() => {
+    if (!authLoading && user) navigate("/", { replace: true });
+  }, [user, authLoading, navigate]);
 
   // If the user previously opted in to biometric quick-login on this device,
   // prefill their email and offer a Face/fingerprint button next to the form

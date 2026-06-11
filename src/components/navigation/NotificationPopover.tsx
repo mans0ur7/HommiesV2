@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, MessageCircle, Users, Heart, Home, Check, X, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -84,6 +84,16 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
     setIsExpanded(!isExpanded);
   };
 
+  // Luk på Escape (og dermed også Androids hardware-tilbage, som dispatcher Escape).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   const handleDeleteAllRead = () => {
     deleteAllRead.mutate();
   };
@@ -94,6 +104,7 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
     <>
       {/* Backdrop */}
       <div
+        data-overlay="notifications"
         className="fixed inset-0 z-[55] bg-foreground/20 backdrop-blur-sm"
         onClick={onClose}
       />
@@ -186,7 +197,7 @@ const NotificationPopover = ({ open, onClose }: NotificationPopoverProps) => {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-border/60 p-3 bg-background space-y-2">
+          <div className="border-t border-border/60 p-3 pb-[calc(0.75rem+var(--safe-bottom))] bg-background space-y-2">
             {allNotifications.length > 5 && (
               <button 
                 onClick={handleToggleExpand}

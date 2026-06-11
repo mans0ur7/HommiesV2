@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Textarea } from "@/components/ui/textarea";
 import StarRating from "./StarRating";
 import { supabase } from "@/integrations/supabase/client";
@@ -185,15 +180,17 @@ const RatePropertyButton = ({
         Bedøm denne bolig
       </Button>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              Bedøm annoncen
-            </DialogTitle>
-          </DialogHeader>
-
+      <ResponsiveModal
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="sm:max-w-md"
+        title={
+          <span className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+            Bedøm annoncen
+          </span>
+        }
+      >
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               Hvor præcist var "{propertyTitle}" beskrevet?
@@ -232,8 +229,7 @@ const RatePropertyButton = ({
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+      </ResponsiveModal>
     </>
   );
 };

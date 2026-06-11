@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 
@@ -22,7 +22,9 @@ const MatchModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden border-0">
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden border-0 [&>button]:bg-background/30 [&>button]:text-primary-foreground [&>button]:rounded-full [&>button]:p-1.5 [&>button]:opacity-100 [&>button]:right-3 [&>button]:top-3">
+        {/* Skjult titel for skærmlæsere (Radix kræver en DialogTitle). */}
+        <DialogTitle className="sr-only">Det er et match!</DialogTitle>
         <div className="relative bg-gradient-to-b from-primary to-primary/80 text-primary-foreground p-8 text-center">
           {/* Decorative elements */}
           <div className="absolute top-4 left-8">

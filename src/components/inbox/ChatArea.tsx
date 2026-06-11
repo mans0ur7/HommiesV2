@@ -143,6 +143,7 @@ const ChatArea = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -303,9 +304,16 @@ const ChatArea = ({
 
       typingChannelRef.current = channel;
 
+      // Markér som læst igen når brugeren vender tilbage til fanen/appen.
+      const onVisible = () => {
+        if (document.visibilityState === "visible") markMessagesAsRead();
+      };
+      document.addEventListener("visibilitychange", onVisible);
+
       return () => {
         supabase.removeChannel(channel);
         typingChannelRef.current = null;
+        document.removeEventListener("visibilitychange", onVisible);
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         setIsTyping(false);
       };
@@ -315,14 +323,22 @@ const ChatArea = ({
   }, [conversation?.id]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    const last = messages[messages.length - 1];
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+    // Auto-scroll kun hvis brugeren allerede er nær bunden, eller selv lige har sendt
+    // — ellers river vi dem væk fra ældre beskeder de er ved at læse.
+    if (nearBottom || last?.sender_id === currentUserId) {
+      scrollToBottom();
+    }
+  }, [messages, currentUserId]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     const el = messagesContainerRef.current;
     if (!el) return;
     // Avoid scrollIntoView() which can scroll the entire page
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    el.scrollTo({ top: el.scrollHeight, behavior });
   };
 
   const fetchMessages = async () => {
@@ -341,6 +357,9 @@ const ChatArea = ({
 
   const markMessagesAsRead = async () => {
     if (!conversation) return;
+    // Markér kun læst når appen/fanen faktisk er synlig — ikke i baggrunden,
+    // hvor en push lige har leveret beskeden uden at brugeren har set den.
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 
     const { error } = await supabase
       .from("messages")
@@ -786,7 +805,7 @@ const ChatArea = ({
                   isOwn={isOwn}
                   content={message.content}
                   imageUrl={message.image_url}
-                  onImageClick={message.image_url ? () => window.open(message.image_url || "", "_blank") : undefined}
+                  onImageClick={message.image_url ? () => setLightboxUrl(message.image_url || null) : undefined}
                   onCopy={() => {
                     navigator.clipboard.writeText(message.content);
                     toast.success("Besked kopieret");
@@ -845,7 +864,7 @@ const ChatArea = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UsersRound className="w-5 h-5 text-primary" />
-              Vælg lejer til kontrakt
+              Vælg beboer til husorden
             </DialogTitle>
           </DialogHeader>
           <div className="py-4">
@@ -903,6 +922,20 @@ const ChatArea = ({
         onClose={() => setShowShareProperty(false)}
         onPick={handleSendPropertyCard}
       />
+
+      {/* In-app billed-lightbox (i stedet for at åbne en ekstern browser-fane). */}
+      <Dialog open={!!lightboxUrl} onOpenChange={(o) => !o && setLightboxUrl(null)}>
+        <DialogContent className="max-w-3xl border-0 bg-transparent p-0 shadow-none">
+          <DialogTitle className="sr-only">Billede</DialogTitle>
+          {lightboxUrl && (
+            <img
+              src={lightboxUrl}
+              alt="Delt billede"
+              className="w-full max-h-[85dvh] rounded-lg object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Icebreaker quick replies — only on a fresh conversation */}
       {messages.length === 0 && !sending && (

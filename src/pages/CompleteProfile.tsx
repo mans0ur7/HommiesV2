@@ -9,7 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User, LogOut } from "lucide-react";
+import { Upload, User, LogOut, Check, ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import hommiesLogo from "@/assets/hommies-logo.png";
 import {
   AlertDialog,
@@ -53,6 +56,7 @@ const CompleteProfile = () => {
   const [workOther, setWorkOther] = useState("");
   const [nationality, setNationality] = useState("");
   const [nationalitySearch, setNationalitySearch] = useState("");
+  const [nationalityOpen, setNationalityOpen] = useState(false);
   const [bio, setBio] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -417,26 +421,52 @@ const CompleteProfile = () => {
           {/* Nationality with search */}
           <div className="space-y-2">
             <Label htmlFor="nationality">{t("profile.nationality")}</Label>
-            <Select value={nationality} onValueChange={setNationality}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("profile.selectNationality")} />
-              </SelectTrigger>
-              <SelectContent className="max-h-60">
-                <div className="p-2">
-                  <Input
-                    placeholder={t("profile.searchNationality")}
-                    value={nationalitySearch}
-                    onChange={(e) => setNationalitySearch(e.target.value)}
-                    className="mb-2"
-                  />
-                </div>
-                {filteredNationalities.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Søgbar combobox: Command håndterer selv filtrering + tastatur, så
+                søgefeltet ikke længere slås med Radix Selects typeahead/fokus. */}
+            <Popover open={nationalityOpen} onOpenChange={setNationalityOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={nationalityOpen}
+                  className="w-full justify-between font-normal"
+                >
+                  <span className={nationality ? "" : "text-muted-foreground"}>
+                    {nationality || t("profile.selectNationality")}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder={t("profile.searchNationality")} />
+                  <CommandList>
+                    <CommandEmpty>{t("profile.noResults")}</CommandEmpty>
+                    <CommandGroup>
+                      {allNationalities.map((option) => (
+                        <CommandItem
+                          key={option}
+                          value={option}
+                          onSelect={() => {
+                            setNationality(option);
+                            setNationalityOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              nationality === option ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {option}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Bio */}

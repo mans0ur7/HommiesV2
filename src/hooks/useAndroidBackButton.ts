@@ -18,9 +18,10 @@ export const useAndroidBackButton = () => {
 
     let remove: (() => void) | undefined;
     CapApp.addListener("backButton", ({ canGoBack }) => {
-      // 1) Luk et åbent Radix-overlay (Dialog/Sheet/Drawer/AlertDialog/Popover) først.
+      // 1) Luk et åbent overlay først — Radix (Dialog/Sheet/AlertDialog/Popover) eller
+      // et custom overlay markeret med data-overlay (fx notifikations-popover).
       const overlay = document.querySelector(
-        '[data-state="open"][role="dialog"], [data-state="open"][role="alertdialog"], [data-radix-popper-content-wrapper]'
+        '[data-state="open"][role="dialog"], [data-state="open"][role="alertdialog"], [data-radix-popper-content-wrapper], [data-overlay]'
       );
       if (overlay) {
         document.dispatchEvent(
