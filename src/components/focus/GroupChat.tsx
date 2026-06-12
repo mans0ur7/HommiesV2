@@ -250,10 +250,11 @@ const GroupChat = ({ group }: GroupChatProps) => {
                 )}
 
                 <div className={`flex flex-col max-w-[78%] ${isOwn ? "items-end" : "items-start"}`}>
-                  {/* Sender name above the first message in a run (others only) */}
-                  {!isOwn && firstOfGroup && msg.sender?.name && (
+                  {/* Sender name above the first message in a run (others only).
+                      Always rendered — in a group chat an unnamed bubble is confusing. */}
+                  {!isOwn && firstOfGroup && (
                     <span className={`text-[11px] font-semibold mb-0.5 ml-1 ${colorForSender(msg.sender_id)}`}>
-                      {msg.sender.name}
+                      {msg.sender?.name ?? "Medlem"}
                     </span>
                   )}
 
