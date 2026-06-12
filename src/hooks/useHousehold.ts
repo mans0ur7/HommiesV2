@@ -217,37 +217,34 @@ export function useHousehold(groupId: string | null | undefined) {
     fetchAll();
     return true;
   };
-  const toggleTask = async (id: string, done: boolean): Promise<boolean> => {
+  /**
+   * Engangsopgaver: flueben til/fra som normalt.
+   * Gentagne opgaver fuldføres "for denne gang": SAMME række rykkes frem til
+   * næste forekomst (ingen nye rækker = ingen dubletter i liste/kalender,
+   * uanset hvor mange gange der klikkes til og fra).
+   */
+  const toggleTask = async (id: string, done: boolean): Promise<{ ok: boolean; advancedTo: string | null }> => {
+    const task = tasks.find((t) => t.id === id);
+    if (done && task?.recurrence && task.due_date) {
+      const due = nextDueDate(task.due_date, task.recurrence);
+      const { error } = await supabase
+        .from("household_tasks")
+        .update({ due_date: due, done: false, done_at: null })
+        .eq("id", id);
+      if (error) {
+        console.error("toggleTask (advance) failed:", error);
+        return { ok: false, advancedTo: null };
+      }
+      fetchAll();
+      return { ok: true, advancedTo: due };
+    }
     const { error } = await supabase.from("household_tasks").update({ done, done_at: done ? new Date().toISOString() : null }).eq("id", id);
     if (error) {
       console.error("toggleTask failed:", error);
-      return false;
-    }
-    // Gentaget opgave fuldført → den udførte bliver historik, og en frisk
-    // forekomst oprettes med næste dato (fx "toiletrengøring hver søndag").
-    if (done && groupId && user) {
-      const task = tasks.find((t) => t.id === id);
-      if (task?.recurrence && task.due_date) {
-        const due = nextDueDate(task.due_date, task.recurrence);
-        // Værn mod dubletter (af-flueben + flueben igen må ikke skabe to næste).
-        const alreadyExists = tasks.some(
-          (t) => !t.done && t.id !== id && t.title === task.title && t.recurrence === task.recurrence && t.due_date === due,
-        );
-        if (!alreadyExists) {
-          const { error: nextErr } = await supabase.from("household_tasks").insert({
-            group_id: groupId,
-            title: task.title,
-            assignee_id: task.assignee_id,
-            due_date: due,
-            recurrence: task.recurrence,
-            created_by: user.id, // RLS kræver created_by = auth.uid()
-          });
-          if (nextErr) console.error("toggleTask: next occurrence insert failed:", nextErr);
-        }
-      }
+      return { ok: false, advancedTo: null };
     }
     fetchAll();
-    return true;
+    return { ok: true, advancedTo: null };
   };
   const deleteTask = async (id: string): Promise<boolean> => {
     const { error } = await supabase.from("household_tasks").delete().eq("id", id);

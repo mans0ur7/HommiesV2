@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { User, Trash2 } from "lucide-react";
 import { useRoomieReviews } from "@/hooks/useRoomieReviews";
+import { ROOMIE_REVIEWS_ENABLED } from "@/lib/features";
 import StarRating from "@/components/ratings/StarRating";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ interface RoomieReviewsProps {
  */
 const RoomieReviews = ({ userId, name }: RoomieReviewsProps) => {
   const { reviews, count, average, canReview, myReview, submit, remove } = useRoomieReviews(userId);
+  // Hooks skal kaldes ubetinget — flag-tjekket ligger derfor efter dem.
+  const hidden = !ROOMIE_REVIEWS_ENABLED;
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -33,6 +36,8 @@ const RoomieReviews = ({ userId, name }: RoomieReviewsProps) => {
       setComment(myReview?.comment ?? "");
     }
   }, [open, myReview]);
+
+  if (hidden) return null;
 
   const handleSubmit = async () => {
     if (rating === 0) {

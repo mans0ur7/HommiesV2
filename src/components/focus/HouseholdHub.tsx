@@ -318,8 +318,9 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
 
   const handleToggleTask = async (id: string, done: boolean) => {
     if (done) hapticSuccess(); else hapticLight();
-    const ok = await toggleTask(id, done);
-    if (!ok) toast.error("Kunne ikke opdatere opgaven — prøv igen");
+    const res = await toggleTask(id, done);
+    if (!res.ok) toast.error("Kunne ikke opdatere opgaven — prøv igen");
+    else if (res.advancedTo) toast.success(`Klaret ✅ Næste gang: ${formatDueDate(res.advancedTo)}`);
   };
 
   const handleDeleteTask = async (id: string) => {
@@ -625,7 +626,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
             <Select value={taskRecur} onValueChange={(v) => setTaskRecur(v as "none" | TaskRecurrence)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Aldrig</SelectItem>
+                <SelectItem value="none">Én gang</SelectItem>
                 <SelectItem value="weekly">Hver uge</SelectItem>
                 <SelectItem value="biweekly">Hver 2. uge</SelectItem>
                 <SelectItem value="monthly">Hver måned</SelectItem>
@@ -636,7 +637,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
             <Label>{taskRecur === "none" ? "Frist (valgfri)" : "Første gang"}</Label>
             <Input type="date" value={taskDue} onChange={(e) => setTaskDue(e.target.value)} />
             {taskRecur !== "none" && (
-              <p className="text-xs text-muted-foreground">Når opgaven sættes som udført, oprettes næste gang automatisk — fx "toiletrengøring hver søndag".</p>
+              <p className="text-xs text-muted-foreground">Når opgaven sættes som udført, rykker den automatisk frem til næste gang — fx "toiletrengøring hver søndag".</p>
             )}
           </div>
           <Button onClick={submitTask} className="w-full rounded-full">Tilføj opgave</Button>

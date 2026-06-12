@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ROOMIE_REVIEWS_ENABLED } from "@/lib/features";
 
 interface ReputationBadgeProps {
   average: number;
@@ -9,6 +10,7 @@ interface ReputationBadgeProps {
 
 /** Kompakt omdømme-chip: "★ 4.8 · 5 anmeldelser". Skjules helt hvis 0 anmeldelser. */
 const ReputationBadge = ({ average, count, className }: ReputationBadgeProps) => {
+  if (!ROOMIE_REVIEWS_ENABLED) return null;
   if (!count) return null;
   return (
     <span
