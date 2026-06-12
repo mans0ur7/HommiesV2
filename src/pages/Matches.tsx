@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Home, Users, MapPin, SlidersHorizontal, Sparkles, X, Check } from "lucide-react";
+import { Home, Users, MapPin, SlidersHorizontal, Sparkles, X, Check, ChevronDown, UserRound } from "lucide-react";
 import Navbar from "@/components/landing/Navbar";
 
 import AppLayout from "@/components/navigation/AppLayout";
@@ -12,8 +12,18 @@ import MatchProfileModal from "@/components/matches/MatchProfileModal";
 import MatchCelebration from "@/components/matches/MatchCelebration";
 import LocationModal from "@/components/matches/LocationModal";
 import FilterModal from "@/components/matches/FilterModal";
+import GroupSwipeView from "@/components/matches/GroupSwipeView";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useHousingGroups } from "@/hooks/useHousingGroups";
 import { useLandlordHasPublishedProperty } from "@/hooks/useLandlordHasPublishedProperty";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -101,6 +111,11 @@ const Matches = () => {
   const isMobile = useIsMobile();
   const isLandlord = userProfile?.user_type === "landlord";
   const { canAccessRoomieFeatures, hasPublishedProperty } = useLandlordHasPublishedProperty();
+
+  // Group swipe — swipe on behalf of a housing group you're part of.
+  const { groups: myGroups } = useHousingGroups();
+  const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
+  const activeGroup = myGroups.find((g) => g.id === activeGroupId) ?? null;
   
   // Roomies can only see properties, landlords can toggle (if they have published a property)
   const [activeTab, setActiveTab] = useState<"properties" | "roomies">("properties");
@@ -618,6 +633,7 @@ const Matches = () => {
       <main className="flex-1 min-h-0 flex flex-col pt-3 md:pt-4 pb-2">
         <div className="max-w-7xl w-full mx-auto px-4 md:px-6 lg:px-12 flex-1 min-h-0 flex flex-col">
           {/* Compact header */}
+          {!activeGroup && (
           <div className="mb-2 md:mb-3 flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               {canAccessRoomieFeatures ? (
@@ -660,6 +676,40 @@ const Matches = () => {
             </div>
 
             <div className="flex items-center gap-2">
+              {!isLandlord && myGroups.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-full border border-secondary/60 bg-secondary/15 hover:bg-secondary/25 px-3 h-8 text-xs md:text-sm text-foreground"
+                    >
+                      <Users className="w-3.5 h-3.5 mr-1.5" />
+                      <span>Swipe sammen</span>
+                      <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-60" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-60">
+                    <DropdownMenuLabel>Swipe som</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => setActiveGroupId(null)}>
+                      <UserRound className="w-4 h-4 mr-2" /> Mig selv
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                      Dine grupper
+                    </DropdownMenuLabel>
+                    {myGroups.map((g) => (
+                      <DropdownMenuItem
+                        key={g.id}
+                        onClick={() => { setActiveTab("properties"); setActiveGroupId(g.id); }}
+                      >
+                        <Users className="w-4 h-4 mr-2 text-secondary-foreground" />
+                        <span className="truncate">{g.name}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -683,8 +733,14 @@ const Matches = () => {
               </Button>
             </div>
           </div>
+          )}
 
           {/* Card area – fills remaining viewport */}
+          {activeGroup ? (
+            <div className="flex-1 min-h-0 w-full">
+              <GroupSwipeView group={activeGroup} onExit={() => setActiveGroupId(null)} />
+            </div>
+          ) : (
           <div className="flex-1 min-h-0 flex justify-center items-center">
             {loading ? (
               <div className="animate-pulse h-full max-h-[560px] aspect-[3/4]">
@@ -794,6 +850,7 @@ const Matches = () => {
               </div>
             )}
           </div>
+          )}
         </div>
       </main>
 
