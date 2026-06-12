@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, Users, Wallet, ListChecks, StickyNote, Trash2, Check,
@@ -16,9 +16,44 @@ import {
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { da } from "date-fns/locale";
+import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import type { HousingGroup } from "@/hooks/useHousingGroups";
 
-const fmt = (n: number) => Math.round(Math.abs(n)).toLocaleString("da-DK");
+const fmt = (n: number) => {
+  const v = Math.abs(n);
+  return v.toLocaleString("da-DK", { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 });
+};
+
+/** Under en halv krone fra hinanden = kvit (undgår "Du skylder 0 kr" pga. flydende kommatal). */
+const isSettled = (n: number) => Math.abs(n) < 0.5;
+
+/**
+ * Parser et beløb skrevet på dansk: "12.500" → 12500, "12.500,50" → 12500.5,
+ * "99,5" → 99.5, "99.5" → 99.5. Returnerer null hvis ugyldigt eller <= 0.
+ */
+const parseDanishAmount = (s: string): number | null => {
+  let t = s.trim().replace(/\s+/g, "");
+  if (!t) return null;
+  const hasDot = t.includes(".");
+  const hasComma = t.includes(",");
+  if (hasDot && hasComma) {
+    // Dansk format: punktum er tusindtalsseparator, komma er decimal.
+    t = t.replace(/\./g, "").replace(",", ".");
+  } else if (hasComma) {
+    t = t.replace(",", ".");
+  } else if (hasDot && /^\d{1,3}(\.\d{3})+$/.test(t)) {
+    // "12.500" er tolv tusinde fem hundrede — ikke 12,5.
+    t = t.replace(/\./g, "");
+  }
+  const n = Number(t);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+/** Date-only strings parses som UTC af `new Date(...)` og kan skride en dag — parse lokalt. */
+const formatDueDate = (s: string) => {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("da-DK", { day: "numeric", month: "short" });
+};
 
 const Avatar = ({ url, name, size = "w-8 h-8" }: { url: string | null; name: string; size?: string }) => (
   <div className={`${size} rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0`}>
@@ -54,17 +89,20 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
   const [taskDue, setTaskDue] = useState("");
   const [noteBody, setNoteBody] = useState("");
 
-  useEffect(() => {
-    if (expenseOpen) setExpParts(members.map((m) => m.user_id));
-  }, [expenseOpen, members]);
-
   const myBalance = balances.get(user?.id ?? "") ?? 0;
   const openTasks = tasks.filter((t) => !t.done);
   const doneTasks = tasks.filter((t) => t.done);
 
+  const openExpenseModal = () => {
+    // Seed participants here (not in an effect) so a realtime refetch of
+    // `members` can't reset the user's selection while the modal is open.
+    setExpParts(members.map((m) => m.user_id));
+    setExpenseOpen(true);
+  };
+
   const submitExpense = async () => {
-    const amount = parseFloat(expAmount.replace(",", "."));
-    if (!expTitle.trim() || !amount || amount <= 0) {
+    const amount = parseDanishAmount(expAmount);
+    if (!expTitle.trim() || amount === null) {
       toast.error("Udfyld titel og et gyldigt beløb");
       return;
     }
@@ -72,7 +110,11 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
       toast.error("Vælg mindst én at dele med");
       return;
     }
-    await addExpense(expTitle.trim(), amount, expParts);
+    const ok = await addExpense(expTitle.trim(), amount, expParts);
+    if (!ok) {
+      toast.error("Kunne ikke gemme udgiften — prøv igen");
+      return;
+    }
     setExpTitle(""); setExpAmount(""); setExpenseOpen(false);
     toast.success("Udgift tilføjet");
   };
@@ -82,22 +124,64 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
       toast.error("Skriv en opgave");
       return;
     }
-    await addTask(taskTitle.trim(), taskAssignee === "none" ? null : taskAssignee, taskDue || null);
+    const ok = await addTask(taskTitle.trim(), taskAssignee === "none" ? null : taskAssignee, taskDue || null);
+    if (!ok) {
+      toast.error("Kunne ikke gemme opgaven — prøv igen");
+      return;
+    }
     setTaskTitle(""); setTaskAssignee("none"); setTaskDue(""); setTaskOpen(false);
     toast.success("Opgave tilføjet");
   };
 
   const submitNote = async () => {
     if (!noteBody.trim()) return;
-    await addNote(noteBody.trim());
+    const ok = await addNote(noteBody.trim());
+    if (!ok) {
+      toast.error("Kunne ikke gemme opslaget — prøv igen");
+      return;
+    }
     setNoteBody("");
   };
+
+  const handleToggleTask = async (id: string, done: boolean) => {
+    if (done) hapticSuccess(); else hapticLight();
+    const ok = await toggleTask(id, done);
+    if (!ok) toast.error("Kunne ikke opdatere opgaven — prøv igen");
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    const ok = await deleteTask(id);
+    if (!ok) toast.error("Kunne ikke slette opgaven — prøv igen");
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    const ok = await deleteExpense(id);
+    if (!ok) toast.error("Kunne ikke slette udgiften — prøv igen");
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    const ok = await deleteNote(id);
+    if (!ok) toast.error("Kunne ikke slette opslaget — prøv igen");
+  };
+
+  if (loading) {
+    // Skeleton, så "I er kvit 🤝" / "0 beboere" aldrig blinker før data er hentet.
+    return (
+      <div className="min-h-full">
+        <div className="max-w-3xl mx-auto px-3 md:px-6 pt-5 pb-6 space-y-6">
+          <div className="h-28 rounded-2xl bg-muted/40 animate-pulse" />
+          <div className="h-44 rounded-2xl bg-muted/40 animate-pulse" />
+          <div className="h-32 rounded-2xl bg-muted/40 animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full">
       {/* Hero */}
-      <div className="hero-mesh border-b border-border/60">
-        <div className="max-w-3xl mx-auto px-4 md:px-6 pt-5 pb-6">
+      <div className="hero-mesh border-b border-border/60 md:rounded-3xl md:overflow-hidden">
+        <div className="max-w-3xl mx-auto px-3 md:px-6 pt-5 pb-6">
           {!embedded && (
             <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground transition-colors mb-4">
               <ArrowLeft className="w-4 h-4" /> Tilbage til gruppen
@@ -117,7 +201,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
                   <Avatar url={m.avatar_url} name={m.name} />
                 </div>
               ))}
-              <span className="ml-3.5 text-sm text-muted-foreground">{members.length} beboere</span>
+              <span className="ml-3.5 text-sm text-muted-foreground">{members.length} {members.length === 1 ? "beboer" : "beboere"}</span>
             </div>
             <div className="text-right">
               <p className="text-xs text-muted-foreground">I alt delt</p>
@@ -127,16 +211,16 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-8">
+      <div className="max-w-3xl mx-auto px-3 md:px-6 py-6 space-y-8">
         {/* Your balance hero card */}
-        <div className={`rounded-3xl p-5 shadow-soft border ${myBalance >= 0 ? "bg-secondary/15 border-secondary/40" : "bg-destructive/5 border-destructive/30"}`}>
+        <div className={`rounded-3xl p-5 shadow-soft border ${isSettled(myBalance) ? "bg-secondary/15 border-secondary/40" : myBalance > 0 ? "bg-emerald-500/10 border-emerald-500/30" : "bg-destructive/5 border-destructive/30"}`}>
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-1">
             <Wallet className="w-3.5 h-3.5" /> Din balance
           </div>
-          {Math.round(myBalance) === 0 ? (
+          {isSettled(myBalance) ? (
             <p className="text-2xl font-display text-foreground">I er kvit 🤝</p>
           ) : myBalance > 0 ? (
-            <p className="text-2xl font-display text-foreground">Du får <span className="text-secondary-foreground">{fmt(myBalance)} kr</span></p>
+            <p className="text-2xl font-display text-foreground">Du får <span className="text-emerald-700">{fmt(myBalance)} kr</span></p>
           ) : (
             <p className="text-2xl font-display text-foreground">Du skylder <span className="text-destructive">{fmt(myBalance)} kr</span></p>
           )}
@@ -150,8 +234,8 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
                     <Avatar url={m.avatar_url} name={m.name} size="w-6 h-6" />
                     <span className="text-sm text-foreground truncate">{m.name}</span>
                   </div>
-                  <span className={`text-sm font-medium ${b >= 0 ? "text-secondary-foreground" : "text-destructive"}`}>
-                    {Math.round(b) === 0 ? "kvit" : `${b > 0 ? "+" : "−"}${fmt(b)} kr`}
+                  <span className={`text-sm font-medium ${isSettled(b) ? "text-muted-foreground" : b > 0 ? "text-emerald-700" : "text-destructive"}`}>
+                    {isSettled(b) ? "kvit" : `${b > 0 ? "+" : "−"}${fmt(b)} kr`}
                   </span>
                 </div>
               );
@@ -183,17 +267,19 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
             <div className="space-y-2">
               {[...openTasks, ...doneTasks].map((t) => (
                 <div key={t.id} className={`flex items-center gap-3 rounded-2xl border border-border/60 bg-card shadow-soft p-3 ${t.done ? "opacity-60" : ""}`}>
-                  <button onClick={() => toggleTask(t.id, !t.done)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${t.done ? "bg-foreground border-foreground text-background" : "border-border hover:border-foreground/50"}`}>
-                    {t.done && <Check className="w-3.5 h-3.5" />}
+                  <button onClick={() => handleToggleTask(t.id, !t.done)} aria-label={t.done ? "Markér som ikke udført" : "Markér som udført"} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${t.done ? "bg-foreground border-foreground text-background" : "border-border hover:border-foreground/50"}`}>
+                    {t.done && <Check className="w-3.5 h-3.5 animate-scale-in" />}
                   </button>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium text-foreground ${t.done ? "line-through" : ""}`}>{t.title}</p>
                     <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
                       <span className="inline-flex items-center gap-1"><Users className="w-3 h-3" /> {memberName(t.assignee_id)}</span>
-                      {t.due_date && <span className="inline-flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {new Date(t.due_date).toLocaleDateString("da-DK", { day: "numeric", month: "short" })}</span>}
+                      {t.due_date && <span className="inline-flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {formatDueDate(t.due_date)}</span>}
                     </div>
                   </div>
-                  <button onClick={() => deleteTask(t.id)} aria-label="Slet" className="w-7 h-7 rounded-full flex items-center justify-center text-foreground/40 hover:text-destructive hover:bg-muted transition-colors shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                  {(t.created_by === user?.id || group.created_by === user?.id) && (
+                    <button onClick={() => handleDeleteTask(t.id)} aria-label="Slet" className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-destructive hover:bg-muted transition-colors shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                  )}
                 </div>
               ))}
             </div>
@@ -204,7 +290,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xl font-display text-foreground flex items-center gap-2"><Receipt className="w-5 h-5 text-secondary-foreground" /> Udgifter</h2>
-            <Button size="sm" variant="outline" className="rounded-full h-8 text-xs" onClick={() => setExpenseOpen(true)}><Plus className="w-3.5 h-3.5 mr-1" /> Tilføj</Button>
+            <Button size="sm" variant="outline" className="rounded-full h-8 text-xs" onClick={openExpenseModal}><Plus className="w-3.5 h-3.5 mr-1" /> Tilføj</Button>
           </div>
           {expenses.length === 0 ? (
             <p className="text-sm text-muted-foreground rounded-2xl border border-dashed border-border/60 p-4 text-center">Ingen udgifter endnu. Tilføj fælles regninger, så fordeler vi automatisk hvem der skylder hvem.</p>
@@ -219,7 +305,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
                   </div>
                   <span className="text-sm font-semibold text-foreground shrink-0">{fmt(e.amount)} kr</span>
                   {(e.paid_by === user?.id || group.created_by === user?.id) && (
-                    <button onClick={() => deleteExpense(e.id)} aria-label="Slet" className="w-7 h-7 rounded-full flex items-center justify-center text-foreground/40 hover:text-destructive hover:bg-muted transition-colors shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => handleDeleteExpense(e.id)} aria-label="Slet" className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-destructive hover:bg-muted transition-colors shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
                   )}
                 </div>
               ))}
@@ -232,7 +318,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
           <h2 className="text-xl font-display text-foreground flex items-center gap-2 mb-3"><StickyNote className="w-5 h-5 text-secondary-foreground" /> Opslagstavle</h2>
           <div className="flex items-center gap-2 mb-3">
             <Input value={noteBody} onChange={(e) => setNoteBody(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") submitNote(); }} placeholder="Skriv et opslag til husstanden…" className="rounded-full" />
-            <Button onClick={submitNote} disabled={!noteBody.trim()} className="rounded-full shrink-0 h-10 w-10 p-0"><ArrowRight className="w-4 h-4" /></Button>
+            <Button onClick={submitNote} disabled={!noteBody.trim()} aria-label="Send opslag" className="rounded-full shrink-0 h-10 w-10 p-0"><ArrowRight className="w-4 h-4" /></Button>
           </div>
           {notes.length === 0 ? (
             <p className="text-sm text-muted-foreground">Ingen opslag endnu. Skriv en besked, et husmøde-tidspunkt, eller en påmindelse.</p>
@@ -243,7 +329,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2"><Avatar url={members.find((m) => m.user_id === n.author_id)?.avatar_url ?? null} name={memberName(n.author_id)} size="w-6 h-6" /><span className="text-xs font-medium text-foreground">{memberName(n.author_id)}</span><span className="text-[11px] text-muted-foreground">· {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: da })}</span></div>
                     {(n.author_id === user?.id || group.created_by === user?.id) && (
-                      <button onClick={() => deleteNote(n.id)} aria-label="Slet" className="text-foreground/40 hover:text-destructive transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => handleDeleteNote(n.id)} aria-label="Slet" className="text-foreground/40 hover:text-destructive transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                     )}
                   </div>
                   <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">{n.body}</p>
@@ -269,7 +355,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
               {members.map((m) => {
                 const on = expParts.includes(m.user_id);
                 return (
-                  <button key={m.user_id} type="button" onClick={() => setExpParts((p) => on ? p.filter((x) => x !== m.user_id) : [...p, m.user_id])} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-all ${on ? "bg-foreground text-background border-foreground" : "border-border/60 text-foreground/70 hover:border-foreground/40"}`}>
+                  <button key={m.user_id} type="button" aria-pressed={on} onClick={() => setExpParts((p) => on ? p.filter((x) => x !== m.user_id) : [...p, m.user_id])} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-all ${on ? "bg-foreground text-background border-foreground" : "border-border/60 text-foreground/70 hover:border-foreground/40"}`}>
                     <Avatar url={m.avatar_url} name={m.name} size="w-5 h-5" /> {m.user_id === user?.id ? "Dig" : m.name}
                   </button>
                 );

@@ -24,6 +24,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Hommies bruger kameraet, så du kan tage billeder til din profil og dine boligannoncer.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Hommies bruger mikrofonen, når du optager en video-intro til din profil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Hommies bruger dine billeder, så du kan tilføje fotos til din profil og dine boligannoncer.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

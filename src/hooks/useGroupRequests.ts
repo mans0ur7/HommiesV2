@@ -178,6 +178,12 @@ export const useGroupRequests = () => {
     const { error } = await supabase.from("group_requests").insert(data);
 
     if (error) {
+      // UNIQUE(group_id, property_id): et andet medlem har allerede sendt på
+      // gruppens vegne — det er en succes for gruppen, ikke en fejl.
+      if (error.code === "23505") {
+        await fetchRequests();
+        return true;
+      }
       console.error("Error sending group request:", error);
       return false;
     }

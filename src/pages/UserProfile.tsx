@@ -77,6 +77,7 @@ const UserProfile = () => {
   
   const [profile, setProfile] = useState<UserProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [showFullBio, setShowFullBio] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [landlordProperties, setLandlordProperties] = useState<Property[]>([]);
@@ -90,12 +91,20 @@ const UserProfile = () => {
   const fetchUserProfile = async () => {
     if (!userId) return;
     setLoading(true);
+    setFetchError(false);
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
+
+    if (error) {
+      console.error("[userProfile] fetch failed", error);
+      setFetchError(true);
+      setLoading(false);
+      return;
+    }
 
     if (data) {
       setProfile(data);
@@ -121,6 +130,28 @@ const UserProfile = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">{t("userProfile.loading")}</div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-16 flex justify-center">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-8 text-center">
+            <p className="font-medium text-foreground mb-1">Noget gik galt</p>
+            <p className="text-sm text-muted-foreground mb-5">
+              Profilen kunne ikke hentes. Tjek din forbindelse og prøv igen.
+            </p>
+            <button
+              onClick={fetchUserProfile}
+              className="inline-flex items-center justify-center h-10 px-5 rounded-full bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors"
+            >
+              Prøv igen
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

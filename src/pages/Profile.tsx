@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { checkFields } from "@/lib/contentFilter";
-import { Upload, User, ChevronLeft, ChevronRight, Pencil, X, Check, ArrowRight, ArrowLeft, Star, Heart, UserCircle, Settings, Sparkles, Plus, Trash2 } from "lucide-react";
+import { Upload, User, ChevronLeft, ChevronRight, Pencil, X, Check, ArrowRight, ArrowLeft, Star, Heart, UserCircle, Settings, Sparkles, Plus, Trash2, Video } from "lucide-react";
 import { pickImage } from "@/lib/camera";
 import { personalityOptions, lifestyleOptions } from "@/lib/traits";
 
@@ -956,13 +956,29 @@ const Profile = () => {
             </div>
 
             {/* Video intro */}
-            {(profile as any).video_url && (
+            {(profile as any).video_url ? (
               <div>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="h-px w-8 bg-foreground/40" />
                   <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Video-intro</span>
                 </div>
                 <ProfileVideo url={(profile as any).video_url} poster={profile.avatar_url} />
+              </div>
+            ) : (
+              <div className="max-w-[280px] rounded-2xl border border-dashed border-border/70 px-4 py-6 flex flex-col items-center gap-2.5 text-center">
+                <Video className="w-5 h-5 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Vis hvem du er med en kort video-intro</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEditTab("personligt");
+                    setIsEditing(true);
+                  }}
+                  className="rounded-full h-8 px-4 text-xs"
+                >
+                  Tilføj video
+                </Button>
               </div>
             )}
 

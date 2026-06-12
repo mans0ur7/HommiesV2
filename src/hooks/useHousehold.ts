@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -45,10 +45,13 @@ export function useHousehold(groupId: string | null | undefined) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  // Only the FIRST fetch should show the loading state — realtime refetches
+  // must not flip `loading` back and blank out the UI.
+  const hasLoaded = useRef(false);
 
   const fetchAll = useCallback(async () => {
     if (!groupId) return;
-    setLoading(true);
+    if (!hasLoaded.current) setLoading(true);
 
     const [{ data: memberRows }, { data: group }] = await Promise.all([
       supabase.from("housing_group_members").select("user_id").eq("group_id", groupId).eq("status", "accepted"),
@@ -70,10 +73,12 @@ export function useHousehold(groupId: string | null | undefined) {
     setExpenses((exp ?? []) as Expense[]);
     setTasks((tsk ?? []) as Task[]);
     setNotes((nts ?? []) as Note[]);
+    hasLoaded.current = true;
     setLoading(false);
   }, [groupId]);
 
   useEffect(() => {
+    hasLoaded.current = false;
     fetchAll();
     if (!groupId) return;
     const channel = supabase
@@ -88,51 +93,92 @@ export function useHousehold(groupId: string | null | undefined) {
   }, [fetchAll, groupId]);
 
   // Net balance per member: paid - owed. Positive = others owe them.
+  // Only CURRENT members count — expenses involving people who have left the
+  // group are skipped (or re-split among remaining participants) so the
+  // balances always sum to ~0. The expense itself still shows in the list.
   const balances = new Map<string, number>();
   members.forEach((m) => balances.set(m.user_id, 0));
   for (const e of expenses) {
-    const parts = e.participants?.length ? e.participants : members.map((m) => m.user_id);
-    const share = parts.length ? e.amount / parts.length : 0;
+    const allParts = e.participants?.length ? e.participants : members.map((m) => m.user_id);
+    const parts = allParts.filter((p) => balances.has(p));
+    if (parts.length === 0 || !balances.has(e.paid_by)) continue;
+    const share = e.amount / parts.length;
     balances.set(e.paid_by, (balances.get(e.paid_by) ?? 0) + e.amount);
     for (const p of parts) balances.set(p, (balances.get(p) ?? 0) - share);
   }
 
   const totalSpent = expenses.reduce((s, e) => s + e.amount, 0);
 
-  // ── mutations ──
-  const addExpense = async (title: string, amount: number, participants: string[]) => {
-    if (!groupId || !user) return;
-    await supabase.from("household_expenses").insert({ group_id: groupId, paid_by: user.id, title, amount, participants });
+  // ── mutations ── all return true on success, false on failure (e.g. RLS
+  // rejection or offline) so the UI can avoid false success toasts.
+  const addExpense = async (title: string, amount: number, participants: string[]): Promise<boolean> => {
+    if (!groupId || !user) return false;
+    const { error } = await supabase.from("household_expenses").insert({ group_id: groupId, paid_by: user.id, title, amount, participants });
+    if (error) {
+      console.error("addExpense failed:", error);
+      return false;
+    }
     fetchAll();
+    return true;
   };
-  const deleteExpense = async (id: string) => {
-    await supabase.from("household_expenses").delete().eq("id", id);
+  const deleteExpense = async (id: string): Promise<boolean> => {
+    const { error } = await supabase.from("household_expenses").delete().eq("id", id);
+    if (error) {
+      console.error("deleteExpense failed:", error);
+      return false;
+    }
     fetchAll();
+    return true;
   };
-  const addTask = async (title: string, assignee_id: string | null, due_date: string | null) => {
-    if (!groupId || !user) return;
-    await supabase.from("household_tasks").insert({ group_id: groupId, title, assignee_id, due_date, created_by: user.id });
+  const addTask = async (title: string, assignee_id: string | null, due_date: string | null): Promise<boolean> => {
+    if (!groupId || !user) return false;
+    const { error } = await supabase.from("household_tasks").insert({ group_id: groupId, title, assignee_id, due_date, created_by: user.id });
+    if (error) {
+      console.error("addTask failed:", error);
+      return false;
+    }
     fetchAll();
+    return true;
   };
-  const toggleTask = async (id: string, done: boolean) => {
-    await supabase.from("household_tasks").update({ done, done_at: done ? new Date().toISOString() : null }).eq("id", id);
+  const toggleTask = async (id: string, done: boolean): Promise<boolean> => {
+    const { error } = await supabase.from("household_tasks").update({ done, done_at: done ? new Date().toISOString() : null }).eq("id", id);
+    if (error) {
+      console.error("toggleTask failed:", error);
+      return false;
+    }
     fetchAll();
+    return true;
   };
-  const deleteTask = async (id: string) => {
-    await supabase.from("household_tasks").delete().eq("id", id);
+  const deleteTask = async (id: string): Promise<boolean> => {
+    const { error } = await supabase.from("household_tasks").delete().eq("id", id);
+    if (error) {
+      console.error("deleteTask failed:", error);
+      return false;
+    }
     fetchAll();
+    return true;
   };
-  const addNote = async (body: string) => {
-    if (!groupId || !user) return;
-    await supabase.from("household_notes").insert({ group_id: groupId, author_id: user.id, body });
+  const addNote = async (body: string): Promise<boolean> => {
+    if (!groupId || !user) return false;
+    const { error } = await supabase.from("household_notes").insert({ group_id: groupId, author_id: user.id, body });
+    if (error) {
+      console.error("addNote failed:", error);
+      return false;
+    }
     fetchAll();
+    return true;
   };
-  const deleteNote = async (id: string) => {
-    await supabase.from("household_notes").delete().eq("id", id);
+  const deleteNote = async (id: string): Promise<boolean> => {
+    const { error } = await supabase.from("household_notes").delete().eq("id", id);
+    if (error) {
+      console.error("deleteNote failed:", error);
+      return false;
+    }
     fetchAll();
+    return true;
   };
 
-  const memberName = (id: string | null) => (id ? members.find((m) => m.user_id === id)?.name ?? "Medlem" : "Ingen");
+  const memberName = (id: string | null) => (id ? members.find((m) => m.user_id === id)?.name ?? "Tidligere medlem" : "Ingen");
 
   return {
     members, expenses, tasks, notes, balances, totalSpent, loading,
