@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { HousingGroup } from "@/hooks/useHousingGroups";
-import { ArrowLeft, Settings, User, MessageSquare, Home } from "lucide-react";
+import { ArrowLeft, Settings, User, MessageSquare, Home, LayoutDashboard } from "lucide-react";
 import GroupChat from "./GroupChat";
 import GroupPropertiesFeed from "./GroupPropertiesFeed";
+import HouseholdHub from "./HouseholdHub";
 
 interface GroupDetailViewProps {
   group: HousingGroup;
@@ -25,13 +26,14 @@ const GroupDetailView = ({
   onSendRequest,
   sentRequestPropertyIds,
 }: GroupDetailViewProps) => {
-  const [activeTab, setActiveTab] = useState<"beskeder" | "boliger">("beskeder");
+  const [activeTab, setActiveTab] = useState<"beskeder" | "boliger" | "husstand">("beskeder");
 
   const acceptedMembers = group.members?.filter(m => m.status === "accepted") || [];
 
   const tabs = [
     { id: "beskeder" as const, label: "Beskeder", icon: MessageSquare },
     { id: "boliger" as const, label: "Boliger", icon: Home },
+    { id: "husstand" as const, label: "Husstand", icon: LayoutDashboard },
   ];
 
   // Full-height, one-page layout: compact header + tabs are fixed, the content
@@ -84,22 +86,22 @@ const GroupDetailView = ({
         </button>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — split full-width on mobile (3 tabs), fit content on desktop */}
       <div className="shrink-0 py-3">
-        <div className="inline-flex p-1 rounded-full bg-muted">
+        <div className="flex w-full sm:inline-flex sm:w-auto p-1 rounded-full bg-muted">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 sm:px-5 py-2 rounded-full text-sm font-medium transition-all ${
                   isActive
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className="w-4 h-4 shrink-0" />
                 {tab.label}
               </button>
             );
@@ -113,7 +115,7 @@ const GroupDetailView = ({
           <div className="h-full rounded-2xl border border-border/60 overflow-hidden">
             <GroupChat group={group} />
           </div>
-        ) : (
+        ) : activeTab === "boliger" ? (
           <div className="h-full overflow-y-auto">
             <GroupPropertiesFeed
               group={group}
@@ -121,6 +123,12 @@ const GroupDetailView = ({
               onSendRequest={onSendRequest}
               sentRequestPropertyIds={sentRequestPropertyIds}
             />
+          </div>
+        ) : (
+          // Husstands-hub — full-bleed within the group view; the "Gruppe-chat"
+          // quick link and any "tilbage" intent routes back to the chat tab.
+          <div className="h-full overflow-y-auto -mx-3 md:-mx-6">
+            <HouseholdHub group={group} embedded onBack={() => setActiveTab("beskeder")} />
           </div>
         )}
       </div>
