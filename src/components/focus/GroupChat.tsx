@@ -2,15 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { HousingGroup } from "@/hooks/useHousingGroups";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Send, User } from "lucide-react";
+import { Send, User, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
   content: string;
   sender_id: string;
   created_at: string;
+  image_url?: string | null;
   sender?: {
     name: string;
     avatar_url: string | null;
@@ -45,7 +48,9 @@ const GroupChat = ({ group }: GroupChatProps) => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch or create group conversation (and ensure caller is a participant)
   useEffect(() => {
@@ -154,28 +159,26 @@ const GroupChat = ({ group }: GroupChatProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // If no conversation exists yet, create one (shared by text + image send).
+  const ensureConversation = async (): Promise<string | null> => {
+    if (conversationId) return conversationId;
+    const { data, error: convError } = await supabase.functions.invoke("create-conversation", {
+      body: { type: "group", group_id: group.id },
+    });
+    const createdId = (data as any)?.conversation?.id as string | undefined;
+    if (convError || !createdId) {
+      console.error("Error creating conversation:", convError || data);
+      return null;
+    }
+    setConversationId(createdId);
+    return createdId;
+  };
+
   const handleSend = async () => {
     if (!newMessage.trim() || !user || sending) return;
 
-    // If no conversation exists yet, create one
-    let convId = conversationId;
-    if (!convId) {
-      const { data, error: convError } = await supabase.functions.invoke("create-conversation", {
-        body: {
-          type: "group",
-          group_id: group.id,
-        },
-      });
-
-      const createdId = (data as any)?.conversation?.id as string | undefined;
-      if (convError || !createdId) {
-        console.error("Error creating conversation:", convError || data);
-        return;
-      }
-
-      convId = createdId;
-      setConversationId(createdId);
-    }
+    const convId = await ensureConversation();
+    if (!convId) return;
 
     setSending(true);
     const { error } = await supabase.from("messages").insert({
@@ -188,6 +191,50 @@ const GroupChat = ({ group }: GroupChatProps) => {
       setNewMessage("");
     }
     setSending(false);
+  };
+
+  const handleSendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file
+    if (!file || !user || sending) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Du kan kun sende billeder her");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Billedet er for stort (maks 8 MB)");
+      return;
+    }
+
+    const convId = await ensureConversation();
+    if (!convId) return;
+
+    setSending(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      // Storage-RLS kræver at stien starter med eget user id.
+      const path = `${user.id}/${convId}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("chat-images")
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw upErr;
+
+      const { data: pub } = supabase.storage.from("chat-images").getPublicUrl(path);
+      // content " ": billed-beskeder opfylder NOT NULL uden synlig tekst (samme
+      // konvention som 1:1-chatten i ChatArea).
+      const { error } = await supabase.from("messages").insert({
+        conversation_id: convId,
+        sender_id: user.id,
+        content: " ",
+        image_url: pub.publicUrl,
+      });
+      if (error) throw error;
+    } catch (err) {
+      console.error("[group-chat] image send failed", err);
+      toast.error("Kunne ikke sende billedet — prøv igen");
+    } finally {
+      setSending(false);
+    }
   };
 
   const formatTime = (dateString: string) => {
@@ -259,13 +306,27 @@ const GroupChat = ({ group }: GroupChatProps) => {
                   )}
 
                   <div
-                    className={`px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
+                    className={`overflow-hidden text-sm leading-relaxed whitespace-pre-wrap break-words shadow-sm ${
+                      msg.image_url ? "p-1" : "px-3.5 py-2"
+                    } ${
                       isOwn
                         ? "bg-foreground text-background rounded-2xl rounded-br-md"
                         : "bg-background border border-border/60 text-foreground rounded-2xl rounded-bl-md"
                     }`}
                   >
-                    {msg.content}
+                    {msg.image_url && (
+                      <button onClick={() => setLightboxUrl(msg.image_url!)} aria-label="Se billede i fuld størrelse" className="block">
+                        <img
+                          src={msg.image_url}
+                          alt="Delt billede"
+                          loading="lazy"
+                          className="rounded-xl max-h-64 max-w-full object-cover"
+                        />
+                      </button>
+                    )}
+                    {msg.content.trim() && (
+                      <span className={msg.image_url ? "block px-2.5 py-1.5" : undefined}>{msg.content}</span>
+                    )}
                   </div>
 
                   {lastOfGroup && (
@@ -284,6 +345,23 @@ const GroupChat = ({ group }: GroupChatProps) => {
       {/* Input area */}
       <div className="p-3 border-t border-border/60 bg-background">
         <div className="flex items-center gap-2">
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleSendImage}
+            className="hidden"
+          />
+          <Button
+            onClick={() => imageInputRef.current?.click()}
+            disabled={sending}
+            size="icon"
+            variant="ghost"
+            aria-label="Send et billede"
+            className="rounded-full h-11 w-11 flex-shrink-0 text-foreground/60 hover:text-foreground"
+          >
+            <ImagePlus className="w-5 h-5" />
+          </Button>
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -302,6 +380,20 @@ const GroupChat = ({ group }: GroupChatProps) => {
           </Button>
         </div>
       </div>
+
+      {/* In-app billed-lightbox (samme mønster som 1:1-chatten) */}
+      <Dialog open={!!lightboxUrl} onOpenChange={(o) => !o && setLightboxUrl(null)}>
+        <DialogContent className="max-w-3xl border-0 bg-transparent p-0 shadow-none">
+          <DialogTitle className="sr-only">Billede</DialogTitle>
+          {lightboxUrl && (
+            <img
+              src={lightboxUrl}
+              alt="Delt billede"
+              className="w-full max-h-[85dvh] rounded-lg object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
