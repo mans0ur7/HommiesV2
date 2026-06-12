@@ -3,9 +3,16 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, Plus, Users, Wallet, ListChecks, StickyNote, Trash2, Check,
   Receipt, ArrowRight, CalendarDays, FileText, MessageCircle, PartyPopper,
+  Repeat, Banknote, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useHousehold } from "@/hooks/useHousehold";
+import {
+  useHousehold,
+  type Task,
+  type TaskRecurrence,
+  type HouseholdMember,
+  type PlannedTransfer,
+} from "@/hooks/useHousehold";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +21,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
+import {
+  formatDistanceToNow, format, startOfMonth, addMonths, getDaysInMonth,
+  isSameDay, isToday, differenceInCalendarDays,
+} from "date-fns";
 import { da } from "date-fns/locale";
 import { hapticLight, hapticSuccess } from "@/lib/haptics";
 import type { HousingGroup } from "@/hooks/useHousingGroups";
@@ -50,9 +60,142 @@ const parseDanishAmount = (s: string): number | null => {
 };
 
 /** Date-only strings parses som UTC af `new Date(...)` og kan skride en dag — parse lokalt. */
-const formatDueDate = (s: string) => {
+const parseLocalDate = (s: string) => {
   const [y, m, d] = s.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("da-DK", { day: "numeric", month: "short" });
+  return new Date(y, m - 1, d);
+};
+const formatDueDate = (s: string) =>
+  parseLocalDate(s).toLocaleDateString("da-DK", { day: "numeric", month: "short" });
+
+const RECURRENCE_LABEL: Record<TaskRecurrence, string> = {
+  weekly: "Hver uge",
+  biweekly: "Hver 2. uge",
+  monthly: "Hver måned",
+};
+
+/**
+ * Forekommer opgaven på en given dato? Engangsopgaver rammer kun deres frist.
+ * Åbne gentagne opgaver projiceres fremad fra deres anker (due_date), så
+ * kalenderen kan vise "toiletrengøring hver søndag" en måned frem.
+ */
+const occursOn = (t: Task, date: Date): boolean => {
+  if (!t.due_date) return false;
+  const anchor = parseLocalDate(t.due_date);
+  if (isSameDay(anchor, date)) return true;
+  if (!t.recurrence || t.done || date < anchor) return false;
+  if (t.recurrence === "monthly") {
+    return date.getDate() === Math.min(anchor.getDate(), getDaysInMonth(date));
+  }
+  const diff = differenceInCalendarDays(date, anchor);
+  return diff > 0 && diff % (t.recurrence === "weekly" ? 7 : 14) === 0;
+};
+
+const WEEKDAYS = ["man", "tir", "ons", "tor", "fre", "lør", "søn"];
+
+/** Månedskalender over husstandens opgaver: grid med prikker + dagsliste under. */
+const TaskCalendar = ({
+  tasks, members, memberName,
+}: { tasks: Task[]; members: HouseholdMember[]; memberName: (id: string | null) => string }) => {
+  const [viewMonth, setViewMonth] = useState(() => startOfMonth(new Date()));
+  const [selected, setSelected] = useState(() => {
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
+    return t;
+  });
+
+  const daysInMonth = getDaysInMonth(viewMonth);
+  const offset = (viewMonth.getDay() + 6) % 7; // ugen starter mandag
+  const cells: (Date | null)[] = [
+    ...Array.from({ length: offset }, () => null),
+    ...Array.from({ length: daysInMonth }, (_, i) => new Date(viewMonth.getFullYear(), viewMonth.getMonth(), i + 1)),
+  ];
+  const tasksOn = (date: Date) => tasks.filter((t) => occursOn(t, date));
+  const selectedTasks = tasksOn(selected);
+  const monthLabel = format(viewMonth, "LLLL yyyy", { locale: da });
+
+  const changeMonth = (delta: number) => {
+    const next = addMonths(viewMonth, delta);
+    setViewMonth(next);
+    setSelected(new Date(next.getFullYear(), next.getMonth(), 1));
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Måned-navigation */}
+      <div className="flex items-center justify-between">
+        <button onClick={() => changeMonth(-1)} aria-label="Forrige måned" className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center text-foreground/70">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <p className="text-sm font-medium text-foreground capitalize">{monthLabel}</p>
+        <button onClick={() => changeMonth(1)} aria-label="Næste måned" className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center text-foreground/70">
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {WEEKDAYS.map((d) => (
+          <span key={d} className="text-center text-[10px] uppercase tracking-wide text-muted-foreground py-1">{d}</span>
+        ))}
+        {cells.map((date, idx) =>
+          date ? (
+            <button
+              key={idx}
+              onClick={() => setSelected(date)}
+              aria-label={format(date, "d. MMMM", { locale: da })}
+              className={`aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 text-xs transition-colors ${
+                isSameDay(date, selected)
+                  ? "bg-foreground text-background"
+                  : isToday(date)
+                    ? "ring-1 ring-foreground/40 text-foreground hover:bg-muted"
+                    : "text-foreground hover:bg-muted"
+              }`}
+            >
+              <span>{date.getDate()}</span>
+              <span className="flex gap-0.5 h-1">
+                {tasksOn(date).slice(0, 3).map((t) => (
+                  <span key={t.id} className={`w-1 h-1 rounded-full ${isSameDay(date, selected) ? "bg-background" : "bg-secondary-foreground/60"}`} />
+                ))}
+              </span>
+            </button>
+          ) : (
+            <span key={idx} />
+          ),
+        )}
+      </div>
+
+      {/* Dagens opgaver */}
+      <div>
+        <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/60 mb-2 capitalize">
+          {format(selected, "EEEE d. MMMM", { locale: da })}
+        </p>
+        {selectedTasks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Ingen opgaver denne dag.</p>
+        ) : (
+          <div className="space-y-1.5">
+            {selectedTasks.map((t) => (
+              <div key={t.id} className="flex items-center gap-2.5 rounded-xl border border-border/60 bg-card px-3 py-2">
+                <Avatar
+                  url={members.find((m) => m.user_id === t.assignee_id)?.avatar_url ?? null}
+                  name={memberName(t.assignee_id)}
+                  size="w-6 h-6"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm text-foreground truncate ${t.done ? "line-through opacity-60" : ""}`}>{t.title}</p>
+                  <p className="text-[11px] text-muted-foreground">{memberName(t.assignee_id)}</p>
+                </div>
+                {t.recurrence && (
+                  <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted rounded-full px-2 py-0.5 shrink-0">
+                    <Repeat className="w-2.5 h-2.5" /> {RECURRENCE_LABEL[t.recurrence]}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 const Avatar = ({ url, name, size = "w-8 h-8" }: { url: string | null; name: string; size?: string }) => (
@@ -75,19 +218,23 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
   const navigate = useNavigate();
   const { user } = useAuth();
   const {
-    members, expenses, tasks, notes, balances, totalSpent, loading,
-    addExpense, deleteExpense, addTask, toggleTask, deleteTask, addNote, deleteNote, memberName,
+    members, expenses, tasks, notes, settlements, balances, settlementPlan, totalSpent, loading,
+    addExpense, deleteExpense, addTask, toggleTask, deleteTask, addNote, deleteNote,
+    addSettlement, deleteSettlement, memberName,
   } = useHousehold(group.id);
 
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [taskOpen, setTaskOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [expTitle, setExpTitle] = useState("");
   const [expAmount, setExpAmount] = useState("");
   const [expParts, setExpParts] = useState<string[]>([]);
   const [taskTitle, setTaskTitle] = useState("");
   const [taskAssignee, setTaskAssignee] = useState<string>("none");
   const [taskDue, setTaskDue] = useState("");
+  const [taskRecur, setTaskRecur] = useState<"none" | TaskRecurrence>("none");
   const [noteBody, setNoteBody] = useState("");
+  const [settlingTo, setSettlingTo] = useState<string | null>(null);
 
   const myBalance = balances.get(user?.id ?? "") ?? 0;
   const openTasks = tasks.filter((t) => !t.done);
@@ -124,13 +271,39 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
       toast.error("Skriv en opgave");
       return;
     }
-    const ok = await addTask(taskTitle.trim(), taskAssignee === "none" ? null : taskAssignee, taskDue || null);
+    if (taskRecur !== "none" && !taskDue) {
+      toast.error("Vælg den første dato, så vi ved hvilken ugedag opgaven gentages");
+      return;
+    }
+    const ok = await addTask(
+      taskTitle.trim(),
+      taskAssignee === "none" ? null : taskAssignee,
+      taskDue || null,
+      taskRecur === "none" ? null : taskRecur,
+    );
     if (!ok) {
       toast.error("Kunne ikke gemme opgaven — prøv igen");
       return;
     }
-    setTaskTitle(""); setTaskAssignee("none"); setTaskDue(""); setTaskOpen(false);
-    toast.success("Opgave tilføjet");
+    setTaskTitle(""); setTaskAssignee("none"); setTaskDue(""); setTaskRecur("none"); setTaskOpen(false);
+    toast.success(taskRecur === "none" ? "Opgave tilføjet" : "Gentaget opgave tilføjet 🔁");
+  };
+
+  const handleSettle = async (p: PlannedTransfer) => {
+    setSettlingTo(p.to);
+    const ok = await addSettlement(p.to, p.amount);
+    setSettlingTo(null);
+    if (ok) {
+      hapticSuccess();
+      toast.success(`Registreret — du har sendt ${fmt(p.amount)} kr til ${memberName(p.to)} ✅`);
+    } else {
+      toast.error("Kunne ikke registrere betalingen — prøv igen");
+    }
+  };
+
+  const handleDeleteSettlement = async (id: string) => {
+    const ok = await deleteSettlement(id);
+    if (!ok) toast.error("Kunne ikke fortryde afregningen — prøv igen");
   };
 
   const submitNote = async () => {
@@ -241,6 +414,68 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
               );
             })}
           </div>
+
+          {/* Afregningsplan: hvem sender hvad til hvem for at gå i nul */}
+          {settlementPlan.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-border/40 space-y-2">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Sådan går I i nul</p>
+              {settlementPlan.map((p) => {
+                const fromMe = p.from === user?.id;
+                const toMe = p.to === user?.id;
+                return (
+                  <div key={`${p.from}-${p.to}`} className="flex items-center justify-between gap-2 rounded-xl bg-background/60 px-3 py-2">
+                    <span className="text-sm text-foreground min-w-0 truncate">
+                      {fromMe ? (
+                        <>Send <strong>{fmt(p.amount)} kr</strong> til {memberName(p.to)}</>
+                      ) : toMe ? (
+                        <>{memberName(p.from)} skylder dig <strong>{fmt(p.amount)} kr</strong></>
+                      ) : (
+                        <>{memberName(p.from)} → {memberName(p.to)} · {fmt(p.amount)} kr</>
+                      )}
+                    </span>
+                    {fromMe ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSettle(p)}
+                        disabled={settlingTo !== null}
+                        className="rounded-full h-8 text-xs shrink-0"
+                      >
+                        <Banknote className="w-3.5 h-3.5 mr-1" />
+                        {settlingTo === p.to ? "Registrerer…" : "Penge sendt"}
+                      </Button>
+                    ) : (
+                      <span className="text-[11px] text-muted-foreground shrink-0">afventer</span>
+                    )}
+                  </div>
+                );
+              })}
+              <p className="text-[11px] text-muted-foreground">Overfør fx via MobilePay, og tryk "Penge sendt" — så streges gælden ud for alle.</p>
+            </div>
+          )}
+
+          {/* Afregnings-historik: betalte beløb streges over, som opgaver */}
+          {settlements.length > 0 && (
+            <div className="mt-3 space-y-1.5">
+              {settlements.slice(0, 5).map((s) => (
+                <div key={s.id} className="flex items-center gap-2 text-[12px] text-muted-foreground">
+                  <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span className="line-through truncate">
+                    {s.from_user === user?.id ? "Du" : memberName(s.from_user)} sendte {fmt(s.amount)} kr til {s.to_user === user?.id ? "dig" : memberName(s.to_user)}
+                  </span>
+                  <span className="shrink-0">· {formatDistanceToNow(new Date(s.created_at), { addSuffix: true, locale: da })}</span>
+                  {(s.from_user === user?.id || group.created_by === user?.id) && (
+                    <button
+                      onClick={() => handleDeleteSettlement(s.id)}
+                      aria-label="Fortryd afregning"
+                      className="ml-auto shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-foreground/40 hover:text-destructive hover:bg-muted transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Quick links */}
@@ -259,7 +494,10 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xl font-display text-foreground flex items-center gap-2"><ListChecks className="w-5 h-5 text-secondary-foreground" /> Opgaver</h2>
-            <Button size="sm" variant="outline" className="rounded-full h-8 text-xs" onClick={() => setTaskOpen(true)}><Plus className="w-3.5 h-3.5 mr-1" /> Tilføj</Button>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" className="rounded-full h-8 text-xs" onClick={() => setCalendarOpen(true)}><CalendarDays className="w-3.5 h-3.5 mr-1" /> Kalender</Button>
+              <Button size="sm" variant="outline" className="rounded-full h-8 text-xs" onClick={() => setTaskOpen(true)}><Plus className="w-3.5 h-3.5 mr-1" /> Tilføj</Button>
+            </div>
           </div>
           {tasks.length === 0 ? (
             <p className="text-sm text-muted-foreground rounded-2xl border border-dashed border-border/60 p-4 text-center">Ingen opgaver endnu — fordel rengøring, indkøb og regninger.</p>
@@ -275,6 +513,7 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
                     <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
                       <span className="inline-flex items-center gap-1"><Users className="w-3 h-3" /> {memberName(t.assignee_id)}</span>
                       {t.due_date && <span className="inline-flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {formatDueDate(t.due_date)}</span>}
+                      {t.recurrence && <span className="inline-flex items-center gap-1 text-secondary-foreground"><Repeat className="w-3 h-3" /> {RECURRENCE_LABEL[t.recurrence]}</span>}
                     </div>
                   </div>
                   {(t.created_by === user?.id || group.created_by === user?.id) && (
@@ -381,9 +620,32 @@ const HouseholdHub = ({ group, onBack, embedded = false }: HouseholdHubProps) =>
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5"><Label>Frist (valgfri)</Label><Input type="date" value={taskDue} onChange={(e) => setTaskDue(e.target.value)} /></div>
+          <div className="space-y-1.5">
+            <Label>Gentages</Label>
+            <Select value={taskRecur} onValueChange={(v) => setTaskRecur(v as "none" | TaskRecurrence)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Aldrig</SelectItem>
+                <SelectItem value="weekly">Hver uge</SelectItem>
+                <SelectItem value="biweekly">Hver 2. uge</SelectItem>
+                <SelectItem value="monthly">Hver måned</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>{taskRecur === "none" ? "Frist (valgfri)" : "Første gang"}</Label>
+            <Input type="date" value={taskDue} onChange={(e) => setTaskDue(e.target.value)} />
+            {taskRecur !== "none" && (
+              <p className="text-xs text-muted-foreground">Når opgaven sættes som udført, oprettes næste gang automatisk — fx "toiletrengøring hver søndag".</p>
+            )}
+          </div>
           <Button onClick={submitTask} className="w-full rounded-full">Tilføj opgave</Button>
         </div>
+      </ResponsiveModal>
+
+      {/* Opgave-kalender */}
+      <ResponsiveModal open={calendarOpen} onOpenChange={setCalendarOpen} title="Opgave-kalender" className="sm:max-w-lg">
+        <TaskCalendar tasks={tasks} members={members} memberName={memberName} />
       </ResponsiveModal>
     </div>
   );
