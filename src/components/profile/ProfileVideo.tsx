@@ -47,6 +47,9 @@ const ProfileVideo = ({ url, poster, className }: ProfileVideoProps) => {
         ref={ref}
         src={url}
         poster={poster ?? undefined}
+        // Hent IKKE videoen før brugeren trykker play — op til 40 MB pr.
+        // profilvisning ville æde trafik-kvoten (egress koster, lagring gør ikke).
+        preload="none"
         playsInline
         controls={playing}
         onPlay={() => setPlaying(true)}
