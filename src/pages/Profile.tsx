@@ -43,6 +43,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import ProfilePrompts from "@/components/profile/ProfilePrompts";
 import ProfilePromptsEditor from "@/components/profile/ProfilePromptsEditor";
 import RoomieReviews from "@/components/profile/RoomieReviews";
+import ProfileVideo from "@/components/profile/ProfileVideo";
+import ProfileVideoEditor from "@/components/profile/ProfileVideoEditor";
 import { parsePrompts, type ProfilePrompt } from "@/data/profilePrompts";
 
 const genderOptions = [
@@ -86,6 +88,7 @@ const Profile = () => {
   const [lifestyle, setLifestyle] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
   const [prompts, setPrompts] = useState<ProfilePrompt[]>([]);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [monthlyBudget, setMonthlyBudget] = useState("");
   const [rentalPeriod, setRentalPeriod] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -150,6 +153,7 @@ const Profile = () => {
       setAvatarPreview(profile.avatar_url || null);
       setProfileImages((profile as any).images || []);
       setPrompts(parsePrompts((profile as any).prompts));
+      setVideoUrl((profile as any).video_url ?? null);
     }
     if (user) {
       setNewEmail(user.email || "");
@@ -310,6 +314,7 @@ const Profile = () => {
           avatar_url: avatarUrl,
           images: uploadedImageUrls,
           prompts: prompts.filter((p) => p.answer.trim().length > 0),
+          video_url: videoUrl,
         })
         .eq("id", profile.id);
 
@@ -387,6 +392,7 @@ const Profile = () => {
       setAvatarPreview(profile.avatar_url || null);
       setAvatarFile(null);
       setPrompts(parsePrompts((profile as any).prompts));
+      setVideoUrl((profile as any).video_url ?? null);
     }
     setIsEditing(false);
   };
@@ -613,6 +619,22 @@ const Profile = () => {
                   <span className="text-xs text-muted-foreground">Gør din profil personlig</span>
                 </div>
                 <ProfilePromptsEditor value={prompts} onChange={setPrompts} />
+              </div>
+
+              {/* Video intro */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Video-intro</Label>
+                  <span className="text-xs text-muted-foreground">Vis dig selv (maks 20 sek)</span>
+                </div>
+                {user?.id && (
+                  <ProfileVideoEditor
+                    value={videoUrl}
+                    onChange={setVideoUrl}
+                    userId={user.id}
+                    poster={avatarPreview}
+                  />
+                )}
               </div>
 
               {/* Personality */}
@@ -932,6 +954,17 @@ const Profile = () => {
                 </button>
               )}
             </div>
+
+            {/* Video intro */}
+            {(profile as any).video_url && (
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Video-intro</span>
+                </div>
+                <ProfileVideo url={(profile as any).video_url} poster={profile.avatar_url} />
+              </div>
+            )}
 
             {/* Prompts */}
             <ProfilePrompts prompts={(profile as any).prompts} />

@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { personalityOptions, lifestyleOptions } from "@/lib/traits";
 import ProfilePrompts from "@/components/profile/ProfilePrompts";
 import RoomieReviews from "@/components/profile/RoomieReviews";
+import ProfileVideo from "@/components/profile/ProfileVideo";
 
 interface Property {
   id: string;
@@ -268,6 +269,17 @@ const UserProfile = () => {
                 </button>
               )}
             </div>
+
+            {/* Video intro */}
+            {(profile as any).video_url && (
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-px w-8 bg-foreground/40" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-foreground/60">Video-intro</span>
+                </div>
+                <ProfileVideo url={(profile as any).video_url} poster={profile.avatar_url} />
+              </div>
+            )}
 
             {/* Prompts */}
             <ProfilePrompts prompts={(profile as any).prompts} />

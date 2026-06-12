@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { getTraitBadgeClass } from "@/lib/traits";
 import ProfilePrompts from "@/components/profile/ProfilePrompts";
+import ProfileVideo from "@/components/profile/ProfileVideo";
 import ReputationBadge from "@/components/profile/ReputationBadge";
 import { useRoomieReviews } from "@/hooks/useRoomieReviews";
 
@@ -200,6 +201,9 @@ const ExploreRoomieModal = ({ roomie, open, onClose }: ExploreRoomieModalProps) 
           <p className="text-sm text-foreground/60 mt-0.5">{subline}</p>
 
           <div className="mt-5 space-y-5">
+            {(roomie as any).video_url && (
+              <ProfileVideo url={(roomie as any).video_url} poster={roomie.avatar_url} className="mx-auto" />
+            )}
             {roomie.personality && roomie.personality.length > 0 && (
               <TagSection label="Personlighed" items={roomie.personality} />
             )}
