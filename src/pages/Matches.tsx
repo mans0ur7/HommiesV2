@@ -676,7 +676,9 @@ const Matches = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              {!isLandlord && myGroups.length > 0 && (
+              {/* Gruppe-swipe gælder kun boliger — knappen er kun synlig på bolig-fanen,
+                  så roomie-fanen ikke antyder at man kan swipe personer som gruppe. */}
+              {!isLandlord && myGroups.length > 0 && activeTab === "properties" && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
