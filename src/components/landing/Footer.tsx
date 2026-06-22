@@ -3,12 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Instagram } from "lucide-react";
 import hommiesLogo from "@/assets/hommies-logo.png";
+import { isNativeApp } from "@/lib/native";
 
 interface FooterProps {}
 
 const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  // The native app is a self-contained shell with its own navigation — a
+  // marketing footer belongs only on the website (desktop AND mobile browser).
+  if (isNativeApp()) return null;
 
   const handleScrollToSection = (path: string, sectionId: string) => {
     navigate(path);
