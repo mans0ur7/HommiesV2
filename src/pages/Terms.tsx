@@ -99,7 +99,7 @@ const Terms = () => {
           </div>
         </main>
 
-        {!isMobile && <Footer />}
+        <Footer />
       </div>
     </AppLayout>
   );

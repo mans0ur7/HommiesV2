@@ -465,7 +465,7 @@ const LoggedInHome = () => {
           </div>
         </section>
 
-        {!isMobile && <Footer />}
+        <Footer />
       </div>
       <FirstLoginTour />
     </AppLayout>

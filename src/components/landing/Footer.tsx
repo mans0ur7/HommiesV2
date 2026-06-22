@@ -28,16 +28,16 @@ const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
   return (
     <footer
       ref={ref}
-      className="hidden md:block bg-primary text-primary-foreground border-t border-primary-foreground/10"
+      className="block bg-primary text-primary-foreground border-t border-primary-foreground/10"
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-5 flex items-center justify-between gap-6">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-6 md:py-5 flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:gap-6 md:text-left">
         {/* Logo */}
         <Link to="/" className="flex items-center shrink-0">
           <img src={hommiesLogo} alt="Hommies" className="h-6" />
         </Link>
 
         {/* Links */}
-        <nav className="flex items-center gap-5 lg:gap-7">
+        <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 lg:gap-7">
           {links.map((link, i) =>
             link.to ? (
               <Link
@@ -60,8 +60,8 @@ const Footer = forwardRef<HTMLElement, FooterProps>((_, ref) => {
         </nav>
 
         {/* Right: copyright + socials */}
-        <div className="flex items-center gap-4 shrink-0">
-          <span className="hidden lg:inline text-xs text-primary-foreground/50">
+        <div className="flex flex-col-reverse items-center gap-3 md:flex-row md:gap-4 shrink-0">
+          <span className="text-xs text-primary-foreground/50 lg:inline">
             {t("landing.footerCopyright")} · CVR 43244590
           </span>
           <div className="flex items-center gap-3">

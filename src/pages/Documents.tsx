@@ -96,7 +96,7 @@ export default function Documents() {
             <Skeleton className="h-32 w-full" />
           </div>
         </div>
-        {!isMobile && <Footer />}
+        <Footer />
       </AppLayout>
     );
   }
@@ -215,7 +215,7 @@ export default function Documents() {
           </div>
         )}
       </div>
-      {!isMobile && <Footer />}
+      <Footer />
     </div>
     </AppLayout>
   );

@@ -954,7 +954,7 @@ const Explore = () => {
           onClose={() => { setShowRoomieModal(false); setSelectedRoomie(null); }}
         />
 
-        {!isMobile && <Footer />}
+        <Footer />
       </div>
     </AppLayout>
   );

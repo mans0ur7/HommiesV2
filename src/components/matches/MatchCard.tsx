@@ -54,13 +54,13 @@ const MatchCard = ({ type, profile, property, onConnect, onIgnore, onClick, isBa
     
     return (
       <div 
-        className={`relative w-[min(88vw,340px)] md:w-96 rounded-3xl overflow-hidden shadow-2xl bg-primary transition-all duration-300 ${
+        className={`relative w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-primary transition-all duration-300 ${
           isBackground ? "opacity-60" : "cursor-pointer hover:shadow-3xl hover:-translate-y-1"
         }`}
         onClick={!isBackground ? onClick : undefined}
       >
         {/* Full image background */}
-        <div className="relative aspect-[3/4] bg-muted overflow-hidden">
+        <div className="relative h-full w-full bg-muted overflow-hidden">
           {mainImage ? (
             <img
               src={mainImage}
@@ -151,12 +151,12 @@ const MatchCard = ({ type, profile, property, onConnect, onIgnore, onClick, isBa
     
     return (
       <div 
-        className={`relative w-[min(88vw,340px)] md:w-96 rounded-3xl overflow-hidden shadow-2xl bg-primary transition-all duration-300 ${
+        className={`relative w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-primary transition-all duration-300 ${
           isBackground ? "opacity-60" : "cursor-pointer hover:shadow-3xl hover:-translate-y-1"
         }`}
         onClick={!isBackground ? onClick : undefined}
       >
-        <div className="relative aspect-[3/4] bg-muted overflow-hidden">
+        <div className="relative h-full w-full bg-muted overflow-hidden">
           {mainImage ? (
             <img
               src={mainImage}

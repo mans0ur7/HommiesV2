@@ -96,7 +96,7 @@ const DeleteAccount = () => {
           </div>
         </main>
 
-        {!isMobile && <Footer />}
+        <Footer />
       </div>
     </AppLayout>
   );

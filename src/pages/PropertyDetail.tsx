@@ -813,7 +813,7 @@ const PropertyDetail = () => {
         </div>
       </main>
 
-      {!isMobile && <Footer />}
+      <Footer />
     </div>
     </AppLayout>
   );

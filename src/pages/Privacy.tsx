@@ -120,7 +120,7 @@ const Privacy = () => {
         </div>
       </main>
 
-      {!isMobile && <Footer />}
+      <Footer />
     </div>
     </AppLayout>
   );

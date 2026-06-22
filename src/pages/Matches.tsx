@@ -772,9 +772,12 @@ const Matches = () => {
                   </button>
                 )}
 
-                <div className="relative">
+                {/* Card box: height drives the size on mobile (h-full, capped at
+                    86vw wide) so the card can never grow taller than the available
+                    space and bleed up over the tabs. Desktop keeps a fixed width. */}
+                <div className="relative h-full aspect-[3/4] max-w-[86vw] md:h-auto md:max-w-none md:w-96">
                   {nextItem && (
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 scale-95 opacity-50 pointer-events-none">
+                    <div className="absolute inset-0 scale-[0.96] translate-y-2 opacity-50 pointer-events-none">
                       {activeTab === "roomies" ? (
                         <MatchCard type="roomie" profile={nextItem as Profile} isBackground />
                       ) : (
@@ -795,7 +798,7 @@ const Matches = () => {
                           }
                         : undefined
                     }
-                    className={`touch-pan-y ${
+                    className={`absolute inset-0 touch-pan-y ${
                       swipeDirection === "left" ? "transition-all duration-300 -translate-x-[150%] rotate-[-15deg] opacity-0" :
                       swipeDirection === "right" ? "transition-all duration-300 translate-x-[150%] rotate-[15deg] opacity-0" :
                       ""

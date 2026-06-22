@@ -1149,7 +1149,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      {!isMobile && <Footer />}
+      <Footer />
       </div>
     </AppLayout>
   );
