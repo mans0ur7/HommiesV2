@@ -34,6 +34,8 @@
 	<string>Hommies bruger din placering til at vise relevante værelser og samboere i nærheden.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Hommies bruger Face ID, så du kan logge hurtigt og sikkert ind uden at indtaste din adgangskode hver gang.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -42,7 +44,7 @@
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

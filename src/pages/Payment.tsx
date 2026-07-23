@@ -10,7 +10,8 @@ import { ArrowLeft, CreditCard, Sparkles, Clock, Search, Gift, CheckCircle, Load
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isNativeApp } from "@/lib/native";
-import { getLaunchWindowInfo, LAUNCH_WINDOW_DAYS } from "@/lib/listingPromo";
+import { getLaunchWindowInfo } from "@/lib/listingPromo";
+import { iapAvailable, iapStoreName, purchaseIap, getIapPrices, type IapProductType } from "@/lib/iap";
 
 type ProductType =
   | "boost_1day" | "boost_3day" | "boost_7day"
@@ -18,7 +19,7 @@ type ProductType =
   | "search_agent";
 
 const Payment = () => {
-  const { user, loading, profile } = useAuth();
+  const { user, loading, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const native = isNativeApp();
@@ -27,10 +28,19 @@ const Payment = () => {
   const [purchasing, setPurchasing] = useState<ProductType | null>(null);
   const [landlordProperties, setLandlordProperties] = useState<{ id: string; title: string }[]>([]);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
+  const [storePrices, setStorePrices] = useState<Partial<Record<IapProductType, string>>>({});
 
-  // Gratis periode følger det globale launch-vindue (samme kilde som MyListings),
-  // ikke den enkelte profils oprettelsesdato.
+  // Annoncer er helt gratis lige nu (LISTINGS_FREE i listingPromo.ts) — boost
+  // og søgeagenter koster stadig. Samme kilde som MyListings.
   const freeTrialInfo = useMemo(() => getLaunchWindowInfo(), []);
+  const firstListingFree = freeTrialInfo.active;
+
+  // På native vises butikkens lokaliserede priser (App Store/Google Play).
+  useEffect(() => {
+    if (native && iapAvailable()) {
+      getIapPrices().then(setStorePrices).catch(() => {});
+    }
+  }, [native]);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
@@ -52,21 +62,39 @@ const Payment = () => {
 
   const handlePurchase = async (productType: ProductType) => {
     if (!user) return;
-    // In-app digital purchases are web-only for now (Google Play requires Play
-    // Billing for digital goods — handled separately, not via Stripe).
-    if (native) return;
-    setPurchasing(productType);
+    const needsProperty = productType.startsWith("boost_") || productType.startsWith("listing_");
+    const productId = needsProperty ? selectedPropertyId : undefined;
 
-    try {
-      const needsProperty = productType.startsWith("boost_") || productType.startsWith("listing_");
-      const productId = needsProperty ? selectedPropertyId : undefined;
+    if (needsProperty && !productId) {
+      toast.error("Vælg en annonce først");
+      return;
+    }
 
-      if (needsProperty && !productId) {
-        toast.error("Vælg en annonce først");
-        setPurchasing(null);
+    // Native: køb gennem App Store/Google Play (digitale køb SKAL gå gennem
+    // butikkens billing — Stripe er kun til web).
+    if (native) {
+      if (!iapAvailable()) {
+        toast.error("Køb er ikke tilgængelige i denne version af appen. Opdater appen og prøv igen.");
         return;
       }
+      setPurchasing(productType);
+      const res = await purchaseIap(productType, productId);
+      setPurchasing(null);
+      if (res.ok) {
+        toast.success(res.pending
+          ? "Betaling gennemført — dit køb aktiveres om et øjeblik."
+          : "Betaling gennemført 🎉");
+        // Slot-antal (søgeagenter) bor i profilen — genindlæs så UI'et ikke
+        // beder brugeren købe igen med en forældet værdi.
+        if (productType === "search_agent") void refreshProfile();
+      } else if (!res.cancelled) {
+        toast.error(res.message ?? "Købet kunne ikke gennemføres");
+      }
+      return;
+    }
 
+    setPurchasing(productType);
+    try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { product_type: productType, product_id: productId },
       });
@@ -85,37 +113,6 @@ const Payment = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
-    );
-  }
-
-  // Native app: digital purchases must go through the store's billing, so the
-  // Stripe-based purchase UI is web-only. Show an informational notice instead.
-  if (native) {
-    return (
-      <AppLayout>
-        <div className="min-h-screen bg-background">
-          {!isMobile && <Navbar />}
-          <div className="max-w-xl mx-auto px-4 py-16 md:py-24">
-            <button
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-1.5 text-sm text-foreground/60 hover:text-foreground mb-8 -ml-1 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Tilbage
-            </button>
-            <div className="rounded-2xl border border-border/60 bg-muted/30 p-8 text-center">
-              <div className="w-12 h-12 rounded-full bg-secondary/20 border border-border/60 flex items-center justify-center mx-auto mb-5">
-                <ShieldCheck className="w-6 h-6 text-secondary" />
-              </div>
-              <h1 className="text-2xl font-display text-foreground mb-2">Premium-opgraderinger ikke tilgængelige</h1>
-              <p className="text-sm text-foreground/60 leading-relaxed">
-                Du kan stadig oprette din første søgeagent og bruge gratis-perioden direkte i appen.
-                Kontakt info@hommies.dk hvis du har spørgsmål.
-              </p>
-            </div>
-          </div>
-        </div>
-      </AppLayout>
     );
   }
 
@@ -142,39 +139,32 @@ const Payment = () => {
               Betaling og priser.
             </h1>
             <p className="mt-3 text-sm md:text-base text-foreground/60 max-w-xl">
-              Sikker betaling med kort eller MobilePay via Stripe.
+              {native
+                ? `Sikker betaling gennem ${iapStoreName()}.`
+                : "Sikker betaling med kort eller MobilePay via Stripe."}
             </p>
           </div>
 
           <div className="space-y-6">
 
-            {/* Gratis prøveperiode banner — udlejere */}
+            {/* Gratis første annonce banner — udlejere */}
             {isLandlord && (
-              <Card className={`overflow-hidden ${freeTrialInfo.active ? "border border-border/60 bg-secondary/20" : "border border-border/60"}`}>
+              <Card className={`overflow-hidden ${firstListingFree ? "border border-border/60 bg-secondary/20" : "border border-border/60"}`}>
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${freeTrialInfo.active ? "bg-secondary/20 border border-border/60" : "bg-muted"}`}>
-                      {freeTrialInfo.active
+                    <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${firstListingFree ? "bg-secondary/20 border border-border/60" : "bg-muted"}`}>
+                      {firstListingFree
                         ? <Gift className="w-5 h-5 text-foreground/70" />
                         : <Clock className="w-5 h-5 text-muted-foreground" />}
                     </div>
                     <div className="flex-1">
-                      {freeTrialInfo.active ? (
+                      {firstListingFree ? (
                         <>
                           <h3 className="font-medium tracking-tight text-foreground">
-                            Launch-tilbud — {freeTrialInfo.daysLeft} dage tilbage
+                            Annoncer er gratis lige nu
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Under launch-perioden kan du offentliggøre annoncer gratis. Boost og søgeagenter koster stadig det normale.
-                          </p>
-                          <div className="mt-3 w-full bg-muted rounded-full h-2">
-                            <div
-                              className="bg-foreground/70 h-2 rounded-full transition-all"
-                              style={{ width: `${(freeTrialInfo.daysUsed / LAUNCH_WINDOW_DAYS) * 100}%` }}
-                            />
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {freeTrialInfo.daysUsed} af {LAUNCH_WINDOW_DAYS} dage brugt
+                            Du kan oprette og offentliggøre alle dine annoncer gratis i lanceringsperioden. Boost og søgeagenter koster det normale.
                           </p>
                         </>
                       ) : (
@@ -224,10 +214,10 @@ const Payment = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {freeTrialInfo.active && (
+                  {firstListingFree && (
                     <div className="flex items-center gap-2 p-3 rounded-lg bg-secondary/20 border border-border/60 text-sm text-foreground/70">
                       <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                      Du er i din gratis periode — annoncer er gratis at offentliggøre.
+                      Annoncer er gratis at offentliggøre lige nu.
                     </div>
                   )}
 
@@ -245,15 +235,15 @@ const Payment = () => {
                         <p className="text-sm text-muted-foreground">{item.sub}</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-lg font-medium tracking-tight">{item.price}</span>
+                        <span className="text-lg font-medium tracking-tight">{(native && storePrices[item.type]) || item.price}</span>
                         <Button
                           size="sm"
                           variant={item.popular ? "default" : "outline"}
-                          disabled={!!purchasing || freeTrialInfo.active}
+                          disabled={!!purchasing || firstListingFree}
                           onClick={() => handlePurchase(item.type)}
                           className="min-w-[80px]"
                         >
-                          {purchasing === item.type ? <Loader2 className="w-4 h-4 animate-spin" /> : freeTrialInfo.active ? "Gratis" : "Køb"}
+                          {purchasing === item.type ? <Loader2 className="w-4 h-4 animate-spin" /> : firstListingFree ? "Gratis" : "Køb"}
                         </Button>
                       </div>
                     </div>
@@ -289,7 +279,7 @@ const Payment = () => {
                         <p className="text-sm text-muted-foreground">{item.sub}</p>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`text-lg font-medium tracking-tight ${item.popular ? "text-foreground" : ""}`}>{item.price}</span>
+                        <span className={`text-lg font-medium tracking-tight ${item.popular ? "text-foreground" : ""}`}>{(native && storePrices[item.type]) || item.price}</span>
                         <Button
                           size="sm"
                           variant="outline"
@@ -346,7 +336,7 @@ const Payment = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-lg font-medium tracking-tight">29 kr</span>
+                      <span className="text-lg font-medium tracking-tight">{(native && storePrices["search_agent"]) || "29 kr"}</span>
                       <Button
                         size="sm"
                         variant="outline"
@@ -363,7 +353,7 @@ const Payment = () => {
                     <p className="font-medium text-foreground">Sådan virker det:</p>
                     <ul className="list-disc list-inside space-y-1">
                       <li>Din første søgeagent er altid gratis</li>
-                      <li>Køb ekstra pladser for 29 kr (engangsbetaling)</li>
+                      <li>Køb ekstra pladser for {(native && storePrices["search_agent"]) || "29 kr"} (engangsbetaling)</li>
                       <li>Sletter du en agent frigives pladsen til en ny</li>
                     </ul>
                   </div>
@@ -374,7 +364,9 @@ const Payment = () => {
             {/* Sikkerhed */}
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground py-4">
               <ShieldCheck className="w-4 h-4" />
-              <span>Sikker betaling via Stripe · Kort + MobilePay · PCI-certificeret</span>
+              <span>{native
+                ? `Sikker betaling gennem ${iapStoreName()}`
+                : "Sikker betaling via Stripe · Kort + MobilePay · PCI-certificeret"}</span>
             </div>
 
           </div>

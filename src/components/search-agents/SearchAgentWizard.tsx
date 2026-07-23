@@ -20,6 +20,7 @@ import { CreateSearchAgentData, SearchAgent } from "@/hooks/useSearchAgents";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { isNativeApp } from "@/lib/native";
+import { iapAvailable, purchaseIap, getIapPrices } from "@/lib/iap";
 
 interface SearchAgentWizardProps {
   agent?: SearchAgent | null;
@@ -112,26 +113,30 @@ const SearchAgentWizard = ({
 
   const [purchasingSlot, setPurchasingSlot] = useState(false);
 
-  const handleSubmit = async () => {
-    if (requiresPayment) {
-      if (native) {
-        toast.error("Du har nået det maksimale antal søgeagenter. Slet en eksisterende for at oprette en ny.");
-        return;
-      }
-      setPurchasingSlot(true);
-      try {
-        const { data: res, error } = await supabase.functions.invoke("create-checkout-session", {
-          body: { product_type: "search_agent" },
-        });
-        if (error || !res?.url) throw new Error(error?.message ?? "Ukendt fejl");
-        window.location.href = res.url;
-      } catch (err: any) {
-        toast.error(err.message ?? "Kunne ikke starte betaling");
-        setPurchasingSlot(false);
-      }
-      return;
+  // På native vises butikkens lokaliserede pris (App Store/Google Play opkræver
+  // sin egen pris — det hardcodede kr-beløb må ikke stå alene).
+  const [storeSlotPrice, setStoreSlotPrice] = useState<string | null>(null);
+  useEffect(() => {
+    if (native && iapAvailable()) {
+      getIapPrices().then((p) => setStoreSlotPrice(p.search_agent ?? null)).catch(() => {});
     }
+  }, [native]);
+  const slotPriceDisplay = (native && storeSlotPrice) || `${pricePerSlot} kr`;
 
+  // Poller efter at webhooken har forhøjet search_agent_slots (op til ~10 sek.).
+  const waitForExtraSlot = async (): Promise<boolean> => {
+    for (let i = 0; i < 5; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      const { data: prof } = await supabase
+        .from("profiles").select("search_agent_slots").eq("user_id", user.id).single();
+      if ((prof?.search_agent_slots ?? 1) > existingAgentsCount) return true;
+    }
+    return false;
+  };
+
+  const handleSubmit = async () => {
     const data: CreateSearchAgentData & { id?: string } = {
       name: generateAgentName(),
       city: city || null,
@@ -147,6 +152,53 @@ const SearchAgentWizard = ({
 
     if (agent?.id) {
       data.id = agent.id;
+    }
+
+    if (requiresPayment) {
+      // Native: køb ekstra slot gennem App Store/Google Play, og opret derefter
+      // agenten direkte (serveren har forhøjet slot-antallet ved verificeringen).
+      if (native) {
+        if (!iapAvailable()) {
+          toast.error("Køb er ikke tilgængelige i denne version af appen. Opdater appen og prøv igen.");
+          return;
+        }
+        setPurchasingSlot(true);
+        const res = await purchaseIap("search_agent");
+        if (!res.ok) {
+          setPurchasingSlot(false);
+          if (!res.cancelled) toast.error(res.message ?? "Købet kunne ikke gennemføres");
+          return;
+        }
+        // Ved 'pending' er slottet endnu ikke aktiveret (webhooken er på vej).
+        // Vent kort på det, så DB-triggeren ikke afviser agent-oprettelsen —
+        // ellers ville brugeren have betalt og få en fejl.
+        if (res.pending) {
+          const gotSlot = await waitForExtraSlot();
+          if (!gotSlot) {
+            setPurchasingSlot(false);
+            toast("Betalingen er gennemført — pladsen aktiveres om et øjeblik. Tryk på Opret igen om lidt.");
+            return;
+          }
+        }
+        setPurchasingSlot(false);
+        toast.success("Ekstra søgeagent-plads købt!");
+        onSave(data);
+        return;
+      }
+
+      // Web: Stripe Checkout (agenten oprettes efter betaling via success-siden).
+      setPurchasingSlot(true);
+      try {
+        const { data: res, error } = await supabase.functions.invoke("create-checkout-session", {
+          body: { product_type: "search_agent" },
+        });
+        if (error || !res?.url) throw new Error(error?.message ?? "Ukendt fejl");
+        window.location.href = res.url;
+      } catch (err: any) {
+        toast.error(err.message ?? "Kunne ikke starte betaling");
+        setPurchasingSlot(false);
+      }
+      return;
     }
 
     onSave(data);
@@ -475,14 +527,6 @@ const SearchAgentWizard = ({
 
               {/* Payment Info */}
               {requiresPayment ? (
-                native ? (
-                  <div className="p-4 rounded-2xl border border-border/60 bg-muted">
-                    <p className="font-medium text-foreground mb-1">Maks. antal nået</p>
-                    <p className="text-sm text-muted-foreground">
-                      Du har allerede {existingAgentsCount} søgeagent{existingAgentsCount > 1 ? 'er' : ''}. Slet en eksisterende for at oprette en ny.
-                    </p>
-                  </div>
-                ) : (
                 <div className="p-4 rounded-2xl border border-border/60 bg-secondary/20">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
@@ -497,13 +541,12 @@ const SearchAgentWizard = ({
                   </div>
                   <div className="flex items-center justify-between py-3 border-t border-border/60">
                     <span>Ekstra søgeagent-slot</span>
-                    <span className="text-xl font-medium tracking-tight text-foreground">{pricePerSlot} kr</span>
+                    <span className="text-xl font-medium tracking-tight text-foreground">{slotPriceDisplay}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Engangsbetaling. Sletning frigør pladsen til ny agent.
                   </p>
                 </div>
-                )
               ) : (!isEditing && existingAgentsCount === 0) ? (
                 <div className="p-4 rounded-2xl border border-border/60 bg-secondary/20">
                   <div className="flex items-center gap-3">
@@ -543,11 +586,11 @@ const SearchAgentWizard = ({
           ) : (
             <Button
               onClick={handleSubmit}
-              disabled={isLoading || purchasingSlot || (requiresPayment && native)}
+              disabled={isLoading || purchasingSlot}
               className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
             >
               {(isLoading || purchasingSlot) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              {purchasingSlot ? "Sender til betaling..." : isLoading ? "Opretter..." : requiresPayment ? (native ? "Maks. antal nået" : `Betal ${pricePerSlot} kr og opret`) : "Opret søgeagent"}
+              {purchasingSlot ? "Sender til betaling..." : isLoading ? "Opretter..." : requiresPayment ? `Betal ${slotPriceDisplay} og opret` : "Opret søgeagent"}
             </Button>
           )}
         </div>

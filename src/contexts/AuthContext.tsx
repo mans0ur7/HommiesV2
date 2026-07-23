@@ -3,6 +3,7 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { isNativeApp } from "@/lib/native";
 import { initNativePush, clearNativePushToken } from "@/lib/nativePush";
+import { initIap, clearIap } from "@/lib/iap";
 import { isBiometricEnabled, storeBiometricToken } from "@/lib/biometric";
 
 interface Profile {
@@ -106,6 +107,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }, 0);
           // Register this device for native push (no-op on web / if not granted)
           void initNativePush();
+          // Knyt store-køb (RevenueCat) til brugerens id (no-op på web)
+          void initIap(session.user.id);
         } else {
           setProfile(null);
           setProfileLoaded(true);
@@ -160,6 +163,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (e) {
       console.warn("[push] kunne ikke rydde native token ved logout", e);
     }
+    // Afkobl store-køb fra brugeren (no-op på web)
+    await clearIap();
     // Clear state first
     setUser(null);
     setSession(null);

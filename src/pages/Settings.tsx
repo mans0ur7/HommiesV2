@@ -56,8 +56,8 @@ const PaymentSection = () => {
     }
   };
 
-  // Native app: card management, receipts and purchases are handled on the web
-  // (store billing rules), so show a notice instead of the Stripe portal.
+  // Native app: køb sker gennem App Store/Google Play (se /payment); kort og
+  // kvitteringer administreres af butikken — Stripe-portalen er kun til web.
   if (native) {
     return (
       <div className="space-y-6">
@@ -74,9 +74,12 @@ const PaymentSection = () => {
             <CreditCard className="w-6 h-6 text-foreground/70" />
           </div>
           <p className="font-medium text-foreground mb-1">{t("settings.payNativeTitle")}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mb-4">
             {t("settings.payNativeBody")}
           </p>
+          <Button onClick={() => navigate("/payment")} className="rounded-full">
+            {t("settings.payNativeCta")}
+          </Button>
         </div>
       </div>
     );

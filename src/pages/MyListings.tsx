@@ -37,6 +37,7 @@ import GenderCompositionSelector from "@/components/listings/GenderCompositionSe
 import { compressImage } from "@/lib/compressImage";
 import { checkFields } from "@/lib/contentFilter";
 import { isNativeApp } from "@/lib/native";
+import { iapAvailable, purchaseIap, getIapPrices, type IapProductType } from "@/lib/iap";
 import { getLaunchWindowInfo } from "@/lib/listingPromo";
 import LaunchOfferBanner from "@/components/promo/LaunchOfferBanner";
 import { useListingDraft } from "@/hooks/useListingDraft";
@@ -229,6 +230,7 @@ const MyListings = () => {
   const [uploadingFloorPlan, setUploadingFloorPlan] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [hasExistingListings, setHasExistingListings] = useState<boolean | null>(null);
+  const [storePrices, setStorePrices] = useState<Partial<Record<IapProductType, string>>>({});
   const [addressQuery, setAddressQuery] = useState("");
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lon: number } | null>(null);
@@ -246,10 +248,21 @@ const MyListings = () => {
   }, [editingProperty, hasExistingListings]);
 
   // Free-listing promo is driven by a fixed-date launch window
-  // (src/lib/listingPromo.ts) instead of each landlord's signup date: during the
-  // window ANY new listing is published free for 30 days. Shape kept the same
-  // ({ active, daysLeft, daysUsed }) so the existing UI/publish logic works as-is.
+  // (src/lib/listingPromo.ts) instead of each landlord's signup date. Shape kept
+  // the same ({ active, daysLeft, daysUsed }) so the existing UI logic works as-is.
   const freeTrialInfo = useMemo(() => getLaunchWindowInfo(), []);
+
+  // Annoncer er helt gratis lige nu (LISTINGS_FREE i listingPromo.ts) — også
+  // flere annoncer pr. medlem. Redigering giver aldrig en ny gratis periode.
+  const freeListingEligible = freeTrialInfo.active && !editingProperty;
+
+  // På native vises butikkens lokaliserede priser i forny/boost-dialogerne
+  // (butikken opkræver sin egen pris — hardcodede kr-beløb må ikke stå alene).
+  useEffect(() => {
+    if (native && iapAvailable()) {
+      getIapPrices().then(setStorePrices).catch(() => {});
+    }
+  }, [native]);
 
   // Calculate discounted price for listing (always round down to be fair to customers)
   const getListingPrice = (originalPrice: number, applyDiscount: boolean) => {
@@ -490,9 +503,13 @@ const MyListings = () => {
 
   const togglePublish = async (propertyId: string, currentStatus: boolean) => {
     try {
-      // Publishing (not hiding) outside the free trial requires a valid paid
+      // Annoncer er gratis lige nu — (gen)udgivelse er altid gratis, men en
+      // stadig gyldig periode bevares i stedet for at blive nulstillet.
+      const freeRepublish = freeTrialInfo.active;
+
+      // Publishing (not hiding) without the free grant requires a valid paid
       // period — otherwise route to payment instead of publishing for free.
-      if (!currentStatus && !freeTrialInfo.active) {
+      if (!currentStatus && !freeRepublish) {
         const property = properties.find((p) => p.id === propertyId);
         const expiresAt = (property as any)?.expires_at;
         const hasValidPeriod = expiresAt && new Date(expiresAt) > new Date();
@@ -505,9 +522,15 @@ const MyListings = () => {
       const updateData: Record<string, any> = { is_published: !currentStatus };
       if (!currentStatus) {
         updateData.status = "active";
-        if (freeTrialInfo.active) {
-          updateData.expires_at = addDays(new Date(), 30).toISOString();
-          updateData.listing_period = 30;
+        if (freeRepublish) {
+          const property = properties.find((p) => p.id === propertyId);
+          const expiresAt = (property as any)?.expires_at;
+          // Giv kun en frisk gratis 30-dages periode hvis annoncen ikke allerede
+          // har en gyldig periode (behold den eksisterende ellers).
+          if (!expiresAt || new Date(expiresAt) <= new Date()) {
+            updateData.expires_at = addDays(new Date(), 30).toISOString();
+            updateData.listing_period = 30;
+          }
         }
       }
 
@@ -522,7 +545,7 @@ const MyListings = () => {
         title: currentStatus ? t("myListings.hiddenToast") : t("myListings.publishedToast"),
         description: currentStatus
           ? t("myListings.hiddenBody")
-          : freeTrialInfo.active
+          : freeRepublish
             ? t("myListings.publishedBodyTrial")
             : t("myListings.publishedBody"),
       });
@@ -850,13 +873,33 @@ const nextStep = () => {
 
   const handleRenewListing = async () => {
     if (!renewDialog) return;
+    const productType = `listing_${selectedPeriod}day` as const;
+
+    // Native: køb gennem App Store/Google Play (digitale køb skal gå gennem
+    // butikkens billing — Stripe er kun til web).
     if (native) {
-      toast({ title: t("myListings.webOnly"), description: t("myListings.renewWebOnly") });
+      if (!iapAvailable()) {
+        toast({ title: t("myListings.iapUnavailable"), description: t("myListings.iapUnavailableBody") });
+        return;
+      }
+      setRenewPurchasing(true);
+      const res = await purchaseIap(productType as IapProductType, renewDialog.id);
+      setRenewPurchasing(false);
+      if (res.ok) {
+        toast({
+          title: t("myListings.iapDone"),
+          description: res.pending ? t("myListings.iapPendingBody") : t("myListings.iapListingActive"),
+        });
+        setRenewDialog(null);
+        fetchProperties();
+      } else if (!res.cancelled) {
+        toast({ title: t("myListings.error"), description: res.message ?? t("myListings.paymentStartFailed"), variant: "destructive" });
+      }
       return;
     }
+
     setRenewPurchasing(true);
     try {
-      const productType = `listing_${selectedPeriod}day` as const;
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { product_type: productType, product_id: renewDialog.id },
       });
@@ -870,13 +913,32 @@ const nextStep = () => {
 
   const handleBoostListing = async () => {
     if (!boostDialog) return;
+    const productType = `boost_${selectedBoost}day` as const;
+
+    // Native: køb gennem App Store/Google Play i stedet for Stripe.
     if (native) {
-      toast({ title: t("myListings.webOnly"), description: t("myListings.boostWebOnly") });
+      if (!iapAvailable()) {
+        toast({ title: t("myListings.iapUnavailable"), description: t("myListings.iapUnavailableBody") });
+        return;
+      }
+      setBoostPurchasing(true);
+      const res = await purchaseIap(productType as IapProductType, boostDialog.id);
+      setBoostPurchasing(false);
+      if (res.ok) {
+        toast({
+          title: t("myListings.iapDone"),
+          description: res.pending ? t("myListings.iapPendingBody") : t("myListings.iapBoostActive"),
+        });
+        setBoostDialog(null);
+        fetchProperties();
+      } else if (!res.cancelled) {
+        toast({ title: t("myListings.error"), description: res.message ?? t("myListings.paymentStartFailed"), variant: "destructive" });
+      }
       return;
     }
+
     setBoostPurchasing(true);
     try {
-      const productType = `boost_${selectedBoost}day` as const;
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { product_type: productType, product_id: boostDialog.id },
       });
@@ -948,7 +1010,7 @@ const nextStep = () => {
     if (isPublishing) return;
     setIsPublishing(true);
     try {
-      const isFreeTrialListing = freeTrialInfo.active && !editingProperty;
+      const isFreeTrialListing = freeListingEligible;
 
       const period = isFreeTrialListing
         ? { days: 30, price: 0, label: t("myListings.manyDays", { count: 30 }) }
@@ -1039,15 +1101,13 @@ const nextStep = () => {
         return;
       }
 
-      // Paid new listing — web only (Google Play requires its own billing for
-      // digital goods, so Stripe purchases are disabled in the native app).
-      if (native) {
-        toast({ title: t("myListings.webOnly"), description: t("myListings.purchaseWebOnly") });
+      // Paid new listing — save as an unpublished draft first; payment then
+      // publishes it server-side (fulfill.ts), regardless of payment channel.
+      if (native && !iapAvailable()) {
+        toast({ title: t("myListings.iapUnavailable"), description: t("myListings.iapUnavailableBody") });
         return;
       }
 
-      // Paid new listing — save as an unpublished draft, then send to Stripe.
-      // verify-payment / stripe-webhook publishes it once payment succeeds.
       const { data: inserted, error: insertErr } = await supabase
         .from("properties")
         .insert({ ...propertyData, status: "pending_payment", is_published: false, expires_at: null })
@@ -1056,6 +1116,37 @@ const nextStep = () => {
       if (insertErr || !inserted) throw insertErr ?? new Error(t("myListings.createListingFailed"));
 
       const productType = `listing_${selectedListingPeriod}day`;
+
+      // Native: køb gennem App Store/Google Play; verify-native-purchase /
+      // revenuecat-webhook udgiver annoncen når betalingen er bekræftet.
+      if (native) {
+        const res = await purchaseIap(productType as IapProductType, inserted.id);
+        if (res.ok) {
+          toast({
+            title: t("myListings.created"),
+            description: res.pending ? t("myListings.iapPendingBody") : t("myListings.iapListingActive"),
+          });
+          clearDraft();
+          closeForm();
+          fetchProperties();
+        } else {
+          // Annullereret/fejlet køb: annoncen ligger som "Afventer betaling" og
+          // kan betales senere via forny-dialogen.
+          toast({
+            title: res.cancelled ? t("myListings.iapCancelled") : t("myListings.error"),
+            description: res.cancelled
+              ? t("myListings.iapCancelledBody")
+              : (res.message ?? t("myListings.paymentStartFailed")),
+            variant: res.cancelled ? undefined : "destructive",
+          });
+          closeForm();
+          fetchProperties();
+        }
+        return;
+      }
+
+      // Web: Stripe Checkout — verify-payment / stripe-webhook publishes it
+      // once payment succeeds.
       const { data: checkout, error: checkoutErr } = await supabase.functions.invoke(
         "create-checkout-session",
         { body: { product_type: productType, product_id: inserted.id } }
@@ -1901,30 +1992,24 @@ const nextStep = () => {
                     <CreditCard className="w-12 h-12 mx-auto text-secondary mb-4" />
                     <h3 className="text-xl font-medium tracking-tight text-foreground mb-2">{t("myListings.choosePeriod")}</h3>
                     <p className="text-muted-foreground">
-                      {freeTrialInfo.active && !editingProperty
+                      {freeListingEligible
                         ? t("myListings.freeTrialPublish")
                         : t("myListings.choosePeriodBody")}
                     </p>
                   </div>
 
                   {/* Free trial banner */}
-                  {freeTrialInfo.active && !editingProperty ? (
+                  {freeListingEligible ? (
                     <>
                       <div className="bg-secondary/20 border border-border/60 rounded-2xl p-5 flex items-start gap-4">
                         <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
                           <Gift className="w-5 h-5 text-secondary-foreground" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{t("myListings.freeTrialBanner", { days: freeTrialInfo.daysLeft })}</p>
+                          <p className="font-medium text-foreground">{t("myListings.freeTrialBanner")}</p>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {t("myListings.freeTrialBannerBody", { used: freeTrialInfo.daysUsed, total: FREE_TRIAL_DAYS })}
+                            {t("myListings.freeTrialBannerBody")}
                           </p>
-                          <div className="mt-3 w-full bg-muted rounded-full h-1.5">
-                            <div
-                              className="bg-foreground h-1.5 rounded-full"
-                              style={{ width: `${Math.min(100, (freeTrialInfo.daysUsed / FREE_TRIAL_DAYS) * 100)}%` }}
-                            />
-                          </div>
                         </div>
                       </div>
 
@@ -2021,7 +2106,7 @@ const nextStep = () => {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t("myListings.summaryPeriod")}</span>
                         <span className="font-medium text-foreground">
-                          {freeTrialInfo.active && !editingProperty ? t("myListings.manyDays", { count: 30 }) : t("myListings.manyDays", { count: selectedListingPeriod })}
+                          {freeListingEligible ? t("myListings.manyDays", { count: 30 }) : t("myListings.manyDays", { count: selectedListingPeriod })}
                         </span>
                       </div>
 
@@ -2045,8 +2130,8 @@ const nextStep = () => {
                       <div className="border-t border-border pt-2 mt-2">
                         <div className="flex justify-between text-base">
                           <span className="font-medium text-primary">{t("myListings.summaryTotal")}</span>
-                          <span className={`font-medium ${freeTrialInfo.active && !editingProperty ? 'text-foreground' : isLaunchOfferEligible ? 'text-foreground' : 'text-secondary'}`}>
-                            {freeTrialInfo.active && !editingProperty
+                          <span className={`font-medium ${freeListingEligible ? 'text-foreground' : isLaunchOfferEligible ? 'text-foreground' : 'text-secondary'}`}>
+                            {freeListingEligible
                               ? t("myListings.summaryFree")
                               : `${getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true)} kr`}
                           </span>
@@ -2084,19 +2169,19 @@ const nextStep = () => {
                   <Button
                     type="button"
                     onClick={handlePaymentAndSubmit}
-                    disabled={isPublishing || !canProceed() || (native && !freeTrialInfo.active && !editingProperty)}
-                    className={`${freeTrialInfo.active && !editingProperty ? 'bg-foreground text-background hover:bg-foreground/90' : isLaunchOfferEligible && !editingProperty ? 'bg-foreground text-background hover:bg-foreground/90' : 'bg-secondary text-secondary-foreground hover:bg-secondary/90'} w-full sm:w-auto order-1 sm:order-2`}
+                    disabled={isPublishing || !canProceed()}
+                    className={`${freeListingEligible ? 'bg-foreground text-background hover:bg-foreground/90' : isLaunchOfferEligible && !editingProperty ? 'bg-foreground text-background hover:bg-foreground/90' : 'bg-secondary text-secondary-foreground hover:bg-secondary/90'} w-full sm:w-auto order-1 sm:order-2`}
                   >
-                    {freeTrialInfo.active && !editingProperty
+                    {freeListingEligible
                       ? <Gift className="w-4 h-4 mr-2 flex-shrink-0" />
                       : <CreditCard className="w-4 h-4 mr-2 flex-shrink-0" />}
                     <span className="whitespace-nowrap">
-                      {freeTrialInfo.active && !editingProperty
+                      {freeListingEligible
                         ? t("myListings.publishFree")
                         : editingProperty
                           ? t("myListings.saveAndPublish")
                           : native
-                            ? t("myListings.buyOnWeb")
+                            ? t("myListings.payAndPublishNative")
                             : t("myListings.payAndPublish", { price: getListingPrice(listingPeriods.find(p => p.days === selectedListingPeriod)?.price || 0, true) })
                       }
                     </span>
@@ -2185,8 +2270,7 @@ const nextStep = () => {
                         </span>
                       </div>
                       
-                      {/* Action buttons - paid upgrades, web only (Play Billing handled separately) */}
-                      {!native && (
+                      {/* Action buttons — betalte opgraderinger (Stripe på web, App Store/Google Play i appen) */}
                       <div className="flex gap-1 md:gap-2 mb-1.5 md:mb-3">
                         <Button
                           size="sm"
@@ -2213,7 +2297,6 @@ const nextStep = () => {
                           <span className="hidden md:inline">{t("myListings.boost")}</span>
                         </Button>
                       </div>
-                      )}
                       
                       <div className="flex gap-1 md:gap-2">
                         <Button 
@@ -2310,7 +2393,7 @@ const nextStep = () => {
                   }`}
                 >
                   <span className="font-medium">{t("myListings.manyDays", { count: period.days })}</span>
-                  <span className="font-medium text-secondary">{period.price} kr</span>
+                  <span className="font-medium text-secondary">{(native && storePrices[`listing_${period.days}day` as IapProductType]) || `${period.price} kr`}</span>
                 </button>
               ))}
             </div>
@@ -2323,7 +2406,9 @@ const nextStep = () => {
               className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
             >
               {renewPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {t("myListings.payAndActivate", { price: listingPeriods.find(p => p.days === selectedPeriod)?.price })}
+              {native
+                ? t("myListings.payAndActivateNative")
+                : t("myListings.payAndActivate", { price: listingPeriods.find(p => p.days === selectedPeriod)?.price })}
             </Button>
           </div>
         </SheetContent>
@@ -2362,7 +2447,7 @@ const nextStep = () => {
                   }`}
                 >
                   <span className="font-medium">{boost.days === 1 ? "24h" : t("myListings.manyDays", { count: boost.days })}</span>
-                  <span className="font-medium text-secondary">{boost.price} kr</span>
+                  <span className="font-medium text-secondary">{(native && storePrices[`boost_${boost.days}day` as IapProductType]) || `${boost.price} kr`}</span>
                 </button>
               ))}
             </div>
@@ -2375,7 +2460,9 @@ const nextStep = () => {
               className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
             >
               {boostPurchasing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {t("myListings.payAndBoost", { price: boostOptions.find(b => b.days === selectedBoost)?.price })}
+              {native
+                ? t("myListings.payAndBoostNative")
+                : t("myListings.payAndBoost", { price: boostOptions.find(b => b.days === selectedBoost)?.price })}
             </Button>
           </div>
         </SheetContent>

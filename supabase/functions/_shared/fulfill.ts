@@ -1,35 +1,67 @@
-// Shared, idempotent payment fulfillment used by both verify-payment (success
-// page fast path) and stripe-webhook (reliable server-side path). Safe to call
-// twice for the same checkout session — it no-ops if already fulfilled.
+// Shared, idempotent payment fulfillment used by every payment path:
+//   Stripe (web):   verify-payment (success page) + stripe-webhook
+//   Native (IAP):   verify-native-purchase (client fast path) + revenuecat-webhook
+// Safe to call twice for the same claim key — it no-ops if already fulfilled.
 
 type AnyClient = {
   from: (table: string) => any;
+};
+
+export type FulfillArgs = {
+  user_id: string;
+  product_type: string;
+  product_id?: string | null;
+  // Unik nøgle for købet: Stripe checkout-session-id, eller "rc_<store-transaktions-id>"
+  // for native køb. Gemmes i payments.stripe_session_id, hvis unique-index er selve
+  // idempotens-låsen — begge fulfillment-veje for samme køb SKAL bruge samme nøgle.
+  claim_key: string;
+  amount?: number | null;
+  currency?: string | null;
 };
 
 export async function fulfillCheckout(admin: AnyClient, session: any): Promise<string> {
   if (session.payment_status !== "paid") return "unpaid";
 
   const meta = session.metadata ?? {};
-  const user_id: string | undefined = meta.user_id;
-  const product_type: string | undefined = meta.product_type;
-  const product_id: string | undefined = meta.product_id;
-  if (!user_id || !product_type) return "missing_metadata";
+  if (!meta.user_id || !meta.product_type) return "missing_metadata";
+
+  return fulfillProduct(admin, {
+    user_id: meta.user_id,
+    product_type: meta.product_type,
+    product_id: meta.product_id || null,
+    claim_key: session.id,
+    amount: session.amount_total,
+    currency: session.currency,
+  });
+}
+
+export async function fulfillProduct(admin: AnyClient, args: FulfillArgs): Promise<string> {
+  const { user_id, product_type, claim_key } = args;
+  const product_id = args.product_id || null;
 
   // Atomisk claim: payments.stripe_session_id har en unique-constraint, så KUN ét
-  // kald (webhook eller verify-payment) vinder insert'et og aktiverer produktet.
+  // kald (webhook eller verify-vej) vinder insert'et og aktiverer produktet.
   // Det fjerner dobbelt-fulfillment-racet (fx dobbelt søgeagent-slot).
   const { error: claimErr } = await admin.from("payments").insert({
     user_id,
     product_type,
-    product_id: product_id || null,
-    stripe_session_id: session.id,
-    amount: session.amount_total,
-    currency: session.currency,
+    product_id,
+    stripe_session_id: claim_key,
+    amount: args.amount ?? null,
+    currency: args.currency ?? null,
     status: "processing",
   });
   if (claimErr) {
-    // 23505 = unique violation → en anden proces ejer allerede denne session.
-    if (claimErr.code === "23505") return "already_fulfilled";
+    // 23505 = unique violation → en anden proces ejer denne claim. Skeln mellem
+    // FÆRDIG ('completed' → ægte already_fulfilled) og UNDERVEJS ('processing' →
+    // 'in_flight'): den anden proces kan stadig fejle og frigive claim'et, så
+    // callers skal behandle in_flight som retry-bart (webhook → 500), ellers kan
+    // et betalt køb ende uden aktivering.
+    if (claimErr.code === "23505") {
+      const { data: existing } = await admin
+        .from("payments").select("status").eq("stripe_session_id", claim_key).maybeSingle();
+      return existing?.status === "completed" ? "already_fulfilled" : "in_flight";
+    }
     throw new Error("payments insert failed: " + (claimErr.message ?? "unknown"));
   }
 
@@ -74,11 +106,11 @@ export async function fulfillCheckout(admin: AnyClient, session: any): Promise<s
       if (error) throw new Error("slot update failed: " + error.message);
     }
   } catch (e) {
-    // Aktivering fejlede → frigiv claim'et så Stripes retry kan forsøge forfra.
-    await admin.from("payments").delete().eq("stripe_session_id", session.id);
+    // Aktivering fejlede → frigiv claim'et så et retry kan forsøge forfra.
+    await admin.from("payments").delete().eq("stripe_session_id", claim_key);
     throw e;
   }
 
-  await admin.from("payments").update({ status: "completed" }).eq("stripe_session_id", session.id);
+  await admin.from("payments").update({ status: "completed" }).eq("stripe_session_id", claim_key);
   return "fulfilled";
 }

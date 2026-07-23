@@ -1,19 +1,10 @@
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { PRICES } from "../_shared/prices.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-const PRICES: Record<string, { amount: number; name: string }> = {
-  boost_1day:    { amount: 4900,  name: "Boost — 24 timer" },
-  boost_3day:    { amount: 9900,  name: "Boost — 3 dage" },
-  boost_7day:    { amount: 19900, name: "Boost — 7 dage" },
-  listing_7day:  { amount: 9900,  name: "Annonce — 7 dage" },
-  listing_14day: { amount: 17900, name: "Annonce — 14 dage" },
-  listing_30day: { amount: 29900, name: "Annonce — 30 dage" },
-  search_agent:  { amount: 2900,  name: "Ekstra søgeagent-plads" },
 };
 
 Deno.serve(async (req) => {

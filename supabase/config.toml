@@ -4,3 +4,8 @@ project_id = "qsebenkadwjtjomplriw"
 # enforced via Stripe webhook signature verification inside the function.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# RevenueCat calls this endpoint directly with no Supabase JWT — auth is instead
+# enforced via the shared Authorization header (REVENUECAT_WEBHOOK_SECRET).
+[functions.revenuecat-webhook]
+verify_jwt = false
