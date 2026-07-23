@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-ro
 import { useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import BugReportButton from "@/components/BugReportButton";
+import CoachMarkTour from "@/components/onboarding/CoachMarkTour";
 import CookieBanner from "@/components/CookieBanner";
 import RouteErrorBoundary from "@/components/common/RouteErrorBoundary";
 import { Analytics } from "@vercel/analytics/react";
@@ -129,6 +130,7 @@ const App = () => (
           </Routes>
           </Suspense>
           </RouteErrorBoundary>
+          <CoachMarkTour />
           <BugReportButton />
           <CookieBanner />
           <Analytics />

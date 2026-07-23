@@ -64,6 +64,7 @@ const BottomNavigation = () => {
               <Link
                 key={item.href}
                 to={item.href}
+                data-tour={`nav-${item.href === "/" ? "home" : item.href.slice(1)}`}
                 className={cn(
                   "flex flex-col items-center justify-center gap-0.5 py-1.5 px-2 rounded-xl transition-all duration-200 relative min-w-0",
                   active

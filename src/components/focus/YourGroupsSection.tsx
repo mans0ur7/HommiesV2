@@ -53,6 +53,7 @@ const YourGroupsSection = ({
         <Button
           onClick={onCreateGroup}
           size="sm"
+          data-tour="focus-create-group"
           className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-9 px-4 gap-1.5 shrink-0"
         >
           <Plus className="w-4 h-4" />

@@ -398,7 +398,7 @@ const Explore = () => {
                 </p>
 
                 {/* Search bar — large, ground-level, single field */}
-                <div className="relative max-w-2xl" ref={searchRef}>
+                <div className="relative max-w-2xl" ref={searchRef} data-tour="explore-search">
                   <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card p-1.5 focus-within:border-foreground/40 transition-colors">
                     <div className="relative flex-1">
                       {activeTab === "roomies"
@@ -732,6 +732,7 @@ const Explore = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setViewMode(viewMode === "list" ? "map" : "list")}
+                    data-tour="explore-map"
                     className="gap-1.5 text-xs h-8 rounded-full"
                   >
                     {viewMode === "list" ? <><Map className="w-3.5 h-3.5" />{t("explore.map")}</> : <><LayoutGrid className="w-3.5 h-3.5" />{t("explore.list")}</>}

@@ -22,6 +22,7 @@ const FocusHeroBanner = ({ onCreateGroup }: FocusHeroBannerProps) => {
           </p>
           <Button
             onClick={onCreateGroup}
+            data-tour="focus-create-group"
             className="rounded-full bg-foreground text-background hover:bg-foreground/90 h-11 px-5"
           >
             Opret gruppe

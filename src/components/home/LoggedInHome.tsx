@@ -26,7 +26,6 @@ import ProfileCompletenessCard from "./ProfileCompletenessCard";
 import SinceLastVisit from "./SinceLastVisit";
 import PeopleWhoWantYou from "./PeopleWhoWantYou";
 import LandlordListingCard from "./LandlordListingCard";
-import FirstLoginTour from "@/components/onboarding/FirstLoginTour";
 
 import { useFavoriteProperties } from "@/hooks/useFavoriteProperties";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -467,7 +466,6 @@ const LoggedInHome = () => {
 
         <Footer />
       </div>
-      <FirstLoginTour />
     </AppLayout>
   );
 };

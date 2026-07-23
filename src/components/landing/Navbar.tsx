@@ -49,7 +49,7 @@ const Navbar = () => {
 
           {/* Navigation Links - Desktop (centered pill) */}
           <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-            <Link to="/explore" className={navLinkClass}>{t("nav.explore")}</Link>
+            <Link to="/explore" data-tour="nav-explore" className={navLinkClass}>{t("nav.explore")}</Link>
 
             {user && (
               <>
@@ -57,7 +57,7 @@ const Navbar = () => {
                 {userType === 'roomie' && (
                   <Link to="/focus" className={navLinkClass}>{t("nav.focus")}</Link>
                 )}
-                <Link to="/inbox" className={`${navLinkClass} relative`}>
+                <Link to="/inbox" data-tour="nav-inbox" className={`${navLinkClass} relative`}>
                   {t("nav.inbox")}
                   {inboxUnreadCount > 0 && (
                     <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full px-1.5 leading-none">

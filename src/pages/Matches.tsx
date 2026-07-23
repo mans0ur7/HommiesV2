@@ -743,7 +743,7 @@ const Matches = () => {
               <GroupSwipeView group={activeGroup} onExit={() => setActiveGroupId(null)} />
             </div>
           ) : (
-          <div className="flex-1 min-h-0 flex justify-center items-center">
+          <div className="flex-1 min-h-0 flex justify-center items-center" data-tour="matches-deck">
             {loading ? (
               <div className="animate-pulse h-full max-h-[560px] aspect-[3/4]">
                 <div className="w-full h-full bg-muted/40 rounded-3xl"></div>
