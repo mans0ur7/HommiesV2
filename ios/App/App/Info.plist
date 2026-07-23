@@ -32,6 +32,8 @@
 	<string>Hommies kan gemme billeder i dit fotobibliotek.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Hommies bruger din placering til at vise relevante værelser og samboere i nærheden.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Hommies bruger din placering til at vise relevante værelser og samboere i nærheden.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Hommies bruger Face ID, så du kan logge hurtigt og sikkert ind uden at indtaste din adgangskode hver gang.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
