@@ -252,7 +252,7 @@ const MyListings = () => {
   // the same ({ active, daysLeft, daysUsed }) so the existing UI logic works as-is.
   const freeTrialInfo = useMemo(() => getLaunchWindowInfo(), []);
 
-  // Annoncer er helt gratis lige nu (LISTINGS_FREE i listingPromo.ts) — også
+  // Annoncer er helt gratis lige nu (ALL_LISTINGS_FREE i listingPromo.ts) — også
   // flere annoncer pr. medlem. Redigering giver aldrig en ny gratis periode.
   const freeListingEligible = freeTrialInfo.active && !editingProperty;
 

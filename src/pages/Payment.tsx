@@ -30,8 +30,8 @@ const Payment = () => {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");
   const [storePrices, setStorePrices] = useState<Partial<Record<IapProductType, string>>>({});
 
-  // Annoncer er helt gratis lige nu (LISTINGS_FREE i listingPromo.ts) — boost
-  // og søgeagenter koster stadig. Samme kilde som MyListings.
+  // Annoncer er helt gratis lige nu (ALL_LISTINGS_FREE i listingPromo.ts) —
+  // boost og søgeagenter koster stadig. Samme kilde som MyListings.
   const freeTrialInfo = useMemo(() => getLaunchWindowInfo(), []);
   const firstListingFree = freeTrialInfo.active;
 

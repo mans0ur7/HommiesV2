@@ -19,7 +19,7 @@ skal oprettes med PRÆCIS disse id'er):
 
 **Gratis-reglen lige nu: ALLE annoncer er gratis** (også flere pr. medlem, 30
 dage pr. udgivelse) — kun **boost** og **ekstra søgeagenter** koster. Styres af
-kontakten `LISTINGS_FREE` i `src/lib/listingPromo.ts`: sæt den til `false` og
+kontakten `ALL_LISTINGS_FREE` i `src/lib/listingPromo.ts`: sæt den til `false` og
 udgiv en opdatering, når annoncer skal koste penge — betalingsflowet (Stripe på
 web, App Store/Google Play i apperne) er allerede bygget og tager over af sig
 selv. Opret derfor ALLE 7 produkter i butikkerne nu, så prisopdateringen senere
