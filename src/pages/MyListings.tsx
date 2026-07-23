@@ -1914,18 +1914,27 @@ const nextStep = () => {
                         <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
                           <Gift className="w-5 h-5 text-secondary-foreground" />
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{t("myListings.freeTrialBanner", { days: freeTrialInfo.daysLeft })}</p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {t("myListings.freeTrialBannerBody", { used: freeTrialInfo.daysUsed, total: FREE_TRIAL_DAYS })}
-                          </p>
-                          <div className="mt-3 w-full bg-muted rounded-full h-1.5">
-                            <div
-                              className="bg-foreground h-1.5 rounded-full"
-                              style={{ width: `${Math.min(100, (freeTrialInfo.daysUsed / FREE_TRIAL_DAYS) * 100)}%` }}
-                            />
+                        {freeTrialInfo.unlimited ? (
+                          <div>
+                            <p className="font-medium text-foreground">Det er gratis at oprette annoncer lige nu 🎉</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Din annonce offentliggøres gratis i 30 dage — og du kan oprette lige så mange annoncer, du vil.
+                            </p>
                           </div>
-                        </div>
+                        ) : (
+                          <div>
+                            <p className="font-medium text-foreground">{t("myListings.freeTrialBanner", { days: freeTrialInfo.daysLeft })}</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {t("myListings.freeTrialBannerBody", { used: freeTrialInfo.daysUsed, total: FREE_TRIAL_DAYS })}
+                            </p>
+                            <div className="mt-3 w-full bg-muted rounded-full h-1.5">
+                              <div
+                                className="bg-foreground h-1.5 rounded-full"
+                                style={{ width: `${Math.min(100, (freeTrialInfo.daysUsed / FREE_TRIAL_DAYS) * 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between p-6 rounded-2xl border border-border/60 bg-secondary/20">

@@ -18,7 +18,7 @@ interface LaunchOfferBannerProps {
  * dropped anywhere safely.
  */
 const LaunchOfferBanner = ({ to = "/my-listings", className, compact = false }: LaunchOfferBannerProps) => {
-  const { active, daysLeft } = getLaunchWindowInfo();
+  const { active, daysLeft, unlimited } = getLaunchWindowInfo();
   if (!active) return null;
 
   return (
@@ -39,14 +39,16 @@ const LaunchOfferBanner = ({ to = "/my-listings", className, compact = false }: 
           <div className="mb-1.5 flex items-center gap-3">
             <span className="h-px w-6 bg-foreground/30" />
             <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-foreground/60">
-              Launch-tilbud · {daysLeft} {daysLeft === 1 ? "dag" : "dage"} tilbage
+              {unlimited ? "Gratis i launch-perioden" : `Launch-tilbud · ${daysLeft} ${daysLeft === 1 ? "dag" : "dage"} tilbage`}
             </span>
           </div>
           <h3 className={cn("font-medium tracking-tight text-foreground", compact ? "text-lg" : "text-xl md:text-2xl")}>
-            Lej din bolig ud — gratis i launch-perioden
+            Lej din bolig ud — helt gratis
           </h3>
           <p className="mt-1 text-sm text-foreground/60">
-            Opret en annonce nu og få {FREE_LISTING_DAYS} dages gratis opslag. Tilbuddet gælder kun de næste {daysLeft} {daysLeft === 1 ? "dag" : "dage"}.
+            {unlimited
+              ? `Opret så mange annoncer du vil — hver annonce er gratis og ligger på siden i ${FREE_LISTING_DAYS} dage.`
+              : `Opret en annonce nu og få ${FREE_LISTING_DAYS} dages gratis opslag. Tilbuddet gælder kun de næste ${daysLeft} ${daysLeft === 1 ? "dag" : "dage"}.`}
           </p>
           <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-all group-hover:gap-2.5">
             Opret gratis annonce
